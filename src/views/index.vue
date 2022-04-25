@@ -20,7 +20,10 @@
       </div>
     </el-header>
 
+    
     <el-container>
+
+      <!-- 侧边栏 -->
       <el-aside width="200px" class="aside_bgc">
         <el-scrollbar height="88vh">
           <el-menu
@@ -65,9 +68,11 @@
         </el-scrollbar>
       </el-aside>
 
+      <!-- 主页面  通过路由显示 -->
       <el-main>
         <router-view></router-view>
       </el-main>
+
     </el-container>
   </el-container>
 </template>
@@ -81,9 +86,16 @@ import {
   MoreFilled,
   Money,
 } from "@element-plus/icons-vue";
+import { useStore } from 'vuex'    // 导入vuex
+import {  useRouter } from 'vue-router'
 
+ const store = useStore()   // 创建对象
+ const router = useRouter()  // 创建route
+
+// 退出登录
 function logOut(){
-  alert("退出")
+  store.state.employee.token = ""  // 清空token
+  router.push({path:'/login'})
 }
 </script>
 
