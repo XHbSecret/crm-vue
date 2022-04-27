@@ -1,9 +1,13 @@
 <template>
     <div>
         客户管理界面<br>
+         <template v-for="m in $store.state.employee.perms" :key="m.menuName">
+             <el-button type="primary" @click="haha()">{{m.menuName}}</el-button><br>
+         </template>
          <el-button type="primary" @click="getAllActivity()">活动</el-button><br>
         <el-button type="success" @click="isShow = !isShow">显示vuex的东西</el-button><br>
-        <span v-show="isShow">{{$store.state.employee.token}}</span>
+        <span v-show="isShow">{{$store.state.employee.token}}</span><hr>
+        <span v-show="isShow">{{$store.state.employee.perms}}123</span>
         <el-button type="success" @click="getToken()">获取token</el-button><br>
     </div>
 </template>
@@ -31,7 +35,9 @@ function getToken(){
     console.log(store.state.employee.token)
     console.log(store.getters["employee/getToken"])
 }
-
+function haha(){
+   alert('xiix')
+}
 
 </script>
 

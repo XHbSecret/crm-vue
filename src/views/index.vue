@@ -4,15 +4,15 @@
     <el-header style="text-align: right; font-size: 12px; border: 1px solid gr">
       <div class="theme"></div>
       <div class="toolbar">
-        <el-dropdown trigger="click">
+        <el-dropdown trigger="click" >
           <el-avatar>Tom</el-avatar>
           <template #dropdown>
             <el-dropdown-menu>
-              <el-dropdown-item
-                ><el-icon><user /></el-icon>&nbsp;个人信息</el-dropdown-item
+              <el-dropdown-item 
+                ><el-icon><avatar /></el-icon>&nbsp;个人信息</el-dropdown-item
               >
-              <el-dropdown-item @click="logOut()"
-                ><el-icon><user /></el-icon>退出登录</el-dropdown-item
+              <el-dropdown-item  divided @click="logOut()"
+                ><el-icon><expand /></el-icon>退出登录</el-dropdown-item
               >
             </el-dropdown-menu>
           </template> </el-dropdown
@@ -80,9 +80,10 @@
 <script setup>
 import { ref } from "vue";
 import {
+  Avatar,
   Setting,
   Histogram,
-  User,
+  Expand,
   MoreFilled,
   Money,
 } from "@element-plus/icons-vue";
@@ -100,6 +101,10 @@ function logOut(){
 </script>
 
 <style scoped>
+.userInfo{
+  font-size: 13px;
+  color: #666;
+}
 .menu_item_bgc {
   background-color: #1f2d3d;
 }

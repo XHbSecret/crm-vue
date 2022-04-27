@@ -79,6 +79,15 @@ let user = reactive({
         // 设置动态路由
         store.dispatch('employee/setMoveRoute',response.data.menuList)
 
+        // 获取按钮权限
+        api.menu.getButtonPerms().then(response=>{
+          if(response.code==200){
+            console.log("xixi")
+            console.log(response.data)
+            store.commit('employee/setButtonPerms',response.data)
+          }
+        })
+
         // 跳到指定页面 或者首页
         router.push({       // push 、 repalce两个属性
                 path:'/'

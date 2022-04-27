@@ -11,7 +11,8 @@ const store = {
   state: {
     user: {},
     token: '123',
-    paths: [] // 动态路由
+    paths: [], // 动态路由 （菜单）
+    perms:[]   // 按钮权限 （按钮）
   },
 
   // getters
@@ -23,14 +24,21 @@ const store = {
 
   // mutations 操作数据  （类似于dao层）
   mutations: {
-
+    // 设置按钮权限
+    setButtonPerms(state,perms){
+      console.log("xixi 2",perms,state)
+      state.perms = perms
+    }
   },
 
   // action 业务处理 （类似于service层）
   actions: {
+    // 设置动态路由
     setMoveRoute(state, menuList) {
       setRoute(menuList)
-    }
+    },
+
+
   }
 
 
