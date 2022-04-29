@@ -25,6 +25,7 @@
 
       <!-- 侧边栏 -->
       <el-aside width="200px" class="aside_bgc">
+        <!-- <button @click="isCollapse = !isCollapse">123</button> -->
         <el-scrollbar height="88vh">
           <el-menu
             router
@@ -33,6 +34,7 @@
             class="el-menu-vertical-demo"
             default-active="2"
             text-color="#fff"
+            :collapse="isCollapse"
           >
           <!-- 遍历菜单 从 vuex中-->
             <template
@@ -92,6 +94,7 @@ import {  useRouter } from 'vue-router'
 
  const store = useStore()   // 创建对象
  const router = useRouter()  // 创建route
+ let isCollapse = ref(false)  // 菜单收缩
 
 // 退出登录
 function logOut(){

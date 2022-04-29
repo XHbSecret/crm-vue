@@ -37,11 +37,10 @@
     :cell-style="{'text-align':'center'}">
      <el-table-column type="selection"/>
      <el-table-column fixed prop="custCreateTime" label="创建时间" :formatter="DateFormat" width="150" sortable/>
-     <el-table-column prop="customerDetail.custDetailName" label="客户名称" width="120">
-       <!-- <template scope="scope">
-                <a @click="drawer(scope.row)">{{scope.row.customerDetail.custDetailName}}</a>
-        </template> -->
-        <span>123</span>
+     <el-table-column label="客户名称" width="120">
+       <template v-slot="scope">
+         <el-link type="primary" @click="drawer(scope.row)">{{scope.row.customerDetail.custDetailName}}</el-link>
+        </template>
      </el-table-column>
      <el-table-column prop="" label="跟进记录" width="120"/>
      <el-table-column prop="" label="客户类型" width="120"/>
@@ -54,7 +53,7 @@
      <el-table-column prop="" label="下一次联系时间" width="120"/>
      <el-table-column prop="" label="负责人" width="120"/>
      <el-table-column fixed="right" label="操作" width="120">
-        <template #default>
+        <template #default> 
           <!-- handleEdit触发事件：修改此表 -->
           <el-button type="text" size="small" @click="handleEdit"
             >编辑</el-button
@@ -160,7 +159,8 @@ let custList = reactive({d:[]})
       console.log(`current page: ${val}`)
     }
     function drawer(row){
-      this.drwer = false
+      console.log("haha")
+      drawerDate.data.drawer = true
     }
 </script>
 
