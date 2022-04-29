@@ -50,6 +50,9 @@ function setRoute(menus) {
   // console.log("menus",menus)
   // 遍历菜单，生成路由表。
   for (let i = 0; i < menus.length; i++) {
+    if(menus[i].menuPath == '' || menus[i].menuPath == undefined || menus[i].menuPath == null){
+      
+    }
     let rt = {
       path: menus[i].menuPath,
       component: modules[`../../views/${menus[i].menuComponent}`],
