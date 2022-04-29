@@ -15,7 +15,7 @@
 <script setup>
 import { ref } from "@vue/reactivity";
 import { getCurrentInstance } from "vue";
-
+import { useStore } from 'vuex'
     const api = getCurrentInstance()?.appContext.config.globalProperties.$API; // api （axios管理的后端接口）
     
     const isShow = ref(false)
@@ -29,8 +29,8 @@ async function getAllActivity(){
         });
 }
 
- import { useStore } from 'vuex'
- const store = useStore()
+ 
+const store = useStore()
 function getToken(){
     console.log(store.state.employee.token)
     console.log(store.getters["employee/getToken"])
