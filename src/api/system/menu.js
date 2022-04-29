@@ -9,3 +9,9 @@ export const getAllMenu = ()=>request({
   url: '/menu/allMenu',
   method: 'get'
 })
+
+export const addMenu = (menu)=>request({
+  url: '/menu/add',
+  method: 'post',
+  data:menu
+})
