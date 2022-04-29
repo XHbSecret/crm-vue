@@ -41,6 +41,7 @@
        <!-- <template scope="scope">
                 <a @click="drawer(scope.row)">{{scope.row.customerDetail.custDetailName}}</a>
         </template> -->
+        <span>123</span>
      </el-table-column>
      <el-table-column prop="" label="跟进记录" width="120"/>
      <el-table-column prop="" label="客户类型" width="120"/>
