@@ -38,9 +38,9 @@
      <el-table-column type="selection"/>
      <el-table-column fixed prop="custCreateTime" label="创建时间" :formatter="DateFormat" width="150" sortable/>
      <el-table-column prop="customerDetail.custDetailName" label="客户名称" width="120">
-       <template scope="scope">
-            <a @click="drawer(scope.row)">{{scope.row.customerDetail.custDetailName}}</a>
-        </template>
+       <!-- <template scope="scope">
+                <a @click="drawer(scope.row)">{{scope.row.customerDetail.custDetailName}}</a>
+        </template> -->
      </el-table-column>
      <el-table-column prop="" label="跟进记录" width="120"/>
      <el-table-column prop="" label="客户类型" width="120"/>
