@@ -15,3 +15,13 @@ export const addMenu = (menu)=>request({
   method: 'post',
   data:menu
 })
+
+export const delMenu = (menuId)=>request({
+  url: `/menu/del/${menuId}`,
+  method: 'get'
+})
+export const updateMenu = (menu)=>request({
+  url: '/menu/update',
+  method: 'post',
+  data: menu
+})

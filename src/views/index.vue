@@ -91,15 +91,26 @@ import {
 } from "@element-plus/icons-vue";
 import { useStore } from 'vuex'    // 导入vuex
 import {  useRouter } from 'vue-router'
+import { getCurrentInstance } from "vue";
 
+
+const api = getCurrentInstance()?.appContext.config.globalProperties.$API; // api （axios管理的后端接口）
  const store = useStore()   // 创建对象
  const router = useRouter()  // 创建route
  let isCollapse = ref(false)  // 菜单收缩
 
 // 退出登录
-function logOut(){
-  store.state.employee.token = ""  // 清空token
-  router.push({path:'/login'})
+async function logOut(){
+  
+  //发送退出指令给后台：
+   api.login
+    .logout()
+    .then((response) => {
+      if(response.code == 200){
+        store.state.employee.token = ""  // 清空token
+        router.push({path:'/login'})
+      }
+    })
 }
 </script>
 
