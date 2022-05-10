@@ -11,6 +11,7 @@
     "@element-plus/icons-vue": "^1.1.4",
     "axios": "^0.26.1",
     "element-plus": "^2.1.9",
+    "elui-china-area-dht": "^2.0.0",
     "qs": "^6.10.3",
     "sass": "^1.50.1",
     "vue": "^3.2.25",
@@ -19,7 +20,8 @@
     "vuex": "^4.0.2"
   },
   "devDependencies": {
-    "@types/node": "^17.0.25",
+    "@types/node": "^17.0.31",
+    "@types/webpack-env": "^1.16.4",
     "@vitejs/plugin-vue": "^2.3.1",
     "vite": "^2.9.2"
   }
