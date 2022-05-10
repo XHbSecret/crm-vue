@@ -3,10 +3,12 @@ import * as activity from './system/activity'
 import * as login from './employee/login'
 import * as menu from './system/menu'
 import * as customer from './customer/index'
+import * as flow from './system/flow'
 
 export default {
     activity,
     login,
     menu,
-    customer
+    customer,
+    flow
 }
