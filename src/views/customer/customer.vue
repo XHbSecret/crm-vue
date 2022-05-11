@@ -115,7 +115,7 @@
       />
     </div>
     <!-- 抽屉区 -->
-    <Thedrawer :drawer="chouti" :multipleTable="custList.multipleTable"/>
+    <Thedrawer :drawer="chouti" :multipleTable="custList.multipleTable" />
   </div>
 </template>
 
@@ -123,7 +123,7 @@
 import { getCurrentInstance, onMounted, reactive, ref } from "vue";
 import { useStore } from "vuex";
 import CustomerDialog from "./customerDialog.vue";
-import  Thedrawer  from "./Thedrawer.vue";
+import Thedrawer from "./Thedrawer.vue";
 import {
   Plus,
   Delete,
@@ -132,7 +132,7 @@ import {
   Search,
   Star,
 } from "@element-plus/icons-vue";
-const store = useStore() 
+const store = useStore();
 // const empId = store.state.employee.user.user.empId
 const api = getCurrentInstance()?.appContext.config.globalProperties.$API; // api （axios管理的后端接口）
 //组件化测试 添加
@@ -151,6 +151,7 @@ const handleUpdate = () => {
 
 //组件化抽屉 测试
 const chouti = ref(false);
+
 //改变抽屉状态
 function drawer(row) {
   custList.multipleTable = row;
