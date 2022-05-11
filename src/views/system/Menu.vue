@@ -29,7 +29,12 @@
     <el-table-column prop="menuPerms" label="权限标识" />
     <el-table-column prop="menuComponent" label="组件路径" />
     <el-table-column prop="menuPath" label="路由地址" width="180px" />
-    <!-- <el-table-column prop="menuStatus" label="状态" sortable width="100px" /> -->
+    <el-table-column  label="状态" sortable width="100px" >
+        <template v-slot="scope">
+          <el-tag  v-if="scope.row.menuStatus === 1" >正常</el-tag>
+          <el-tag v-else class="ml-2" type="warning">禁止</el-tag>
+        </template>
+    </el-table-column>
     <el-table-column
       prop="menuCreateTime"
       label="创建时间"
@@ -72,7 +77,7 @@
       ref="ruleFormRef"
     >
       <el-form-item label="上级菜单">
-        <el-col :span="9">
+        <el-col :span="22">
           <el-input disabled v-model="addForm.parentMenu" />
         </el-col>
       </el-form-item>
@@ -105,6 +110,7 @@
       </el-form-item>
       <el-form-item label="角色" prop="roleId">
         <el-select
+          :teleported="false"
           v-model="addForm.roleId"
           multiple
           placeholder="Select"
@@ -149,15 +155,17 @@
       ref="ruleFormRef"
     >
       <el-form-item label="上级菜单">
-        <el-col :span="9">
+        <!-- <el-col :span="20"> -->
           <el-tree-select
+            style="width:585px"
+            :teleported="false"
             v-model="updateForm.menuParentId"
             :props="defaultProps"
             :data="updateMenus.tree"
             accordion
             check-strictly
           />
-        </el-col>
+        <!-- </el-col> -->
       </el-form-item>
       <el-form-item label="菜单类型">
         <el-radio-group v-model="updateForm.menuType" prop="menuType">
@@ -188,6 +196,7 @@
       </el-form-item>
       <el-form-item label="角色" prop="roleId">
         <el-select
+          :teleported="false"
           v-model="updateForm.roleId"
           multiple
           placeholder="请选择"
@@ -205,7 +214,7 @@
       <el-form-item label="菜单状态">
         <el-radio-group v-model="updateForm.menuStatus">
           <el-radio :label="1">正常</el-radio>
-          <el-radio :label="0">禁用</el-radio>
+          <el-radio :label="2">禁用</el-radio>
         </el-radio-group>
       </el-form-item>
     </el-form>
@@ -213,14 +222,14 @@
     <template #footer>
       <span class="dialog-footer">
         <el-button @click="updateMenu()">修改</el-button>
-        <el-button type="primary" @click="isAdd = false">取消</el-button>
+        <el-button type="primary" @click="isShowUpd = false">取消</el-button>
       </span>
     </template>
   </el-dialog>
 </template>
 
 <script setup>
-import { reactive, ref } from "@vue/reactivity";
+import { reactive, ref,toRaw } from "@vue/reactivity";
 import { getCurrentInstance, onMounted } from "vue"; // 导入实例
 import { ElMessage } from "element-plus";
 import {
@@ -262,7 +271,7 @@ let updateForm = reactive({
   menuComponent: "", // 路由组件
   menuPerms: "", //权限字符
   menuParentId: 0,
-  roleId: [],
+  roleId: [], // 角色ids
 });
 
 // 挂载
@@ -350,7 +359,7 @@ async function showUpdMenu(menu) {
     menuId: 0,
     menuName: "主目录",
     menuParentId: 0,
-    childMenuList: menus.tree,
+    childMenuList:toRaw(menus.tree),
   });
   updateForm.menuId = menu.menuId;
   updateForm.menuName = menu.menuName;
@@ -377,14 +386,26 @@ async function showUpdMenu(menu) {
       });
     }
   });
+  console.log("结束...")
+  console.log(updateMenus)
 }
 
 // 修改数据发送给后端
-function updateMenu() {
-  api.menu.updateMenu(updateForm).then((response) => {
-    console.log("xixi");
-    console.log(response);
+async function updateMenu() {
+
+ruleFormRef.value.validate(async (valid) => {
+    if (!valid) return;
+    isShowUpd.value = false
+    api.menu.updateMenu(updateForm).then((response) => {
+      if(response.code == 200){
+        menus.tree = response.data
+        ElMessage({ showClose: true, message: "修改成功", type: "success" });
+      }
+    });
   });
+
+
+  
 }
 
 
