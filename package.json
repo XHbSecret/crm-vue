@@ -14,6 +14,7 @@
     "elui-china-area-dht": "^2.0.0",
     "qs": "^6.10.3",
     "sass": "^1.50.1",
+    "vform3-builds": "^3.0.7",
     "vue": "^3.2.25",
     "vue-axios": "^3.4.1",
     "vue-router": "^4.0.14",

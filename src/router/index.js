@@ -2,7 +2,8 @@
  import { createRouter,createWebHashHistory,createWebHistory} from "vue-router"
  import customer from './modules/Customer'  // 导入客户模块的路由配置
  import store from '../store/index'
-
+ 
+ import flow from '../views/flow/index.vue'
  import system from '../views/system/index.vue'
  import loginLog from '../views/system/LoginLog.vue'
  import opLog from '../views/system/opLog.vue'
