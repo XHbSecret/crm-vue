@@ -7,3 +7,8 @@ export const login = (data)=>request({
     method: 'post',
     data
   })
+
+export const logout = ()=>request({
+  url: `/user/logout`,
+  method: 'get',
+})
