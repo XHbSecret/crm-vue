@@ -26,16 +26,18 @@
                 <div class="t-section__bd">
                   <div class="type-name">客户</div>
                   <div class="vux-flexbox type-content vux-flex-row">
-                    <div class="el-tooltip name">{{multipleTable.customerDetail.custDetailName}}</div>
+                    <div class="el-tooltip name">
+                      {{ multipleTable.customerDetail.custDetailName }}
+                    </div>
                     <div class="el-button-group wk-header-page-btn"></div>
                   </div>
                 </div>
               </el-col>
               <el-col :span="8"
                 ><div class="t-section__ft">
-                    <el-button type="success">编辑</el-button>    
-                    <el-button type="primary">更改成交状态</el-button>
-                    <el-button>...</el-button>
+                  <el-button type="success">编辑</el-button>
+                  <el-button type="primary">更改成交状态</el-button>
+                  <el-button>...</el-button>
                 </div></el-col
               >
             </el-row>
@@ -67,7 +69,9 @@
               <el-col :span="6"
                 ><div class="vux-flexbox-item h-item">
                   <div class="h-title">创建时间</div>
-                  <div class="h-value text-one-line">{{multipleTable.custCreateTime}}</div>
+                  <div class="h-value text-one-line">
+                    {{ multipleTable.custCreateTime }}
+                  </div>
                 </div></el-col
               >
             </el-row>
@@ -77,18 +81,24 @@
           <el-main>
             <el-tabs type="border-card">
               <el-tab-pane label="活动">活动</el-tab-pane>
-              <el-tab-pane label="详细资料">详细资料{{multipleTable}}</el-tab-pane>
-              <el-tab-pane label="联系人">联系人
-                <Contactst :data="multipleTable"/>
+              <el-tab-pane label="详细资料"
+                >详细资料
+                {{ multipleTable }}
+              </el-tab-pane>
+              <el-tab-pane label="联系人"
+                >联系人
+                <Contactst :data="multipleTable" />
               </el-tab-pane>
               <el-tab-pane label="合同">合同</el-tab-pane>
               <el-tab-pane label="回款">回款</el-tab-pane>
-              <el-tab-pane label="回访">回访
-                <Visit :data="multipleTable"/>
+              <el-tab-pane label="回访"
+                >回访
+                <Visit :data="multipleTable" />
               </el-tab-pane>
-              <el-tab-pane label="附件">附件
-                <Accessory :data="multipleTable"/>
-                </el-tab-pane>
+              <el-tab-pane label="附件"
+                >附件
+                <Accessory :data="multipleTable" />
+              </el-tab-pane>
               <el-tab-pane label="操作记录">操作记录</el-tab-pane>
             </el-tabs>
           </el-main>
@@ -102,10 +112,11 @@
 </template>
 
 <script setup>
-import { getCurrentInstance, onMounted, reactive, ref ,toRefs } from "vue";
-import  Contactst  from "./Contactst.vue";
-import Visit from "./visit.vue"
-import Accessory from "./Accessory.vue"
+import { getCurrentInstance, onMounted, reactive, ref, toRefs } from "vue";
+import Contactst from "./Contactst.vue";
+import Visit from "./visit.vue";
+import Accessory from "./Accessory.vue";
+import CustomerDialog from "./customerDialog.vue";
 const api = getCurrentInstance()?.appContext.config.globalProperties.$API; // api （axios管理的后端接口）
 
 //接收父组件的值
@@ -114,7 +125,7 @@ const props = defineProps({
     type: Boolean,
     default: () => false,
   },
-  multipleTable:{}
+  multipleTable: {},
 });
 const pObj = toRefs(props).multipleTable;
 //监听
@@ -123,17 +134,15 @@ const onClose = () => {
   // 关键句，父组件则可通过 v-model:visible 同步子组件更新后的数据
   emit("update:drawer");
   emit("close");
-  };
+};
 </script>
 
 <style lang="scss" scoped>
-
-
 .ct {
   color: #333;
   padding: 0 !important;
   height: 200px !important;
-  background:beige;
+  background: beige;
 }
 
 .el-main {
@@ -145,7 +154,6 @@ const onClose = () => {
 .el-tabs {
   height: 100%;
 }
-
 
 .grid-content {
   border-radius: 4px;
