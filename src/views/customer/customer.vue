@@ -38,10 +38,12 @@
     >
       <el-table-column type="selection" align="center" />
       <el-table-column fixed label="客户名称" width="120" sortable>
-        <template v-slot="scope">
-          <el-link type="primary" @click="drawer(scope.row)" sortable>{{
+        <template #default="{ row }">
+          <!-- <el-link type="primary" @click="drawer(scope.row)" sortable>{{
             scope.row.customerDetail.custDetailName
-          }}</el-link>
+          }}</el-link> -->
+          <el-button type="text" @click="drawer(row)"
+            >{{row.customerDetail.custDetailName}}</el-button>
         </template>
       </el-table-column>
       <el-table-column
@@ -86,21 +88,26 @@
       <el-table-column prop="" label="下一次联系时间" width="180  " />
       <el-table-column prop="" label="负责人" width="120" />
       <el-table-column fixed="right" label="操作" width="120">
-        <template #default>
+        <template #default="{ row }">
           <!-- handleEdit触发事件：修改此表 -->
-          <el-button type="text" size="small" @click="handleUpdate"
+          <el-button type="text" size="small" @click="handleEdit(row)"
             >编辑</el-button
           >
-          <el-popconfirm title="是否删除此用户?">
-            <template #reference>
-              <el-button type="text" size="small">删除</el-button>
-            </template>
-          </el-popconfirm>
+          <el-button type="text" size="small" @click="deleteOneCont(row)"
+            >删除</el-button
+          >
         </template>
       </el-table-column>
     </el-table>
     <!-- 增加/修改区域 -->
-    <CustomerDialog :title="addName" v-model:dialogShow="mVisilbe" />
+    <CustomerDialog
+      @addRow="addRow"
+      @editRow="editRow"
+      :title="addName"
+      :rowInfo="rowInfo"
+      v-if="dialogShow"
+      v-model:dialogShow="dialogShow"
+    />
     <!-- 分页区域 -->
     <div style="margin: 10px 0">
       <el-pagination
@@ -111,11 +118,12 @@
         :total="pagePlugs.data.total"
         @size-change="handleSizeChange"
         @current-change="handleCurrentChange"
+        @editRow="editRow"
         style="float: right"
       />
     </div>
     <!-- 抽屉区 -->
-    <Thedrawer :drawer="chouti" :multipleTable="custList.multipleTable" />
+    <Thedrawer v-if="chouti" v-model:chouti="chouti" :rowInfo="rowInfo" />
   </div>
 </template>
 
@@ -124,6 +132,7 @@ import { getCurrentInstance, onMounted, reactive, ref } from "vue";
 import { useStore } from "vuex";
 import CustomerDialog from "./customerDialog.vue";
 import Thedrawer from "./Thedrawer.vue";
+import { ElMessage, ElMessageBox } from "element-plus";
 import {
   Plus,
   Delete,
@@ -136,27 +145,38 @@ const store = useStore();
 // const empId = store.state.employee.user.user.empId
 const api = getCurrentInstance()?.appContext.config.globalProperties.$API; // api （axios管理的后端接口）
 //组件化测试 添加
-const mVisilbe = ref(false);
+const dialogShow = ref(false);
 const addName = ref("");
+const rowInfo = ref({}); //新增/编辑的数据
 const handleNew = () => {
   addName.value = "新增";
-  mVisilbe.value = true;
-  console.log("hahaha");
+  dialogShow.value = true;
+  rowInfo.value = {};
 };
-const handleUpdate = () => {
+const handleEdit = (val) => {
+  console.log(val)
+  const customerDetail = val.customerDetail;
   addName.value = "修改";
-  mVisilbe.value = true;
-  console.log("hahaha");
+  dialogShow.value = true;
+  rowInfo.value = customerDetail;
+  console.log(rowInfo.value)
 };
-
-//组件化抽屉 测试
+//抽屉状态
 const chouti = ref(false);
-
 //改变抽屉状态
-function drawer(row) {
-  custList.multipleTable = row;
-  console.log(custList.multipleTable);
+const drawer =(val)=> {
+  // const customerDetail = val.customerDetail;
+  rowInfo.value = val;
   chouti.value = true;
+}
+function editRow(val) {
+  let index = custList.d.findIndex((item, index) => item.id === val.id);
+  custList.d.splice(index, 1, val);
+}
+//新增一行数据
+function addRow(val) {
+  console.log("子组件的值： ", val);
+  custList.d.push(val);
 }
 
 //定义分页初始值
@@ -197,7 +217,6 @@ function GetList() {
 //获取单选框选中的值
 function handleSelectionChange(val) {
   custList.multipleTable = val; //  this.multipleTable 选中的值
-  console.log(val);
 }
 //客户类型格式
 function cuType(rew, column) {
@@ -222,6 +241,31 @@ function handleCurrentChange(val) {
   pagePlugs.data.page = val;
   GetList();
   console.log(`current page: ${val}`);
+}
+//删除
+function deleteOneCont(val) {
+  const custId = val.customerDetail.custId;
+  ElMessageBox.confirm("你确定删除这个客户的信息吗?", "提示", {
+    confirmButtonText: "确认",
+    cancelButtonText: "取消",
+    type: "warning",
+  })
+    .then(() => {
+      api.customer.deleteOneCont(custId).then((response) => {
+        if (response.code == 200) {
+          custList.d.splice(custList.d.indexOf(val), 1);
+          ElMessage({
+            type: "success",
+            message: "删除成功",
+          });
+        } else {
+          ElMessage.error("删除失败，请联系管理员");
+        }
+      });
+    })
+    .catch(() => {
+      // catch error
+    });
 }
 </script>
 
