@@ -1,8 +1,8 @@
 import request from '../../utils/request'
 //获取所有流程
-export const getFlows = ()=>request({
-    url: `/user/allFlows`,
-    method: 'get'
+export const getFlows = (pageNum,pageSize)=>request({
+    url: `/user/allFlows/${pageNum}/${pageSize}`,
+    method: 'get',
   })
 //获取单个流程的详情
 export const getFlowDetails = (flowId)=>request({
@@ -28,4 +28,21 @@ export const editFlow = (flow)=>request({
   method: 'post',
   data:flow
 })
+//添加详情
+export const addDetails = (details)=>request({
+  url: `/user/addFlowDetails`,
+  method: 'post',
+  data:details
+})
 
+export const delDetails = (id)=>request({
+  url:`/user/delFlowDetail/${id}`,
+  method:'post',
+  data:id
+})
+
+export const editDetails= (flowDetail)=>request({
+  url:`/user/editFlowDetails`,
+  method:'post',
+  data:flowDetail
+})
