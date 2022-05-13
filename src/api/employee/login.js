@@ -12,3 +12,15 @@ export const logout = ()=>request({
   url: `/user/logout`,
   method: 'get',
 })
+
+export const updateEmp = (data)=>request({
+  url: `/user/update`,
+  method: 'post',
+  data
+})
+
+export const uploadHead = (data)=>request({
+  url: `/user/uploadHead`,
+  method: 'post',
+  data
+})

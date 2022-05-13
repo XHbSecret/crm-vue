@@ -8,7 +8,7 @@
           <el-avatar>Tom</el-avatar>
           <template #dropdown>
             <el-dropdown-menu>
-              <el-dropdown-item 
+              <el-dropdown-item @click="person()"
                 ><el-icon><avatar /></el-icon>&nbsp;个人信息</el-dropdown-item
               >
               <el-dropdown-item  divided @click="logOut()"
@@ -36,6 +36,11 @@
             text-color="#fff"
             :collapse="isCollapse"
           >
+
+           <el-menu-item index="/Amain">
+                <el-icon><Menu/></el-icon>
+                <span>首页</span>
+              </el-menu-item>
           <!-- 遍历菜单 从 vuex中-->
             <template
               v-for="(menu, index) in $store.state.employee.paths"
@@ -88,6 +93,7 @@ import {
   Expand,
   MoreFilled,
   Money,
+  Menu
 } from "@element-plus/icons-vue";
 import { useStore } from 'vuex'    // 导入vuex
 import {  useRouter } from 'vue-router'
@@ -101,7 +107,6 @@ const api = getCurrentInstance()?.appContext.config.globalProperties.$API; // ap
 
 // 退出登录
 async function logOut(){
-  
   //发送退出指令给后台：
    api.login
     .logout()
@@ -111,6 +116,11 @@ async function logOut(){
         router.push({path:'/login'})
       }
     })
+}
+
+// 个人中心
+function person(){
+  router.push({path:'/person'})
 }
 </script>
 
