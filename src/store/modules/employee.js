@@ -73,8 +73,10 @@ function setRoute(menus) {
   let homeRts = {
     path: '/',
     component: () => import('../../views/index.vue'),
+    redirect:'/Amain',
     children: [...rts,     //从后台获取到的动态路由，展开后作为home页面的二级路由
-      //   // { path: '', redirect: rts[0].path },
+        { path: 'Amain',  component: () => import('../../views/Amain.vue'),},
+        // { path:'person', component:()=>import('../../views/employee/Person.vue')},
       //   // { path: 'consumeRule/couponDetail', name: '优惠券管理', component: resolve => require(['@/views/consumeRule/pages/couponDetail.vue'], resolve) },
       //   // { path: 'error', name: '错误', component: resolve => require(['@/views/error/index.vue'], resolve) },
     ]   //这三个是基本的都会有的路由和菜单

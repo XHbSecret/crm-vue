@@ -1,49 +1,57 @@
 <template>
   <!-- 表单 -->
   <el-dialog
-    v-model="dialogShow"
+    :model-value="true"
     :title="title"
     width="50%"
     @close="onClose"
     close-on-press-escape
   >
     <el-form
-      :model="form"
+      :model="data.formData"
       label-width="120px"
       :rules="rules"
       ref="customerFrom"
     >
       <el-form-item label="客户姓名" prop="custDetailName">
-        <el-input v-model="form.custDetailName" />
+        <el-input v-model="data.formData.custDetailName" />
       </el-form-item>
-      <el-form-item label="客户性别">
-        <el-radio-group v-model="form.custSex">
+      <el-form-item label="年龄" prop="custDetailAge">
+        <el-input v-model="data.formData.custDetailAge" />
+      </el-form-item>
+      <el-form-item label="客户性别" prop="custSex">
+        <el-radio-group v-model="data.formData.custSex">
           <el-radio :label="0">男</el-radio>
           <el-radio :label="1">女</el-radio>
           <el-radio :label="2">未知</el-radio>
         </el-radio-group>
       </el-form-item>
-      <el-form-item label="年龄">
-        <el-input v-model="form.custDetailAge" />
+      <el-form-item label="客户类型" prop="custType">
+        <el-select v-model="data.formData.custType" placeholder="Select">
+          <el-option
+            v-for="item in cities"
+            :key="item.value"
+            :label="item.label"
+            :value="item.value"
+          >
+            <!-- <span>{{ item.label}}</span> -->
+          </el-option>
+        </el-select>
       </el-form-item>
       <el-form-item label="客户电话" prop="custDetailPhone">
-        <el-input v-model="form.custDetailPhone" />
+        <el-input v-model="data.formData.custDetailPhone" />
       </el-form-item>
-      <el-form-item label="客户微信">
-        <el-input v-model="form.custDetailWechat" />
+      <el-form-item label="客户微信" prop="custDetailWechat">
+        <el-input v-model="data.formData.custDetailWechat" />
       </el-form-item>
-      <el-form-item label="客户地址">
-        <elui-china-area-dht
-          isall
-          :leave="3"
-          @change="custAddress"
-        ></elui-china-area-dht>
+      <el-form-item label="客户地址" prop="custDetailAddress">
+        <el-input v-model="data.formData.custDetailAddress" />
       </el-form-item>
-      <el-form-item label="客户备注">
-        <el-input v-model="form.custDetailDescribe" type="textarea" />
+      <el-form-item label="客户备注" prop="custDetailDescribe">
+        <el-input v-model="data.formData.custDetailDescribe" type="textarea" />
       </el-form-item>
       <el-form-item>
-        <el-button type="primary" @click="AddCustomer()">保存</el-button>
+        <el-button type="primary" @click="submitForm()">保存</el-button>
         <el-button @click="cancel()">重置</el-button>
       </el-form-item>
     </el-form>
@@ -51,45 +59,71 @@
 </template>
 
 <script setup>
-import { unref, reactive, ref, getCurrentInstance } from "vue";
+import { unref, reactive, ref, getCurrentInstance, onMounted } from "vue";
 import { EluiChinaAreaDht } from "elui-china-area-dht";
+import { fromPairs } from "lodash";
+import { ElMessage, ElMessageBox } from "element-plus";
 const api = getCurrentInstance()?.appContext.config.globalProperties.$API; // api （axios管理的后端接口）
 //储存form表单的值
-const form = reactive({
-  custDetailName: "",
-  custDetailAge: "",
-  custSex: 0,
-  custDetailPhone: "",
-  custDetailWechat: "",
-  custDetailDescribe: "",
-  custDetailAddress: "",
+const data = reactive({
+  dialogFlag: false,
+  formData: {},
 });
-//中国地址插件
-const chinaData = new EluiChinaAreaDht.ChinaArea().chinaAreaflat;
-function custAddress(e) {
-  const one = chinaData[e[0]];
-  const two = chinaData[e[1]];
-  const three = chinaData[e[2]];
-  form.custDetailAddress = one.label + "/" + two.label + "/" + three.label;
-  console.log(one.label, two.label, three.label);
-}
-
+const cities = [
+  {
+    value: 1,
+    label: "房源",
+  },
+  {
+    value: 2,
+    label: "租房",
+  },
+  {
+    value: 3,
+    label: "买房",
+  },
+  {
+    value: 4,
+    label: "居家装修",
+  },
+];
 const customerFrom = ref(null);
 //重置
 function cancel() {
-  customerFrom.value.resetFields();
+  data.formData = Object.assign({}, props.rowInfo);
 }
-//添加
-function AddCustomer() {
+//提交表单
+function submitForm() {
+  onClose();
   customerFrom.value.validate(async (valid) => {
     if (!valid) return console.log("表单校验不通过");
-    api.customer.AddCustomer(form).then((response) => {
-      if (response.code == 200) {
-        this.dialogShow = false;
-        console.log("添加成功");
-        console.log(valid);
-      }
-    });
+    if (JSON.stringify(props.rowInfo) !== "{}") {
+      // 修改
+      api.customer.updateCustomercust(data.formData).then((response) => {
+        if (response.code == 200) {
+          emit("editRow", data.formData);
+          ElMessage({
+            type: "success",
+            message: "修改成功",
+          });
+        } else {
+          ElMessage.error("修改失败，请联系管理员");
+        }
+      });
+    } else {
+      // 新增
+      api.customer.AddCustomer(data.formData).then((response) => {
+        if (response.code == 200) {
+          emit("addRow", data.formData);
+          ElMessage({
+            type: "success",
+            message: "新增成功",
+          });
+        } else {
+          ElMessage.error("新增失败，请联系管理员");
+        }
+      });
+    }
   });
 }
 
@@ -103,14 +137,20 @@ const props = defineProps({
     type: Boolean,
     default: () => false,
   },
+  rowInfo: {
+    type: Object,
+    default: () => {},
+  },
 });
-
+onMounted(() => {
+  data.formData = Object.assign({}, props.rowInfo);
+  data.dialogFlag = props.rowInfo;
+});
 //监听
-const emit = defineEmits(["update:dialogShow", "close"]);
+const emit = defineEmits(["update:dialogShow", "addRow", "editRow"]);
 const onClose = () => {
   // 关键句，父组件则可通过 v-model:visible 同步子组件更新后的数据
-  emit("update:dialogShow");
-  emit("close");
+  emit("update:dialogShow", false);
 };
 
 //验证
@@ -127,8 +167,12 @@ const rules = reactive({
   custDetailPhone: [
     { required: true, message: "请输入手机号", trigger: "blur" },
     { min: 11, max: 11, message: "请输入11位手机号码", trigger: "blur" },
-    {pattern:/^(13[0-9]|14[579]|15[0-3,5-9]|16[6]|17[0135678]|18[0-9]|19[89])\d{8}$/,message: "请输入正确的手机号码", trigger: "blur",},
+    {
+      pattern:
+        /^(13[0-9]|14[579]|15[0-3,5-9]|16[6]|17[0135678]|18[0-9]|19[89])\d{8}$/,
+      message: "请输入正确的手机号码",
+      trigger: "blur",
+    },
   ],
 });
-
 </script>

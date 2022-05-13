@@ -23,3 +23,14 @@ export const selectAllByCustId = (page,size,custId)=>request({
   url: `visit/selectAllByCustId/${page}/${size}/${custId}`,
   method: 'get',
 })
+
+export const deleteOneCont = (custId)=>request({
+  url: `customer/evenDelect/${custId}`,
+  method: 'get',
+})
+//customer/updateCustomercust
+export const updateCustomercust = (data)=>request({
+  url: `customer/updateCustomercust`,
+  method: 'post',
+  data
+})

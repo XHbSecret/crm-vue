@@ -1,8 +1,7 @@
 <!--  -->
 <template>
   <div class="">
-    <!-- {{ custList.d }} -->
-    <el-table :data="custList.d" style="width: 100%">
+    <el-table :data="data.custList" style="width: 100%">
       <el-table-column prop="contactName" label="联系人姓名" width="200" />
       <el-table-column prop="contactIsPolicy" label="是否决策人" width="200" />
       <el-table-column prop="contactRelation" label="与客户的关系" width="200" />
@@ -23,23 +22,28 @@ onMounted(() => {
 });
 //接收父组件的值
 const props = defineProps({
-  data: {},
+  rowInfo: {
+    type: Object,
+    default: ()=> {},
+  },
 });
-const pObj = toRefs(props).data;
+const pObj = toRefs(props).rowInfo;
 //定义分页初始值
 const pagePlugs = reactive({
   page: 1,
   size: 5,
 });
-let custList = reactive({});
+let data = reactive({
+  custList:[]
+});
 
 function GetContactst() {
   api.customer
     .selectContacts(pagePlugs.page, pagePlugs.size, pObj.value.custId)
     .then((response) => {
       if (response.code == 200) {
-        console.log("xixi");
-        custList.d = response.data.records;
+        data.custList = response.data.records;
+        console.log(data.custList)
       }
     });
 }
