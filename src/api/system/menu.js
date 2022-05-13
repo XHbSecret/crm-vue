@@ -20,8 +20,14 @@ export const delMenu = (menuId)=>request({
   url: `/menu/del/${menuId}`,
   method: 'get'
 })
+
 export const updateMenu = (menu)=>request({
   url: '/menu/update',
   method: 'post',
   data: menu
+})
+
+export const searchMenus = (menuName)=>request({
+  url: `/menu/search/${menuName}`,
+  method: 'get',
 })

@@ -17,6 +17,21 @@
   //     //    customer
   //     //  ]
   //  },
+  {
+    path:'/person',
+    component:()=>import('../views/employee/Person.vue'),
+    redirect:'/person/info',
+    children:[
+      {
+        path:'pwd',
+        component:()=>import('../views/employee/UpdatePwd.vue')
+      },
+      {
+        path:'info',
+        component:()=>import('../views/employee/UpdateInfo.vue')
+      },
+    ]
+  },
    {
      path:'/login',
      component: ()=>import('../views/login/index.vue')
