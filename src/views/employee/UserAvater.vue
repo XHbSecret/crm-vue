@@ -91,8 +91,8 @@ const emit = defineEmits(["cancel"]);
 const visible = ref(true);
 //图片裁剪数据
 const options = reactive({
-    img: "D:\\uploadFile\\1652367972916_blob",
-//   img: "https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fi-1.lanrentuku.com%2F2020%2F11%2F5%2Fdef6ed04-6d34-402e-99c8-366266f627dd.png%3FimageView2%2F2%2Fw%2F500&refer=http%3A%2F%2Fi-1.lanrentuku.com&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=auto?sec=1654915274&t=87246910715eb0d8d61c0c1acaed0157", // 裁剪图片的地址
+    // img: "https://gitee.com/aDaMi/crm-picture-bed/raw/master/demo/c2be7d2a-5931-46aa-86db-d316d56ae99dnull",
+  img: "https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fi-1.lanrentuku.com%2F2020%2F11%2F5%2Fdef6ed04-6d34-402e-99c8-366266f627dd.png%3FimageView2%2F2%2Fw%2F500&refer=http%3A%2F%2Fi-1.lanrentuku.com&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=auto?sec=1654915274&t=87246910715eb0d8d61c0c1acaed0157", // 裁剪图片的地址
   autoCrop: true, // 是否默认生成截图框
   autoCropWidth: 200, // 默认生成截图框宽度
   autoCropHeight: 200, // 默认生成截图框高度
@@ -136,19 +136,18 @@ function beforeUpload(file) {
 };
 /** 文件上传 */
 function uploadImg(){
-    proxy.$refs.cropper.getCropBlob(data => {
-        let formData = new FormData();
-        formData.append("file", data);
-        uploadHead(formData).then(response=>{
-            console.log(response.data)
-        })
-    })
-  
+  proxy.$refs.cropper.getCropBlob(data => {
+      let formData = new FormData();
+      formData.append("file", data);
+      uploadHead(formData).then(response=>{
+          console.log(response.data)
+      })
+  })
+  cancel()
 }
 
 // 挂载
 onMounted(() => {
-  console.log("数据是： ", props.open);
   dialogVisible = props.open;
 });
 
