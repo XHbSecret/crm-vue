@@ -95,6 +95,15 @@
           <el-radio label="C">菜单</el-radio>
           <el-radio label="B">按钮</el-radio>
         </el-radio-group>
+        &nbsp;&nbsp;&nbsp;&nbsp;
+         <el-tooltip
+            class="box-item"
+            effect="dark"
+            content="目录：一级目录； 菜单：二级三级等目录；  按钮：普通按钮"
+            placement="top-start"
+          >
+             <el-icon><QuestionFilled /></el-icon>
+          </el-tooltip>
       </el-form-item>
 
       <el-form-item label="菜单名称" prop="menuName">
@@ -106,7 +115,15 @@
       <el-form-item label="路由地址">
         <el-col :span="9">
           <el-input v-model="addForm.menuPath" />
-        </el-col>
+        </el-col> &nbsp;
+          <el-tooltip
+            class="box-item"
+            effect="dark"
+            content="示例：/abc（/必须有）"
+            placement="top-start"
+          >
+             <el-icon><QuestionFilled /></el-icon>
+          </el-tooltip>
         <el-form-item label="路由组件" label-width="120px">
           <el-input v-model="addForm.menuComponent" style="width: 232px" />
         </el-form-item>
@@ -241,6 +258,7 @@ import { reactive, ref, toRaw } from "@vue/reactivity";
 import { getCurrentInstance, onMounted } from "vue"; // 导入实例
 import { ElMessage } from "element-plus";
 import {
+  QuestionFilled,
   Plus,
   Delete,
   Edit,

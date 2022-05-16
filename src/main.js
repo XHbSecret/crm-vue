@@ -8,6 +8,8 @@ import store from './store/index'  // 导入store
 import API from './api/index' // 引入API
 import VForm3 from 'vform3-builds'//引入VForm3库
 import 'vform3-builds/dist/designer.style.css'//引入VForm3样式
+import locale from 'element-plus/lib/locale/lang/zh-cn'
+
 
 // 图片裁剪插件
 import VueCropper from 'vue-cropper'; 
@@ -20,6 +22,6 @@ app.config.globalProperties.$API = API;
 app.use(VueCropper)
 app.use(router)  // 加载路由
 app.use(store)   // store
-app.use(ElementPlus)// 加载elementplus
+app.use(ElementPlus,{locale})// 加载elementplus
 app.use(VForm3) 
 app.mount('#app') // 挂载 在app下

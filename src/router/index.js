@@ -48,6 +48,8 @@
  // 全局路由守卫，路由拦截  未登录跳转到登录界面
  router.beforeEach((to,from,next)=> {
   console.log("全局前置路由守卫...")
+  console.log(to)
+  console.log(from)
   const token = store.state.employee.token
   // console.log("路由拦截前的token = " + token)
 
@@ -62,13 +64,14 @@
       query: {redirect: to.fullPath} // 将跳转的路由path作为参数，登录成功后跳转到该路由
     })
   }else {  // token 存在放行
-    if (to.matched.length ===0){
-      if(store.state.employee.paths.length ==0){  // vuex 中也没有路由信息，就去登录获取权限信息
-        next({path:'/login'})
-        return ;
-      }
-      store.dispatch('employee/setMoveRoute', store.state.employee.paths) // 从vuex中获取菜单信息。
-       next({path: to.path})
+    if (to.matched.length ===0){       // 没匹配到
+        console.log("噶",to.matched)
+        if(store.state.employee.paths.length ==0){  // vuex 中也没有路由信息，就去登录获取权限信息
+          next({path:'/login'})
+          return ;
+        }
+        store.dispatch('employee/setMoveRoute', store.state.employee.paths) // 从vuex中获取菜单信息。
+        next({path: to.path})
       }else{ 
          // 放行
         console.log("放行...",to)
