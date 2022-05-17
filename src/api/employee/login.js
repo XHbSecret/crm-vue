@@ -24,3 +24,8 @@ export const uploadHead = (data)=>request({
   method: 'post',
   data
 })
+
+export const getAllEmp = (page,size)=>request({
+  url: `/user/all/${page}/${size}`,
+  method: 'get',
+})

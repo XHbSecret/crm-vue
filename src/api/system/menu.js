@@ -31,3 +31,8 @@ export const searchMenus = (menuName)=>request({
   url: `/menu/search/${menuName}`,
   method: 'get',
 })
+
+export const getAllPerms = ()=>request({
+  url: `/menu/allPerms`,
+  method: 'get',
+})
