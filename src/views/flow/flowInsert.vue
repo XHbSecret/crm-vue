@@ -56,6 +56,7 @@ const props = defineProps({
 });
 const onclose = () => {
   emits("update:modelValue", false);
+  formRef.value.resetFields();
 };
 const confirm = () => {
   formRef.value.validate(async (valid) => {
