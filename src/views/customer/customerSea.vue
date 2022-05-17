@@ -2,10 +2,9 @@
   <div>
     <!-- 功能区域 -->
     <div style="margin: 10px 0">
-      <el-button type="primary" @click="handleNew">新增</el-button>
       <el-button type="primary">高级筛查</el-button>
-      <el-button type="primary">导出选中</el-button>
-      <el-button type="primary" @click="BatchReturn">退回公海</el-button>
+      <el-button type="primary" :style="{ display: Buttonstyle.visibleCancel }">导出选中</el-button>
+      <el-button type="primary" @click="rallotSwitch" :style="{ display: Buttonstyle.visibleCancel }">分配</el-button>
     </div>
 
     <!-- 搜索区域 -->
@@ -18,7 +17,7 @@
         clearable
         @clear="Customerterm.custDetailName"
       />
-      <el-button @click="GetList()"
+      <el-button @click="GetSeaList()"
         ><el-icon><search /></el-icon
       ></el-button>
     </div>
@@ -26,7 +25,7 @@
     <!-- 数据展示区域 -->
     <!--border边框  stripe斑马纹 -->
     <el-table
-      :data="custList.d"
+      :data="custList.data"
       border
       stripe
       style="width: 100%"
@@ -36,15 +35,12 @@
       ref="custList.multipleTable"
       @selection-change="handleSelectionChange"
     >
-      <el-table-column type="selection" align="center"  />
-      <el-table-column fixed label="客户名称" width="120" sortable>
-        <template #default="{ row }">
-          <!-- <el-link type="primary" @click="drawer(scope.row)" sortable>{{
-            scope.row.customerDetail.custDetailName
-          }}</el-link> -->
+      <el-table-column type="selection" align="center" />
+      <el-table-column fixed label="客户名称" width="120" prop="customerDetail.custDetailName" sortable>
+        <!-- <template #default="{ row }">
           <el-button type="text" @click="drawer(row)"
             >{{row.customerDetail.custDetailName}}</el-button>
-        </template>
+        </template> -->
       </el-table-column>
       <el-table-column
         prop="custCreateTime"
@@ -86,28 +82,14 @@
         sortable
       />
       <el-table-column prop="" label="下一次联系时间" width="180  " />
-      <el-table-column prop="employeeDatail.empName" label="负责人" width="120" />
+      <el-table-column prop="" label="负责人" width="120" />
       <el-table-column fixed="right" label="操作" width="120">
         <template #default="{ row }">
-          <!-- handleEdit触发事件：修改此表 -->
-          <el-button type="text" size="small" @click="handleEdit(row)"
-            >编辑</el-button
-          >
-          <el-button type="text" size="small" @click="transfer(row)"
-            >退回公海</el-button
+          <el-button type="text" size="small" @click="deleteOneCont(row)">删除</el-button
           >
         </template>
       </el-table-column>
     </el-table>
-    <!-- 增加/修改区域 -->
-    <CustomerDialog
-      @ceshi="ceshi"
-      :title="addName"
-      :rowInfo="rowInfo"
-      :zt="zt"
-      v-if="dialogShow"
-      v-model:dialogShow="dialogShow"
-    />
     <!-- 分页区域 -->
     <div style="margin: 10px 0">
       <el-pagination
@@ -122,7 +104,9 @@
       />
     </div>
     <!-- 抽屉区 -->
-    <Thedrawer v-if="chouti" v-model:chouti="chouti" :rowInfo="rowInfo" />
+    <!-- <Thedrawer v-if="chouti" v-model:chouti="chouti" :rowInfo="rowInfo" /> -->
+    <!-- 分配区 -->
+    <customeRallot v-if="rallot" v-model:rallot="rallot" :rowInfo="custList.multipleTable" @ceshi="ceshi"></customeRallot>
   </div>
 </template>
 
@@ -131,6 +115,7 @@ import { getCurrentInstance, onMounted, reactive, ref } from "vue";
 import { useStore } from "vuex";
 import CustomerDialog from "./customerDialog.vue";
 import Thedrawer from "./Thedrawer.vue";
+import customeRallot from "./customeRallot.vue"
 import { ElMessage, ElMessageBox } from "element-plus";
 import {
   Plus,
@@ -143,58 +128,29 @@ import {
 const store = useStore();
 // const empId = store.state.employee.user.user.empId
 const api = getCurrentInstance()?.appContext.config.globalProperties.$API; // api （axios管理的后端接口）
-//组件化测试 添加
-const dialogShow = ref(false);
-const addName = ref("");
-const rowInfo = ref({}); //新增/编辑的数据
-const zt = ref(0);
-//新增
-const handleNew = () => {
-  addName.value = "新增";
-  dialogShow.value = true;
-  rowInfo.value = {customerDetail:{}};
-  zt.value=1
-  console.log(rowInfo.value )
-};
-//修改
-const handleEdit = (val) => {
-  zt.value=2
-  addName.value = "修改";
-  dialogShow.value = true;
-  rowInfo.value = val;
-  console.log(rowInfo.value)
-};
-const BatchReturn =()=>{
-   ElMessageBox.confirm("你确定将该放回公海吗?", "提示", {
-    confirmButtonText: "确认",
-    cancelButtonText: "取消",
-    type: "warning",
-  })
-    .then(() => {
-      api.customer.updateEmpIdBatchByid(custList.multipleTable,0).then((response) => {
-        if (response.code == 200) {
-          // custList.d.splice(custList.d.indexOf(val), 1);
-          GetList();
-          ElMessage({
-            type: "success",
-            message: "成功放回公海",
-          });
-        } else {
-          ElMessage.error("放回公海失败，请联系管理员");
-        }
-      });
-    })
-    .catch(() => {
-      // catch error
-    });
-}
 //抽屉状态
 const chouti = ref(false);
+//储存数据
+const rowInfo = ref({});
 //改变抽屉状态
 const drawer =(val)=> {
   // const customerDetail = val.customerDetail;
   rowInfo.value = val;
   chouti.value = true;
+}
+//打开分配
+const rallot = ref(false)
+const rallotSwitch =()=>{
+  console.log("分配组件被打开")
+  rallot.value = true;
+}
+const Buttonstyle  = reactive({
+  visibleCancel :'none'
+})
+const ceshi =()=>{
+  emit("Sealist");
+  GetSeaList()
+  console.log("公海刷新")
 }
 //定义分页初始值
 let pagePlugs = reactive({
@@ -205,43 +161,38 @@ let pagePlugs = reactive({
   },
 });
 let Customerterm = reactive({
-  empId: 1,
+  empId: 0,
   custDetailName: "",
 });
 //获取后端返回的数据
-let custList = reactive({ d: [], multipleTable: [] });
-
-//挂载
-onMounted(async () => {
-  console.log("-----加载中开始调用查询方法-----")
-  GetList();
-});
-const ceshi =()=>{
-  GetList();
-  console.log("我是父方法的函数 我被调用啦")
-}
+let custList = reactive({ data: [], multipleTable: [] });
 //测试查询
-const GetList =() =>{
+const GetSeaList =() =>{
   console.log("-----查询方法被调用了-----")
   api.customer
     .CustomerSearch(pagePlugs.data.page, pagePlugs.data.size, Customerterm)
     .then((response) => {
       if (response.code == 200) {
         console.log("xixi");
-        custList.d = response.data.records;
+        custList.data = response.data.records;
         pagePlugs.data.total = response.data.total;
-        console.log(custList);
+        console.log(custList.data );
         console.log("-----查询方法调用结束-----")
       }
     });
 }
 //获取单选框选中的值
 function handleSelectionChange(val) {
-   custList.multipleTable = [];
+  custList.multipleTable = [];
    val.forEach(item => {
         custList.multipleTable.push(item.custId);
         console.log(custList.multipleTable)
       });
+    if(custList.multipleTable.length>0){
+      Buttonstyle.visibleCancel = '' 
+    } else{
+      Buttonstyle.visibleCancel = 'none' 
+    }
 }
 //客户类型格式
 function cuType(rew, column) {
@@ -259,33 +210,31 @@ function cuType(rew, column) {
 //当分页插件做出改变时
 function handleSizeChange(val) {
   pagePlugs.data.size = val;
-  GetList();
-  console.log(`${val} items per page`);
+  GetSeaList();
 }
 function handleCurrentChange(val) {
   pagePlugs.data.page = val;
-  GetList();
-  console.log(`current page: ${val}`);
+  GetSeaList();
 }
 //删除
-function transfer(val) {
+function deleteOneCont(val) {
   const custId = val.customerDetail.custId;
-  ElMessageBox.confirm("你确定将该放回公海吗?", "提示", {
+  ElMessageBox.confirm("你确定删除这个客户的信息吗?", "提示", {
     confirmButtonText: "确认",
     cancelButtonText: "取消",
     type: "warning",
   })
     .then(() => {
-      api.customer.transfer(custId).then((response) => {
+      api.customer.deleteOneCont(custId).then((response) => {
         if (response.code == 200) {
-          custList.d.splice(custList.d.indexOf(val), 1);
-          GetList();
+          custList.data.splice(custList.data.indexOf(val), 1);
+          GetSeaList();
           ElMessage({
             type: "success",
-            message: "成功放回公海",
+            message: "删除成功",
           });
         } else {
-          ElMessage.error("放回公海失败，请联系管理员");
+          ElMessage.error("删除失败，请联系管理员");
         }
       });
     })
@@ -293,11 +242,14 @@ function transfer(val) {
       // catch error
     });
 }
-//暴露方法
+
+const emit = defineEmits(["Sealist"]);
+//暴露子组件的方法
 defineExpose({
-  GetList
+  GetSeaList
 })
 </script>
 
 <style>
+
 </style>
