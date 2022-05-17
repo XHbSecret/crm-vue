@@ -15,7 +15,9 @@
             :props="prop"
             :data="props.perms"
             show-checkbox
+            node-key="menuId"
             default-expand-all
+            :default-checked-keys="props.checkedPerms"
             @check = "handleCheckChange"
           />
         </div>
@@ -26,7 +28,7 @@
 
 <script setup>
 import { reactive,ref, toRaw } from "@vue/reactivity";
-const props = defineProps(["perms"]);
+const props = defineProps(["perms","checkedPerms"]);
 let perms = reactive([
   {
     permNameId: 1,
@@ -72,10 +74,10 @@ function handleCheckChange(checkedNodes,checkedKeys,halfCheckedNodes,halfChecked
   let permsCopy = toRaw(checkedKeys.checkedNodes)
    for(let i=0;i<permsCopy.length;i++){
     console.log(permsCopy[i])
-    if(permsCopy[i].permChild!=undefined && (permsCopy[i].permChild.length>0) ){ //  || (permsCopy[i].permChild.length>0
+    if(permsCopy[i].childMenuList!=undefined && (permsCopy[i].childMenuList.length>0) ){ //  || (permsCopy[i].permChild.length>0
       continue; 
     }
-    selectPerms.data.push(permsCopy[i].permNameId)
+    selectPerms.data.push(permsCopy[i].menuId)
   }
   console.log("发给后端的数据")
   console.log(selectPerms.data)
@@ -86,7 +88,6 @@ const prop = {
   isPenultimate: false,
   label: "menuName",
   children: "childMenuList",
-  value: "menuStatus",
   class: (perms, node) => {
     // 制定样式
     if (perms.isPenultimate) {

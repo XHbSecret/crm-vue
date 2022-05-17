@@ -67,6 +67,7 @@
             /></el-tab-pane>
             <el-tab-pane label="角色权限" name="second"
               ><RolePerm
+                :checkedPerms="checkedPermList.data"
                 :perms="perms.data"
             /></el-tab-pane>
           </el-tabs>
@@ -127,8 +128,9 @@ import {
   addRole,
   delRole,
   updateRole,
+
 } from "@/api/system/role";
-import {getAllPerms} from "@/api/system/menu";
+import {getAllPerms,  getPermsB,} from "@/api/system/menu";
 import { onMounted } from "@vue/runtime-core";
 import { ElMessage } from "element-plus";
 
@@ -148,7 +150,7 @@ let roleForm = reactive({
 let submitFlag = 0; // 提交方式，0：添加角色  1：修改角色
 
 let perms = reactive({data:[]})
-
+let checkedPermList = reactive({data:[]})
 
 // 刷新用户信息
 function flushEmp(roleId) {
@@ -213,6 +215,14 @@ async function getRole() {
   });
 }
 
+// 获取已经选中的权限
+function checkedPerms(){
+  getPermsB(roleList.data[0].roleId).then(res=>{
+    checkedPermList.data = res.data
+    console.log("已选择的权限",res.data)
+  })
+}
+
 // 获取权限信息
 function allPerms(){
   getAllPerms().then(res=>{
@@ -232,6 +242,7 @@ watch(roleList, (newValue, oldValue) => {
   if (newValue.data.length > 0) {
     getEmpByRole();
     allPerms();
+    checkedPerms();
   }
 });
 
@@ -239,9 +250,21 @@ watch(roleList, (newValue, oldValue) => {
 function changeRole(id) {
   num.value = id; // 样式..
   roleId.value = id;
-  getEmpByRoleId(id).then((res) => {
+
+  // 获取员工对应的信息
+  getEmpByRoleId(id).then((res) => {  
     empList.data = res.data;
   });
+
+  // 获取权限对应的信息
+  getAllPerms().then((res) => {  
+    perms.data = res.data;
+  });
+
+  //TODO
+    getPermsB(id).then(res=>{
+     checkedPermList.data = res.data
+  })
 }
 
 // 添加按钮 触发 显示dialog框
