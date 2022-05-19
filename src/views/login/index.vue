@@ -75,6 +75,7 @@ let user = reactive({
         store.state.employee.user.user = response.data.user
         store.state.employee.user.menuList = response.data.menuList
         store.state.employee.paths = response.data.menuList
+        store.state.employee.perms = response.data.permList
         
         // 设置动态路由
         store.dispatch('employee/setMoveRoute',response.data.menuList)

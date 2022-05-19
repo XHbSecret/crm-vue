@@ -42,3 +42,25 @@ export const getEmpByRoleId = (roleId)=>request({
     url: `/user/find/role/${roleId}`,
     method: 'get'
   })
+
+export const updatePermsByRoleId = (roleId,permsIds)=>request({
+  url: `/role/updateRoleMenuB/${roleId}`,
+  method: 'post',
+  data:permsIds
+})
+
+export const getRolesByEmpId = (empId)=>request({
+  url: `/role/roles/${empId}`,
+  method: 'get',
+})
+
+export const updateEmpRole = (empId,roleList)=>request({
+  url: `/role/updateEmpRole/${empId}`,
+  method: 'post',
+  data:roleList
+})
+
+export const hasRole = (empId)=>request({
+  url: `/role/hasRole/list/${empId}`,
+  method: 'get',
+})

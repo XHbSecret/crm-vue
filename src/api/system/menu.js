@@ -36,3 +36,8 @@ export const getAllPerms = ()=>request({
   url: `/menu/allPerms`,
   method: 'get',
 })
+
+export const getPermsB = (roleId)=>request({
+  url: `/role/menuB/${roleId}`,
+  method: 'get',
+})

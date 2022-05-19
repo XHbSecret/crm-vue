@@ -20,7 +20,8 @@
     "vue-axios": "^3.4.1",
     "vue-cropper": "^1.0.3",
     "vue-router": "^4.0.14",
-    "vuex": "^4.0.2"
+    "vuex": "^4.0.2",
+    "xlsx": "^0.18.5"
   },
   "devDependencies": {
     "@types/node": "^17.0.31",
