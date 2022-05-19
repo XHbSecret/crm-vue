@@ -17,6 +17,7 @@
             <div class="card-header" style="margin: -5px 0px">
               <span style="font-weight: 600">管理角色</span>
               <el-button
+                v-show="$store.state.employee.perms.indexOf('role/add')==-1?false:true"
                 :icon="CirclePlusFilled"
                 size="default"
                 type="text"
@@ -68,6 +69,7 @@
             <el-tab-pane label="角色权限" name="second"
               ><RolePerm
                 :checkedPerms="checkedPermList.data"
+                :roleId="roleId"
                 :perms="perms.data"
             /></el-tab-pane>
           </el-tabs>
@@ -133,6 +135,8 @@ import {
 import {getAllPerms,  getPermsB,} from "@/api/system/menu";
 import { onMounted } from "@vue/runtime-core";
 import { ElMessage } from "element-plus";
+import {useStore} from 'vuex'
+const store = useStore()
 
 let clickStyle = reactive({ style: "click-none" });
 let num = ref(0); // 同上，实现侧边框选中效果
@@ -151,6 +155,20 @@ let submitFlag = 0; // 提交方式，0：添加角色  1：修改角色
 
 let perms = reactive({data:[]})
 let checkedPermList = reactive({data:[]})
+
+// 是否有创建角色的权限
+async function hasCreateRolePerm(){
+  // let x = store.dispatch("employee/getButtonPerm")
+  // console.log(" x = ",x)
+  let isShow = false;
+  store.dispatch("employee/getButtonPerm").then(res=>{
+    console.log(res,"res ...")
+    isShow = res
+    console.log(isShow,"isShow ...")
+  })
+  return isShow;
+  
+}
 
 // 刷新用户信息
 function flushEmp(roleId) {

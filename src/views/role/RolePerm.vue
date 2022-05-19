@@ -2,7 +2,7 @@
   <!-- 保存按钮 -->
   <el-row>
     <el-col :span="24">
-      <el-button type="primary" style="float: right">保存</el-button>
+      <el-button type="primary" style="float: right" @click="savePerms()">保存</el-button>
     </el-col>
   </el-row>
 
@@ -28,7 +28,11 @@
 
 <script setup>
 import { reactive,ref, toRaw } from "@vue/reactivity";
-const props = defineProps(["perms","checkedPerms"]);
+import {updatePermsByRoleId} from "@/api/system/role";
+import { ElMessage } from "element-plus";
+
+
+const props = defineProps(["perms","checkedPerms","roleId"]);
 let perms = reactive([
   {
     permNameId: 1,
@@ -66,22 +70,69 @@ let perms = reactive([
   },
 ]);
 let selectPerms = reactive({data:[]})
+const emit = defineEmits(['flushPerms'])
+let isSave = false;
+
+// 保存
+function savePerms(){
+  console.log(isSave)
+  if(isSave) {  // 是否修改了  修改了
+  // 虽然修改了，但是修改过后的值依旧没法说改变，则不发送修改请求
+    let copy = toRaw(props.checkedPerms);
+    let copy2 = toRaw(selectPerms.data)
+    let i = 0
+    if(copy.length == 0 && copy2.length ==0){   // 都为空 不发送
+       console.log("数据相同不发送")
+    }else if(copy.length != copy2.length){    // 长度不一样，肯定修改了  要发送
+       updatePerms()
+    }
+    else{                                    // 长度一样，但是数据可能不一样，所以遍历一下是否相同
+      for(i=0;i<copy.length;i++){  
+          if(copy[i] != copy2[i]){ // 查到有不同的数据
+              console.log("发送给后端的数据2.0",selectPerms.data)
+              updatePerms()
+              break;
+          }
+        }
+      if(i==copy.length){  // 遍历完了，都没发现不同，不修改。
+      console.log("数据相同不发送")
+      }
+    }
+
+  }else{
+     console.log("没修改")
+  }
+}
+
+// 发送请求给后台；
+function updatePerms(){
+  updatePermsByRoleId(props.roleId,selectPerms.data).then(res=>{
+    if(res.code == 200 && res.data == true){
+      ElMessage.success("保存成功")
+    }else{
+       ElMessage.success("保存失败")
+    }
+  })
+}
 
 // 选择权限后触发事件
 function handleCheckChange(checkedNodes,checkedKeys,halfCheckedNodes,halfCheckedKeys ) {
+  isSave = true
   selectPerms.data = []
-  console.log(checkedKeys)
+  // console.log(checkedKeys)
   let permsCopy = toRaw(checkedKeys.checkedNodes)
    for(let i=0;i<permsCopy.length;i++){
-    console.log(permsCopy[i])
+    // console.log(permsCopy[i])
     if(permsCopy[i].childMenuList!=undefined && (permsCopy[i].childMenuList.length>0) ){ //  || (permsCopy[i].permChild.length>0
       continue; 
     }
     selectPerms.data.push(permsCopy[i].menuId)
   }
-  console.log("发给后端的数据")
-  console.log(selectPerms.data)
+  // console.log("发给后端的数据")
+  // console.log(selectPerms.data)
 }
+
+
 
 // 树形复选框  配置属性
 const prop = {

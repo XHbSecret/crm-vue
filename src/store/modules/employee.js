@@ -38,7 +38,22 @@ const store = {
       setRoute(menuList)
     },
 
-
+    getButtonPerm(store,perm){
+      console.log("xixi")
+      console.log(store.state.perms)
+      // store.state.perms.forEach(element => {
+      //   console.log(perm,element,perm == element)
+      //   if(perm == element){
+      //     return true;
+      //   }
+      // });
+      console.log("xixi,",)
+      if(store.state.perms.indexOf(perm)!=-1){
+        return true;
+      }else {
+        return false;
+      }
+    }
   }
 
 
