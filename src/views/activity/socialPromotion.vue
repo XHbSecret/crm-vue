@@ -1,6 +1,10 @@
 <template>
-  <el-card>
-    <h2>社交推广</h2>
+  <el-card v-loading="loading">
+    <el-row>
+      <el-col :span="5">
+        <h1>社交推广</h1>
+      </el-col>
+    </el-row>
     <div style="margin: 20px; display: block">
       <el-button type="primary" :icon="Plus" @click="showAdd()"
         >添加活动</el-button
@@ -11,6 +15,7 @@
       height="450"
       style="width: 100%"
       row-key="activityId"
+      border
     >
       <el-table-column prop="activityName" label="活动名" width="130">
       </el-table-column>
@@ -50,7 +55,10 @@
           <el-button @click="showAdd(row)" type="text" :icon="Edit"
             >修改</el-button
           >
-          <el-button @click="delActivitys(row.activityId)" type="text" :icon="Delete"
+          <el-button
+            @click="delActivitys(row.activityId)"
+            type="text"
+            :icon="Delete"
             >删除</el-button
           >
         </template>
@@ -79,8 +87,8 @@
 <script setup>
 import { ref, reactive } from "@vue/reactivity";
 import { onMounted, getCurrentInstance } from "vue";
-import { ElMessage } from "element-plus";
-import { Edit, Delete, Plus,Search } from "@element-plus/icons-vue";
+import { ElMessage, ElMessageBox } from "element-plus";
+import { Edit, Delete, Plus, Search } from "@element-plus/icons-vue";
 import activityDialog from "./activityDialog.vue";
 
 const api = getCurrentInstance()?.appContext.config.globalProperties.$API;
@@ -88,6 +96,7 @@ const api = getCurrentInstance()?.appContext.config.globalProperties.$API;
 const dialogVisible = ref(false);
 const dialogTittle = ref("");
 const dialogTableValue = ref({});
+const loading = ref(true);
 let datas = reactive({ tableData: [] });
 
 let pagePlugs = reactive({
@@ -108,6 +117,7 @@ function getActivity() {
       // 响应对象
       datas.tableData = response.data.records;
       pagePlugs.data.total = response.data.total;
+      loading.value = false;
     });
 }
 
@@ -124,13 +134,31 @@ function showAdd(row) {
 }
 
 function delActivitys(activityId) {
-  api.activity.delActivity(activityId).then(() => {
-    ElMessage({
+  ElMessageBox.confirm("你确认要删除这个活动吗？", "提示", {
+    confirmButtonText: "确定",
+    cancelButtonText: "取消",
+    type: "warning",
+  })
+    .then(() => {
+      api.activity.delActivity(activityId).then(() => {
+        ElMessage({
           message: "删除成功！！！！",
           type: "success",
+        });
+        getActivity();
+      });
+    })
+    .catch(() => {
+      ElMessage.info("取消删除");
     });
-    getActivity();
-  });
+}
+function handleSizeChange(val) {
+  pagePlugs.data.pageSize = val;
+  getActivity();
+}
+function handleCurrentChange(val) {
+  pagePlugs.data.pageNum = val;
+  getActivity();
 }
 </script>
 

@@ -160,6 +160,7 @@ const confirm = () => {
 };
 const cancle = () => {
   edit.value = false;
+  formRef.value.resetFields();
 };
 const delFlow = (flowDetailsId) => {
   api.flow.delDetails(flowDetailsId).then(() => {

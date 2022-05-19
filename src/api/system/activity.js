@@ -4,7 +4,10 @@ export const getAllActivity = (page,size)=>request({
     url: `/activity/all/${page}/${size}`,
     method: 'get'
   })
-
+export const getAll = ()=>request({
+    url: `/activity/all`,
+    method: 'get'
+  })
 // 添加活动
 export const addActivity = (activity)=>request({
   url:`/activity/add`,

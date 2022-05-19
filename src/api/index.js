@@ -5,6 +5,7 @@ import * as menu from './system/menu'
 import * as customer from './customer/index'
 import * as flow from './system/flow'
 import * as role from './system/role'
+import * as product from './system/product'
 
 export default {
     activity,
@@ -12,5 +13,6 @@ export default {
     menu,
     customer,
     flow,
-    role
+    role,
+    product
 }
