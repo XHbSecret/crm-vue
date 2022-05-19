@@ -157,8 +157,8 @@ function submitForm() {
       });
     } else if (JSON.stringify(props.zt) == "1") {
       // 新增
-      console.log(data.formData);
-      api.customer.AddCustomer(data.formData).then((response) => {
+      console.log(props.empId);
+      api.customer.AddCustomer(props.empId,data.formData).then((response) => {
         if (response.code == 200) {
           onClose();
           ElMessage({
@@ -191,6 +191,9 @@ const props = defineProps({
     type: Number,
     default: () => 0,
   },
+  empId:{
+    type:Number,
+  }
 });
 onMounted(() => {
   data.formData = Object.assign({}, props.rowInfo);

@@ -46,6 +46,10 @@ service.interceptors.response.use(
     response => {
       const res = response.data
       console.log(res)
+      console.log(res.type)
+      if(res.type=="application/vnd.ms-excel"){
+        return res
+      }
       // if the custom code is not 20000, it is judged as an error.
       if (res.code !== 20000 && res.code!==200) {
         ElMessage({
@@ -67,7 +71,7 @@ service.interceptors.response.use(
             })
           })
         }
-        return Promise.reject(new Error(res.message || 'Error'))
+        return res
       } else {
         return res
       }

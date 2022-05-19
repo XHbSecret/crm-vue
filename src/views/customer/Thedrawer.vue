@@ -1,12 +1,14 @@
+<!--  -->
 <template>
   <div class="Thedrawer">
     <el-drawer
       :model-value="true"
       direction="rtl"
       destroy-on-close
-      size="70%"
+      size="60%"
       :with-header="false"
       @close="onClose"
+      style="height: 100%"
     >
       <el-container class="container1">
         <el-header class="ct">
@@ -19,10 +21,9 @@
               <el-col :span="2"
                 ><div class="grid-content bg-purple">
                   <div class="grid-content bg-purple">
-                    <img src="src\assets\kehuLogo.png"/>
-                  </div>
-                </div></el-col
-              >
+                    <img src="src\assets\kehuLogo.png" />
+                  </div></div
+              ></el-col>
               <el-col :span="12">
                 <div class="t-section__bd">
                   <div class="type-name">客户</div>
@@ -53,7 +54,15 @@
                 ><div class="vux-flexbox-item h-item">
                   <div class="h-title">成交状态</div>
                   <div class="h-value text-one-line">
-                    {{pObj.custStatus==1?"跟进阶段":(pObj.custStatus==2?"商机阶段":(pObj.custStatus==3?"成交阶段":"无"))}}
+                    {{
+                      pObj.custStatus == 1
+                        ? "跟进阶段"
+                        : pObj.custStatus == 2
+                        ? "商机阶段"
+                        : pObj.custStatus == 3
+                        ? "成交阶段"
+                        : "无"
+                    }}
                   </div>
                 </div>
               </el-col>
@@ -61,14 +70,26 @@
                 ><div class="vux-flexbox-item h-item">
                   <div class="h-title">客户类型</div>
                   <div class="h-value text-one-line">
-                    {{ pObj.custType==1?"房源":(pObj.custType==2?"租房":(pObj.custType==3?"买房":(pObj.custType==4?"居家装修":'无')))}}
+                    {{
+                      pObj.custType == 1
+                        ? "房源"
+                        : pObj.custType == 2
+                        ? "租房"
+                        : pObj.custType == 3
+                        ? "买房"
+                        : pObj.custType == 4
+                        ? "居家装修"
+                        : "无"
+                    }}
                   </div>
                 </div>
               </el-col>
               <el-col :span="6"
                 ><div class="vux-flexbox-item h-item">
                   <div class="h-title">负责人</div>
-                  <div class="h-value text-one-line" >{{pObj.employeeDatail.empName}}</div>
+                  <div class="h-value text-one-line">
+                    {{ pObj.employeeDatail.empName }}
+                  </div>
                 </div></el-col
               >
               <el-col :span="6"
@@ -76,7 +97,7 @@
                   <div class="h-title">创建时间</div>
                   <div class="h-value text-one-line">
                     <!-- {{ multipleTable.custCreateTime }} -->
-                     {{ pObj.custCreateTime }}
+                    {{ pObj.custCreateTime }}
                   </div>
                 </div></el-col
               >
@@ -84,19 +105,28 @@
           </div>
         </el-header>
         <el-container>
-          <el-main>
+          <el-main style="margin-top: 20px; margin-right: 20px">
             <el-tabs type="border-card">
               <el-tab-pane label="活动">活动</el-tab-pane>
               <el-tab-pane label="基本信息">
-                <essential :rowInfo="data.formData"></essential>
+                <essential
+                  :rowInfo="data.formData"
+                  @essentialGetList="essentialGetList"
+                ></essential>
               </el-tab-pane>
-              <el-tab-pane label="联系人"
+              <el-tab-pane label="联系人" name="Contactst"
                 >联系人
-                <button>添加联系人</button>
                 <Contactst :rowInfo="data.formData" />
               </el-tab-pane>
-              <el-tab-pane label="合同">合同</el-tab-pane>
-              <el-tab-pane label="回款">回款</el-tab-pane>
+              <el-tab-pane label="协作人" name="cooperation">
+                <cooperation :rowInfo="data.formData"></cooperation>
+              </el-tab-pane>
+              <el-tab-pane label="合同">
+                <contract></contract>
+              </el-tab-pane>
+              <el-tab-pane label="回款">
+                <custPayments></custPayments>
+              </el-tab-pane>
               <el-tab-pane label="回访"
                 >回访
                 <button>添加联系人</button>
@@ -109,9 +139,18 @@
               <el-tab-pane label="操作记录">操作记录</el-tab-pane>
             </el-tabs>
           </el-main>
-          <el-aside width="200px" style="background-color: blue"
-            >Aside</el-aside
+          <el-aside
+            width="200px"
+            style="background-color: blue; margin-top: 20px; height: 100%"
           >
+            <el-tabs type="border-card" style="height: 99%">
+              <el-tab-pane label="中医商品">
+                <el-scrollbar height="500px">
+                  {{ data.formData}}
+                </el-scrollbar>
+              </el-tab-pane>
+            </el-tabs>
+          </el-aside>
         </el-container>
       </el-container>
     </el-drawer>
@@ -123,13 +162,15 @@ import { getCurrentInstance, onMounted, reactive, ref, toRefs } from "vue";
 import Contactst from "./Contactst.vue";
 import Visit from "./visit.vue";
 import Accessory from "./Accessory.vue";
-import essential from"./essential.vue"
+import essential from "./essential.vue";
+import cooperation from "./cooperation.vue";
+import contract from "./contract.vue";
+import custPayments from "./custPayments.vue";
 import CustomerDialog from "./customerDialog.vue";
 import { ElMessage, ElMessageBox } from "element-plus";
 const api = getCurrentInstance()?.appContext.config.globalProperties.$API; // api （axios管理的后端接口）
-//储存form表单的值
+//接收父组件的数据复制
 const data = reactive({
-  dialogFlag: false,
   formData: {},
 });
 const formSwitch = reactive({
@@ -148,29 +189,31 @@ const props = defineProps({
   },
 });
 const pObj = toRefs(props).rowInfo;
+const essentialGetList = () => {
+  emit("ThedrawerGetList");
+};
 //监听
-const emit = defineEmits(["update:chouti"]);
+const emit = defineEmits(["update:chouti", "ThedrawerGetList"]);
 const onClose = () => {
   // 关键句，父组件则可通过 v-model:visible 同步子组件更新后的数据
   emit("update:chouti", false);
 };
 onMounted(() => {
-  data.formData = Object.assign({}, props.rowInfo);
-  data.dialogFlag = props.rowInfo;
+  data.formData = JSON.parse(JSON.stringify(props.rowInfo));
 });
 </script>
 
 <style lang="scss" scoped>
 .ct {
   color: #333;
-  padding: 0 !important;
-  height: 200px !important;
+  padding: 0;
+  height: 200px;
   background: beige;
 }
 
 .el-main {
   height: 100%;
-  padding: 0 !important;
+  padding: 0;
   overflow: hidden;
   position: relative;
 }
@@ -198,8 +241,10 @@ onMounted(() => {
   padding: 30px 20px 5px;
   min-height: 60px;
 }
-.container1{
+.container1 {
   height: 100%;
   margin: -20px;
+  overflow: hidden;
+  position: relative;
 }
 </style>

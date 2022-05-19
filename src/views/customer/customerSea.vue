@@ -5,6 +5,7 @@
       <el-button type="primary">高级筛查</el-button>
       <el-button type="primary" :style="{ display: Buttonstyle.visibleCancel }">导出选中</el-button>
       <el-button type="primary" @click="rallotSwitch" :style="{ display: Buttonstyle.visibleCancel }">分配</el-button>
+      <el-button type="primary" @click="draw" :style="{ display: Buttonstyle.visibleCancel }">领取</el-button>
     </div>
 
     <!-- 搜索区域 -->
@@ -106,7 +107,7 @@
     <!-- 抽屉区 -->
     <!-- <Thedrawer v-if="chouti" v-model:chouti="chouti" :rowInfo="rowInfo" /> -->
     <!-- 分配区 -->
-    <customeRallot v-if="rallot" v-model:rallot="rallot" :rowInfo="custList.multipleTable" @ceshi="ceshi"></customeRallot>
+    <customeRallot v-if="rallot" v-model:rallot="rallot" :rowInfo="custList.multipleTable" @ceshi="ceshi" :title="title" :pd="pd"></customeRallot>
   </div>
 </template>
 
@@ -125,9 +126,12 @@ import {
   Search,
   Star,
 } from "@element-plus/icons-vue";
-const store = useStore();
 // const empId = store.state.employee.user.user.empId
 const api = getCurrentInstance()?.appContext.config.globalProperties.$API; // api （axios管理的后端接口）
+const store = useStore();
+//从token 获取empid
+let empId = store.state.employee.user.user.empId;
+console.log("empId =  ",empId)
 //抽屉状态
 const chouti = ref(false);
 //储存数据
@@ -140,9 +144,13 @@ const drawer =(val)=> {
 }
 //打开分配
 const rallot = ref(false)
+const title = ref("")
+const pd =ref()
 const rallotSwitch =()=>{
   console.log("分配组件被打开")
+  title.value="分配"
   rallot.value = true;
+  pd.value=1;
 }
 const Buttonstyle  = reactive({
   visibleCancel :'none'
@@ -242,7 +250,33 @@ function deleteOneCont(val) {
       // catch error
     });
 }
-
+//领取客户
+const draw = ()=>{
+  console.log(custList.multipleTable)
+  console.log(empId)
+   ElMessageBox.confirm("你确定领取该客户吗?", "提示", {
+    confirmButtonText: "确认",
+    cancelButtonText: "取消",
+    type: "warning",
+  })
+    .then(() => {
+      api.customer.updateEmpIdBatchByid( custList.multipleTable,empId).then((response) => {
+        if (response.code == 200) {
+          emit("Sealist");
+          GetSeaList();
+          ElMessage({
+            type: "success",
+            message: "成功领取该客户放回公海",
+          });
+        } else {
+          ElMessage.error("领取失败，请联系管理员");
+        }
+      });
+    })
+    .catch(() => {
+      // catch error
+    });
+}
 const emit = defineEmits(["Sealist"]);
 //暴露子组件的方法
 defineExpose({
