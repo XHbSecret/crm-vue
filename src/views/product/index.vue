@@ -41,7 +41,18 @@
         </template>
       </el-table-column>
       <el-table-column prop="productType" label="户型" width="180" />
-      <el-table-column prop="houseType" label="房子类型" width="180" />
+      <el-table-column prop="houseType" label="房子类型" width="180">
+        <template v-slot="scope">
+          <p v-if="scope.row.houseType == 1">普通商品房</p>
+          <p v-else-if="scope.row.houseType == 2">经济适用房</p>
+          <p v-else-if="scope.row.houseType == 3">小产权房</p>
+          <p v-else-if="scope.row.houseType == 4">房改房</p>
+          <p v-else-if="scope.row.houseType == 5">集资房</p>
+          <p v-else-if="scope.row.houseType == 6">廉租房</p>
+          <p v-else-if="scope.row.houseType == 7">公租房</p>
+          <p v-else-if="scope.row.houseType == 8">安置房</p>
+        </template>
+      </el-table-column>
       <el-table-column prop="productPrice" label="报价" width="180" />
       <el-table-column prop="productIntroduce" label="介绍" width="180" />
       <el-table-column prop="productStatus" label="产品状态" width="180">

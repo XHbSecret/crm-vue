@@ -36,17 +36,28 @@
       </el-col>
     </el-row>
   </el-card>
+  <adsDrawerVue
+    v-model="dialogVisible"
+    :dialogTittle="dialogTittle"
+  ></adsDrawerVue>
 </template>
 
 <script setup>
 import { Search } from "@element-plus/icons-vue";
 import { ref, reactive } from "vue";
+import adsDrawerVue from "./adsDrawer.vue";
 const loading = ref(false);
+const dialogVisible = ref(false);
+const dialogTittle = ref("");
 let pagePlugs = reactive({
   currentPage: 1,
   pageSize: 10,
   total: 100,
 });
+function addProduct() {
+  dialogVisible.value = true;
+  dialogTittle.value = "投放商品";
+}
 </script>
 
 <style>

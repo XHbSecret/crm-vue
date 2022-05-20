@@ -25,6 +25,8 @@ function getCost() {
     data_.activity = response.data;
     for (let i = 0; i < data_.activity.length; i += 1) {
       count.value += data_.activity[i].activityCost;
+      console.log(data_.activity[i].activityCost);
+      console.log(data_.activity[i].activityName);
     }
     const data = [
       { value: count1.value, name: "广告投放" },

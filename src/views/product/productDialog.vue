@@ -5,21 +5,35 @@
     width="30%"
     @close="onClose"
   >
-    <el-form :model="form" label-width="120px" ref="formRef">
+    <el-form :model="form" label-width="120px" ref="formRef" :rules="rules">
       <el-form-item label="产品名" prop="productName">
         <el-input v-model="form.productName" />
       </el-form-item>
-      <el-form-item label="户型" prop="productName">
+      <el-form-item label="户型" prop="productType">
         <el-input v-model="form.productType" />
       </el-form-item>
-      <el-form-item label="房子类型" prop="productName">
-        <el-input v-model="form.houseType" />
+      <el-form-item label="房子类型" prop="houseType">
+        <el-select
+          placeholder="请选择类型"
+          v-model="form.houseType"
+          size="samll"
+        >
+          <el-option
+            v-for="item in options"
+            :key="item.value"
+            :label="item.label"
+            :value="item.value"
+          />
+        </el-select>
       </el-form-item>
       <el-form-item label="报价" prop="productPrice">
         <el-input v-model="form.productPrice" />
       </el-form-item>
       <el-form-item label="产品状态" prop="productStatus">
-        <el-input v-model="form.productStatus" />
+        <el-radio-group v-model="form.productStatus">
+          <el-radio :label="1">上架</el-radio>
+          <el-radio :label="0">下架</el-radio>
+        </el-radio-group>
       </el-form-item>
       <el-form-item label="房子地址" prop="productAddress">
         <el-input v-model="form.productAddress" />
@@ -28,7 +42,7 @@
         <el-input v-model="form.productDecorateType" />
       </el-form-item>
       <el-form-item label="介绍" prop="productIntroduce">
-        <el-input v-model="form.productIntroduce" />
+        <el-input type="textarea" v-model="form.productIntroduce" />
       </el-form-item>
       <el-form-item label="面积" prop="productArea">
         <el-input v-model="form.productArea" />
@@ -75,6 +89,40 @@ const form = ref({
   productIntroduce: "",
   productArea: "",
 });
+const options = [
+  {
+    value: "1 ",
+    label: "普通商品房",
+  },
+  {
+    value: "2",
+    label: "经济适用房",
+  },
+  {
+    value: "3",
+    label: "小产权房",
+  },
+  {
+    value: "4",
+    label: "房改房",
+  },
+  {
+    value: "5",
+    label: "集资房",
+  },
+  {
+    value: "6",
+    label: "廉租房",
+  },
+  {
+    value: "7",
+    label: "公租房",
+  },
+  {
+    value: "8",
+    label: "安置房",
+  },
+];
 const onClose = () => {
   formRef.value.resetFields();
   emits("update:modelValue", false);
@@ -89,6 +137,7 @@ const addProduct = () => {
     emits("updateDate");
   });
 };
+const rules = [{}];
 </script>
 
 <style>
