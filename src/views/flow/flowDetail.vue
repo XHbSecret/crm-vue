@@ -22,7 +22,7 @@
       </el-form-item>
     </el-form>
     <h5>流程明细</h5>
-
+    <el-button type="primary" @click="addDetail">添加详情</el-button>
     <el-table
       :data="details.datas"
       row-key="flowDetailsId"
@@ -107,11 +107,12 @@ import {
 } from "vue";
 import { Edit, Delete, Plus } from "@element-plus/icons-vue";
 import { ElMessage } from "element-plus";
+import flowInsertDetails from "./flowInsertDetails.vue";
 const api = getCurrentInstance()?.appContext.config.globalProperties.$API;
 
 const formRef = ref(null);
 const edit = ref(false);
-const emits = defineEmits(["update:modelValue"]);
+const emits = defineEmits(["update:modelValue", "insertDetail"]);
 const props = defineProps({
   dialogTittle: {
     type: String,
@@ -134,6 +135,7 @@ let details = reactive({ datas: [] });
 
 let getFlowDetails = () => {
   details.datas = flowDetail.value.flowDetails;
+  console.log(details.datas);
 };
 const onclose = () => {
   emits("update:modelValue", false);
@@ -164,12 +166,15 @@ const cancle = () => {
 };
 const delFlow = (flowDetailsId) => {
   api.flow.delDetails(flowDetailsId).then(() => {
-    location.reload();
     ElMessage({
       message: "删除成功！！！！",
       type: "success",
     });
   });
+};
+const addDetail = () => {
+  console.log();
+  emits("insertDetail", flowDetail.value.flowId);
 };
 
 watch(
@@ -177,6 +182,8 @@ watch(
   () => {
     console.log(props.dialogValue);
     flowDetail.value = props.dialogValue;
+    flowDetail.value.flowId = props.dialogValue.flowId;
+    console.log(flowDetail.value.flowId);
   }
 );
 const rules = reactive({

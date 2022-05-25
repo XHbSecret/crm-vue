@@ -68,6 +68,10 @@ const props = defineProps({
     type: Number,
     default: 0,
   },
+  idss: {
+    type: Number,
+    default: 0,
+  },
 });
 let flowDetail = reactive({
   flowDetailsName: "",
@@ -78,8 +82,9 @@ let flowDetail = reactive({
 });
 
 function addDetail() {
-  console.log(flowDetail);
   flowDetail.flowId = props.ids;
+  flowDetail.flowId = props.idss;
+  console.log(flowDetail);
   formRef.value.validate(async (valid) => {
     if (valid) {
       api.flow.addDetails(flowDetail).then((response) => {

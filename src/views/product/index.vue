@@ -1,20 +1,19 @@
 <template>
-  <header id="header">
-    <el-row>
-      <el-col :span="6" style="width: 600px">产品管理</el-col>
-      <el-col :span="5">
-        <el-input placeholder="请输入产品名"></el-input>
-      </el-col>
-      <el-button :icon="Search" type="primary"></el-button>
-      <el-col :span="6">
-        <el-button type="warning" :icon="Plus" @click="addProduct"
-          >添加产品</el-button
-        >
-      </el-col>
-    </el-row>
-  </header>
-
   <el-card>
+    <header id="header">
+      <el-row>
+        <el-col :span="6" style="width: 600px">产品管理</el-col>
+        <el-col :span="5">
+          <el-input placeholder="请输入产品名" v-model="seaches"></el-input>
+        </el-col>
+        <el-button :icon="Search" type="primary" @click="search"></el-button>
+        <el-col :span="6">
+          <el-button type="warning" :icon="Plus" @click="addProduct"
+            >添加产品</el-button
+          >
+        </el-col>
+      </el-row>
+    </header>
     <div v-show="productList.datas.length > 0" id="head">
       <span style="font-size: smaller">已选中{{ num }}条数据</span
       >&nbsp;&nbsp;&nbsp;
@@ -31,6 +30,7 @@
       border
       :row-key="productNo"
       @selection-change="handleSelectionChange"
+      id="body-table"
     >
       <el-table-column type="selection" width="55" />
       <el-table-column fixed prop="productName" label="产品名" width="180">
@@ -105,8 +105,10 @@ import productDraw from "./productDraw.vue";
 const drawer = ref(false);
 const dialogVisible = ref(false);
 const dialogTittle = ref("");
+const seaches = ref("");
 const num = ref(0);
 let datas = reactive({ tableData: [] });
+let searchData = reactive({ tableData: [] });
 let pagePlugs = reactive({
   data: {
     pageNum: 1,
@@ -126,6 +128,7 @@ function getProduct() {
       pagePlugs.data.total = response.data.total;
     });
 }
+
 function handleSelectionChange(val) {
   productList.datas = val;
   num.value = val.length;
@@ -190,6 +193,11 @@ function clickData(row) {
   height: 40px;
 }
 #head {
-  height: 50px;
+  height: 38px;
+  position: absolute;
+  z-index: 6;
+}
+#body-table {
+  margin-top: 38px;
 }
 </style>

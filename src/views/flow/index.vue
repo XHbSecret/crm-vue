@@ -4,7 +4,6 @@
       <div id="flow_main_header">
         <h1>流程管理</h1>
         <div id="header-but">
-
           <el-button @click="addFlow()" type="success" :icon="Plus"
             >新增流程</el-button
           >
@@ -55,7 +54,7 @@
       <el-pagination
         v-model:currentPage="pagePlugs.data.page"
         v-model:page-size="pagePlugs.data.size"
-        :page-sizes="[10,20,30,40,50]"
+        :page-sizes="[10, 20, 30, 40, 50]"
         layout="total,sizes, prev, pager, next, jumper"
         :total="pagePlugs.data.total"
         @size-change="handleSizeChange"
@@ -94,6 +93,7 @@
     v-model="drawer"
     :dialogTittle="dialogTittle"
     :dialogValue="dialogValue"
+    @insertDetail="addFlowDetails"
   ></flowDetail>
   <!-- 添加流程详情 -->
   <flowInsertDetails
@@ -101,6 +101,7 @@
     :dialogTittle="dialogTittle"
     @updateDate="getFlows"
     :ids="ids"
+    :idss="idss"
   ></flowInsertDetails>
 </template>
 <style>
@@ -121,7 +122,7 @@ h1 {
   height: 50px;
 }
 #header-but {
-  float:right
+  float: right;
 }
 </style>
 <script setup>
@@ -146,7 +147,7 @@ const drawer = ref(false);
 const dialogTittle = ref("");
 const dialogValue = ref({});
 const ids = ref(0);
-
+const idss = ref(0);
 let pagePlugs = reactive({
   data: {
     pageNum: 1,
@@ -164,7 +165,7 @@ function getFlows() {
     .then((response) => {
       // 响应对象
       datas.tableData = response.data.records;
-      pagePlugs.data.total=response.data.total;
+      pagePlugs.data.total = response.data.total;
     });
 }
 // 添加流程
@@ -200,6 +201,12 @@ function addFlowDetail(row) {
   visible_adds.value = true;
   dialogTittle.value = row.flowName;
   ids.value = row.flowId;
+  console.log(ids.value);
+}
+function addFlowDetails(idsss) {
+  visible_adds.value = true;
+  idss.value = idsss;
+  console.log(idss.value);
 }
 function handleSizeChange(val) {
   pagePlugs.data.pageSize = val;

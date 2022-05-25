@@ -29,3 +29,14 @@ export const downProduct=(product)=>request({
   method: 'post',
   data:product
 })
+
+export const getById = (ids)=>request({
+  url:`/product/getById`,
+  method:'post',
+  data:ids
+})
+
+export const getProdcutVos=()=>request({
+  url:`/product/findProdcutVo`,
+  method:'get'
+})
