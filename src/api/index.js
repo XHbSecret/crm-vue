@@ -6,6 +6,8 @@ import * as customer from './customer/index'
 import * as flow from './system/flow'
 import * as role from './system/role'
 import * as product from './system/product'
+import * as contract from './contract/index'
+import * as checkFlow from './check/checkFlow'
 
 export default {
     activity,
@@ -14,5 +16,7 @@ export default {
     customer,
     flow,
     role,
-    product
+    product,
+    contract,
+    checkFlow,
 }

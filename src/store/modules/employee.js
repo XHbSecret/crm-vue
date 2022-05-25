@@ -90,7 +90,7 @@ function setRoute(menus) {
     component: () => import('../../views/index.vue'),
     redirect:'/Amain',
     children: [...rts,     //从后台获取到的动态路由，展开后作为home页面的二级路由
-        { path: 'Amain',  component: () => import('../../views/Amain.vue'),},
+        { path: 'Amain',  component: () => import('../../views/system/Reports.vue'),},
         // { path:'person', component:()=>import('../../views/employee/Person.vue')},
       //   // { path: 'consumeRule/couponDetail', name: '优惠券管理', component: resolve => require(['@/views/consumeRule/pages/couponDetail.vue'], resolve) },
       //   // { path: 'error', name: '错误', component: resolve => require(['@/views/error/index.vue'], resolve) },
