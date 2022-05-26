@@ -76,7 +76,7 @@
         sortable
         :formatter="cuType"
       />
-      <el-table-column prop="" label="最后一次跟进时间" width="180" sortable />
+      <el-table-column prop="custLastTime" label="最后一次跟进时间" width="180" sortable />
       <el-table-column
         prop="customerDetail.custDetailPhone"
         label="电话"
@@ -101,7 +101,7 @@
         width="120"
         sortable
       />
-      <el-table-column prop="" label="下一次联系时间" width="180  " />
+      <el-table-column prop="custNextTime" label="下一次联系时间" width="180  " />
       <el-table-column
         prop="employeeDatail.empName"
         label="负责人"

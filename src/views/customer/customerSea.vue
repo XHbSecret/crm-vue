@@ -266,7 +266,7 @@ const draw = ()=>{
           GetSeaList();
           ElMessage({
             type: "success",
-            message: "成功领取该客户放回公海",
+            message: "成功领取该客户",
           });
         } else {
           ElMessage.error("领取失败，请联系管理员");

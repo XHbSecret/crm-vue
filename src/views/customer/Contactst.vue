@@ -82,7 +82,6 @@ function GetContactst() {
     .then((response) => {
       if (response.code == 200) {
         data.custList=response.data.records;
-        console.log(data.custList)
       }
     });
 }
@@ -137,5 +136,8 @@ function Relation(rew, column) {
     return "其他";
   } 
 }
+defineExpose({
+  addlxr,
+});
 </script>
 <style></style>
