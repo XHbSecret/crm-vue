@@ -100,21 +100,22 @@ let addForm = ref({
 
 const options = [
   {
-    value: '线下活动 ',
-    label: '线下活动',
+    value: "线下活动 ",
+    label: "线下活动",
   },
   {
-    value: '官网发布',
-    label: '官网发布',
+    value: "官网发布",
+    label: "官网发布",
   },
   {
-    value: '传单',
-    label: '传单',
-  }
-]
+    value: "传单",
+    label: "传单",
+  },
+];
 const formRef = ref(null);
 
 const handleClose = () => {
+  formRef.value.resetFields();
   emits("update:modelValue", false);
 };
 
@@ -200,7 +201,7 @@ const rules = {
       required: true,
       message: "类型不能为空",
       trigger: "blur",
-    }
+    },
   ],
 };
 </script>

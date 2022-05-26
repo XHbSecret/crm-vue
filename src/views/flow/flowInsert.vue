@@ -62,7 +62,6 @@ const confirm = () => {
   formRef.value.validate(async (valid) => {
     if (valid) {
       api.flow.addFlow(addflow).then(() => {
-        formRef.value.resetFields();
         ElMessage({
           message: "添加成功！！！！",
           type: "success",
