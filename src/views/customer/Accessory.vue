@@ -17,9 +17,9 @@ import { getCurrentInstance, onMounted, reactive, ref, toRefs } from "vue";
 const api = getCurrentInstance()?.appContext.config.globalProperties.$API; // api （axios管理的后端接口）
 
 //挂载 点击时加载
-onMounted(() => {
-  GetAttachment();
-});
+// onMounted(() => {
+//   GetAttachment();
+// });
 //接收父组件的值
 const props = defineProps({
   rowInfo: {},
@@ -34,14 +34,14 @@ let data = reactive({
   custList:[]
 });
 
-function GetAttachment() {
-  api.customer
-    .selectAllByCustId(pagePlugs.page, pagePlugs.size, pObj.value.custId)
-    .then((response) => {
-      if (response.code == 200) {
-        data.custList = response.data.records;
-      }
-    });
-}
+// function GetAttachment() {
+//   api.customer
+//     .selectAllByCustId(pagePlugs.page, pagePlugs.size, pObj.value.custId)
+//     .then((response) => {
+//       if (response.code == 200) {
+//         data.custList = response.data.records;
+//       }
+//     });
+// }
 </script>
 <style lang="scss" scoped></style>

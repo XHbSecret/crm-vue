@@ -66,16 +66,52 @@ export const deleteCustomer = (contactId)=>request({
   url: `Contacts/deleteCustomer/${contactId}`,
   method: 'get'
 })
+
+
+
+
+// ---------跟进方法----------
 //查询根据记录
 export const selectAllByCustId = (page,size,custId)=>request({
   url: `visit/selectAllByCustId/${page}/${size}/${custId}`,
   method: 'get',
 })
+
+//添加跟进记录 http://localhost/visit/addVisit
+export const addVisit = (data)=>request({
+  url: `visit/addVisit`,
+  method: 'post',
+  data
+})
+
+//查询所有跟进 http://localhost/visit/selectAllByCustIds/{{custId}}
+export const selectAllByCustIds = (custId)=>request({
+  url: `visit/selectAllByCustIds/${custId}`,
+  method: 'get'
+})
+//删除跟进记录 及其附件 和 本地文件 http://localhost/visit/deleteVisit/{{visitId}}/{{path}}
+export const deleteVisits = (visitId,data)=>request({
+  url: `visit/deleteVisits/${visitId}`,
+  method: 'post',
+  data
+})
+
+export const deleteVisit = (visitId)=>request({
+  url: `visit/deleteVisit/${visitId}`,
+  method: 'get'
+})
+
+
+
 // ----------协作人组件所用到的方法----------
 export const getAllAssociates = (custId)=>request({
   url: `Associates/getAllAssociates/1/10/${custId}`,
   method: 'get',
 })
+
+
+
+
 // ----------分配组件所用到的方法----------
 
 export const allEmp = ()=>request({
@@ -94,4 +130,40 @@ export const addAssociates = (data)=>request({
 export const deleteAssociates = (assId)=>request({
   url: `Associates/deleteAssociates/${assId}`,
   method: 'get',
+})
+
+
+
+
+// ----------抽屉组件中意商品所用到的方法----------
+export const getAllByCustId = (custId)=>request({
+  url: `CustSub/getAllByCustId/1/10/${custId}`,
+  method: 'get',
+})
+
+
+
+
+// ----------抽屉组件常用语所用到的方法----------
+//新增常用语
+export const addEmpPhrase = (data)=>request({
+  url: `EmpPhrase/addEmpPhrase`,
+  method: 'post',
+  data
+})
+//删除常用语
+export const deleteEmpPhrase = (phraseId)=>request({
+  url: `EmpPhrase/deleteEmpPhrase/${phraseId}`,
+  method: 'get'
+})
+//修改常用语
+export const updateEmpPhrase = (data)=>request({
+  url: `EmpPhrase/updateEmpPhrase`,
+  method: 'post',
+  data
+})
+//查看常用语
+export const selectByEmpId = (empId)=>request({
+  url: `EmpPhrase/selectByEmpId/${empId}`,
+  method: 'get'
 })

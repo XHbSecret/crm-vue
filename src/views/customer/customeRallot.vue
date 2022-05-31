@@ -18,8 +18,6 @@
             :value="item.empId"
           />
         </el-select>
-        {{ data.form.region}}
-        <!-- {{ pObj }} -->
       </el-form-item>
       <button @click="distribution">确认</button>
       <button @click="onClose">取消</button>

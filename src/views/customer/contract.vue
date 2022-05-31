@@ -1,23 +1,57 @@
 <!--这是合同组件 -->
 <template>
-  <div class='contract'>
-      <span>这个合同组件{{contractList.data}}</span>
+  <div class="contract">
+    <el-button type="" @click="addcontractfrom">新建合同</el-button>
+    <el-table
+      :data="tableData"
+      style="width: 100%"
+      height="400px"
+      :borde="true"
+    >
+      <el-table-column fixed prop="date" label="Date" width="150" />
+      <el-table-column prop="name" label="Name" width="120" />
+      <el-table-column prop="state" label="State" width="120" />
+      <el-table-column prop="city" label="City" width="320" />
+      <el-table-column prop="address" label="Address" width="600" />
+      <el-table-column prop="zip" label="Zip" width="120" />
+    </el-table>
   </div>
+  <Addcontractfrom
+    v-if="dialogShow"
+    v-model:dialogShow="dialogShow"
+    :rowInfo="data.formData"
+  ></Addcontractfrom>
 </template>
 
 <script setup>
-import {getContractByCustId} from '@/api/contract/index'
-import { onMounted, reactive } from '@vue/runtime-core'
+import { unref, reactive, ref, getCurrentInstance, onMounted } from "vue";
+import { getContractByCustId } from "@/api/contract/index";
+import Addcontractfrom from "./Addcontract.vue";
 
-let contractList = reactive({data:[]})
+let contractList = reactive({ data: [] });
 
-onMounted(()=>{
-  getContractByCustId(314).then(res=>{
-    contractList.data = res.data
-  })
-})
+const props = defineProps({
+  rowInfo: {
+    type: Object,
+    default: () => {},
+  },
+});
 
+//接收父组件的数据复制
+const data = reactive({
+  formData: {},
+});
+
+const dialogShow = ref(false);
+
+const addcontractfrom = () => {
+  dialogShow.value = true;
+};
+
+onMounted(() => {
+  data.formData = JSON.parse(JSON.stringify(props.rowInfo));
+});
 </script>
-<style lang='scss' scoped>
-  //@import url(); 引入公共css类
+<style lang="scss" scoped>
+//@import url(); 引入公共css类
 </style>

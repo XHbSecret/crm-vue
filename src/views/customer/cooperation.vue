@@ -67,7 +67,6 @@ function GetContactst() {
   api.customer.getAllAssociates(pObj.value.custId).then((response) => {
     if (response.code == 200) {
       data.custList = response.data.records;
-      console.log(data.custList);
     }
   });
 }
