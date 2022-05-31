@@ -243,7 +243,7 @@ function closeDialog() {
 }
 .head {
   float: left;
-  display: inline-block;
+  /* display: inline-block; */
   width: 50px;
   height: 50px;
 

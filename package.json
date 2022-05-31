@@ -14,6 +14,7 @@
     "echarts": "^5.3.2",
     "element-plus": "^2.1.9",
     "elui-china-area-dht": "^2.0.0",
+    "nanoid": "^3.3.4",
     "qs": "^6.10.3",
     "sass": "^1.50.1",
     "vform3-builds": "^3.0.7",

@@ -1,15 +1,16 @@
 <template>
   <div class="title">
     <el-tabs v-model="activeName" class="demo-tabs title-border">
-      <el-tab-pane label="全部" name="first" lazy><mySendTable :data="checkRecord.data"/></el-tab-pane>
+      <el-tab-pane label="全部" name="first" lazy>
+        <mySendTable :data="checkRecord.data" @update="updateData()"/></el-tab-pane>
       <el-tab-pane label="我发起的" name="second" lazy>
-        <mySendTable :data="checkRecord.mySend" />
+        <mySendTable :data="checkRecord.mySend" @update="updateData()" />
       </el-tab-pane>
       <el-tab-pane label="待我审批" name="third" lazy>
-        <mySendTable :data="checkRecord.needMe" me="isMe"/>
+        <mySendTable :data="checkRecord.needMe" @update="updateData()" me="isMe"/>
       </el-tab-pane>
       <el-tab-pane label="我已审批" name="fourth" lazy>
-        <mySendTable :data="checkRecord.already"/>
+        <mySendTable :data="checkRecord.already" @update="updateData()"/>
       </el-tab-pane>
     </el-tabs>
   </div>
@@ -32,8 +33,19 @@ const store = useStore();
 const activeName = ref('first')
 let checkRecord = reactive({ data: [],mySend:[],needMe:[] ,already:[]});
 
-onMounted(()=>{
-    // 获取全部审批记录
+// 更新数据
+function updateData(){
+  // 先清空
+  checkRecord.data = []
+  checkRecord.mySend = []
+  checkRecord.needMe = []
+  checkRecord.already = []
+  getData()
+}
+
+// 获取数据
+function getData(){
+      // 获取全部审批记录
   getRecordByPage(1,10).then((res) => {
     checkRecord.data = res.data.records;
   });
@@ -56,8 +68,12 @@ onMounted(()=>{
     if(res.data!=null){
       checkRecord.already = res.data.records;
     }
-   
   })
+}
+
+// 挂载
+onMounted(()=>{
+  getData()
 })
 </script>
 

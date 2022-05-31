@@ -46,3 +46,8 @@ export const updStatus = (data)=>request({
   method: 'post',
   data
 })
+
+export const getRecordByService = (flowId,serviceId)=>request({
+  url: `/record/ser/${flowId}/${serviceId}`,
+  method: 'get',
+})
