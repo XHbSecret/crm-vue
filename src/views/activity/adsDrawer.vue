@@ -36,20 +36,6 @@
         </el-select>
       </el-form-item>
 
-      <el-form-item label="状态" prop="comProStatus">
-        <el-select
-          placeholder="请选择状态"
-          v-model="addForm.comProStatus"
-          clearable
-        >
-          <el-option
-            v-for="item in options"
-            :key="item.value"
-            :label="item.label"
-            :value="item.value"
-          ></el-option>
-        </el-select>
-      </el-form-item>
       <el-form-item label="投放日期" prop="comProTime">
         <el-date-picker
           v-model="addForm.comProTime"
@@ -111,7 +97,6 @@ let addForm = ref({
   comProTime: "",
   comProContent: "",
   comProCost: "",
-  comProStatus: 0,
 });
 const options1 = reactive({ productVo: [] });
 const options2 = reactive({ companyVo: [] });
@@ -128,6 +113,10 @@ const options = [
     value: 2,
     label: "结束",
   },
+  {
+    value: 3,
+    label: "待审核",
+  },
 ];
 const onclose = () => {
   emits("update:modelValue", false);
@@ -136,6 +125,7 @@ const onclose = () => {
 const onSubmit = () => {
   formRef.value.validate(async (valid) => {
     if (valid) {
+      console.log(addForm.value);
       addComPro(addForm.value).then((response) => {
         ElMessage({
           message: "添加成功！！！！",
@@ -211,6 +201,7 @@ const rules = reactive({
   comProTime: [{ required: true, message: "请选择时间日期", trigger: "blur" }],
   comProContent: [{ required: true, message: "请输入内容", trigger: "blur" }],
   comProCost: [{ required: true, message: "请输入金额", trigger: "blur" }],
+  comProStatus: [{ required: true, message: "状态不能为空", trigger: "blur" }],
 });
 </script>
 

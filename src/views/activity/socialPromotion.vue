@@ -1,43 +1,70 @@
 <template>
   <el-card v-loading="loading">
+    <!-- 标题 -->
     <el-row>
       <el-col :span="5">
         <h1>社交推广</h1>
       </el-col>
     </el-row>
+    <!-- 按钮 -->
     <div style="margin: 20px; display: block">
       <el-button type="primary" :icon="Plus" @click="showAdd()"
         >添加活动</el-button
       >
+      <el-button
+        type="warning"
+        :icon="Delete"
+        v-show="activity.tablesData.length > 0"
+        @click="delActivitys()"
+        >删除&nbsp;{{ activity.tablesData.length }}&nbsp;项</el-button
+      >
     </div>
+    <!-- 数据区域 -->
     <el-table
       :data="datas.tableData"
       height="450"
       style="width: 100%"
       row-key="activityId"
       border
+      @selection-change="handleSelectionChange"
     >
-      <el-table-column prop="activityName" label="活动名" width="130">
+      <el-table-column type="selection" width="55" />
+
+      <el-table-column prop="activityName" label="活动名" width="130" fixed />
+
+      <el-table-column prop="activityType" label="活动形式" width="130" />
+
+      <el-table-column
+        prop="activityContent"
+        label="活动内容"
+        width="200"
+        :show-overflow-tooltip="true"
+      >
+        <template v-slot="scope">
+          <el-tooltip
+            effect="dark"
+            :content="scope.row.activityContent"
+            placement="top"
+          >
+            {{ scope.row.activityContent }}
+          </el-tooltip>
+        </template>
       </el-table-column>
-      <el-table-column prop="activityType" label="活动形式" width="130">
-      </el-table-column>
-      <el-table-column prop="activityContent" label="活动内容">
-      </el-table-column>
+
       <el-table-column
         prop="activityStartTime"
         label="开始时间"
         width="180"
         sortable
-      >
-      </el-table-column>
+      />
       <el-table-column
         prop="activityStopTime"
         label="结束时间"
         width="180"
         sortable
-      >
-      </el-table-column>
-      <el-table-column prop="activityStatus" label="活动状态">
+      />
+
+      <el-table-column prop="activityStatus" label="活动状态" width="200">
         <template v-slot="scope">
           <el-tag type="success" v-if="scope.row.activityStatus == 1"
             >开始</el-tag
@@ -45,25 +72,23 @@
           <el-tag type="error" v-else-if="scope.row.activityStatus == 0"
             >结束</el-tag
           >
-          <el-tag type="info" v-else>待审核</el-tag>
+          <el-tag v-else-if="scope.row.activityStatus == 3">待审核</el-tag>
+          <el-tag type="info" v-else>未审核</el-tag>
         </template>
       </el-table-column>
-      <el-table-column prop="activityCost" label="活动支出/元">
-      </el-table-column>
-      <el-table-column label="操作">
+
+      <el-table-column prop="activityCost" label="活动支出/元" width="200" />
+
+      <el-table-column label="操作" width="200">
         <template #default="{ row }">
           <el-button @click="showAdd(row)" type="text" :icon="Edit"
             >修改</el-button
           >
-          <el-button
-            @click="delActivitys(row.activityId)"
-            type="text"
-            :icon="Delete"
-            >删除</el-button
-          >
+          <el-button type="text">发起审核</el-button>
         </template>
       </el-table-column>
     </el-table>
+
     <el-pagination
       v-model:currentPage="pagePlugs.data.page"
       v-model:page-size="pagePlugs.data.size"
@@ -75,6 +100,7 @@
       background
     />
   </el-card>
+
   <activity-dialog
     v-model="dialogVisible"
     :dialogTittle="dialogTittle"
@@ -88,15 +114,15 @@
 import { ref, reactive } from "@vue/reactivity";
 import { onMounted, getCurrentInstance } from "vue";
 import { ElMessage, ElMessageBox } from "element-plus";
+import { getAllActivity, delActivity } from "@/api/system/activity";
 import { Edit, Delete, Plus, Search } from "@element-plus/icons-vue";
 import activityDialog from "./activityDialog.vue";
-
-const api = getCurrentInstance()?.appContext.config.globalProperties.$API;
 
 const dialogVisible = ref(false);
 const dialogTittle = ref("");
 const dialogTableValue = ref({});
 const loading = ref(true);
+const activity = reactive({ tablesData: [] });
 let datas = reactive({ tableData: [] });
 
 let pagePlugs = reactive({
@@ -110,9 +136,9 @@ let pagePlugs = reactive({
 onMounted(() => {
   getActivity();
 });
+
 function getActivity() {
-  api.activity
-    .getAllActivity(pagePlugs.data.pageNum, pagePlugs.data.pageSize) // 使用接口，调用
+  getAllActivity(pagePlugs.data.pageNum, pagePlugs.data.pageSize) // 使用接口，调用
     .then((response) => {
       // 响应对象
       datas.tableData = response.data.records;
@@ -133,14 +159,14 @@ function showAdd(row) {
   }
 }
 
-function delActivitys(activityId) {
-  ElMessageBox.confirm("你确认要删除这个活动吗？", "提示", {
+function delActivitys() {
+  ElMessageBox.confirm("你确认要删除这些活动吗？", "提示", {
     confirmButtonText: "确定",
     cancelButtonText: "取消",
     type: "warning",
   })
     .then(() => {
-      api.activity.delActivity(activityId).then(() => {
+      delActivity(activity.tablesData).then(() => {
         ElMessage({
           message: "删除成功！！！！",
           type: "success",
@@ -159,6 +185,10 @@ function handleSizeChange(val) {
 function handleCurrentChange(val) {
   pagePlugs.data.pageNum = val;
   getActivity();
+}
+function handleSelectionChange(val) {
+  activity.tablesData = val;
+  console.log(activity.tablesData);
 }
 </script>
 

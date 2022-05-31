@@ -24,10 +24,10 @@ export const editActivity = (activity)=>request({
 })
 
 // 删除活动
-export const delActivity = (activityId)=>request({
-  url:`/activity/del/${activityId}`,
+export const delActivity = (activitys)=>request({
+  url:`/activity/del`,
   method:'post',
-  data:activityId
+  data:activitys
 })
 
 // 广告投放
@@ -52,4 +52,15 @@ export const editComPros = (compro)=>request({
   url:`/compro/editComPro`,
   method:"post",
   data:compro
+})
+
+export const editComProStatus=(compro)=>request({
+  url:`/compro/editStatus`,
+  method:"post",
+  data:compro
+})
+
+export const getAllAdss = ()=>request({
+  url:`/compro/getAll`,
+  method:"get"
 })
