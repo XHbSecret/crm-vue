@@ -123,7 +123,7 @@
               <cooperation :rowInfo="data.formData"></cooperation>
             </el-tab-pane>
             <el-tab-pane label="合同">
-              <contract></contract>
+              <contract :rowInfo="data.formData"></contract>
             </el-tab-pane>
             <el-tab-pane label="回款">
               <custPayments></custPayments>

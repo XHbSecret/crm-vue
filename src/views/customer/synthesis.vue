@@ -233,7 +233,7 @@ const visitStart = [
 //储存常用语
 let phrase = reactive({ data: [] });
 
-//从token 获取empid
+//useStore 获取store
 const store = useStore();
 let empId = store.state.employee.user.user.empId;
 console.log("empId =  ", empId);

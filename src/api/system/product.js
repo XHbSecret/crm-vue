@@ -1,9 +1,11 @@
 import request from '../../utils/request'
-// 获取所有商品
-export const getAllProducts=(page,size)=>request({
-    url:`/product/allProduct/${page}/${size}`,
-    method:'post'
+// 获取动态获取商品
+export const getAllProducts=(page,size,data)=>request({
+    url:`product/allProduct/${page}/${size}`,
+    method:'post',
+    data
 })
+
 
 //添加产品
 export const addProducts = (product)=>request({

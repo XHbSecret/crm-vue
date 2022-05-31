@@ -8,7 +8,7 @@ import * as role from './system/role'
 import * as product from './system/product'
 import * as contract from './contract/index'
 import * as checkFlow from './check/checkFlow'
-
+import * as customerContract from'./contract/contract'
 export default {
     activity,
     login,
@@ -19,4 +19,5 @@ export default {
     product,
     contract,
     checkFlow,
+    customerContract,
 }
