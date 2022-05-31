@@ -207,7 +207,7 @@
     title="驳回意见"
     width="30%"
   >
-    <span>驳回意见</span>
+    <!-- <span>驳回意见</span> -->
      <el-input
       v-model="suggest"
       :rows="2"
@@ -235,8 +235,10 @@ import {
   updStatus,
 } from "@/api/check/checkFlow";
 import { useStore } from "vuex";
+import { ElMessage } from "element-plus";
 const store = useStore();
 
+const emit = defineEmits(['update'])
 const props = defineProps(["data", "me"]);
 let checkType = reactive({ data: [] });
 let checkStatus = ref("all");
@@ -271,12 +273,7 @@ function rejectOK(){
       data.checkStatus = rejectStatus;
     }
   });
-
-  console.log("准备好的");
-  console.log(data);
-  updStatus(data).then((res) => {
-    
-  });
+  checkInfoTo(data)
 }
 
 let rejectData 
@@ -307,10 +304,20 @@ function updateStatus(row, status) {
       data.checkStatus = status;
     }
   });
+  checkInfoTo(data)
+}
 
-  console.log("准备好的");
-  console.log(data);
-  updStatus(data).then((res) => {});
+// 将审核信息数据发送给后端
+function checkInfoTo(data){
+  updStatus(data).then((res) => {
+    if(res.data == true){
+      ElMessage.success("审核完成！")
+      emit("update")
+    }else{
+      ElMessage.error("审核失败！")
+    }
+    
+  });
 }
 
 // 多条件改变
@@ -436,7 +443,7 @@ function itemClick(row) {
 }
 </script>
 
-<style>
+<style scoped>
 .info {
   margin-left: 20px;
   margin-top: 20px;
