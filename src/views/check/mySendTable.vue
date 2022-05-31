@@ -51,9 +51,23 @@
 
     <el-table-column prop="object.contractNo" label="审批文件" width="180">
       <template v-slot="scope">
-        <el-link type="primary" @click="itemClick(scope.row)">
-          {{ scope.row.object.contractNo }}
-        </el-link>
+        
+        <!-- TODO -->
+        <!-- 合同 -->
+        <template v-if="scope.row.checkRecord.checkFlowId == 1">
+          <el-link type="primary" @click="contractItemClick(scope.row)">
+            {{ scope.row.object.contractNo }}
+          </el-link>
+        </template>
+
+        <!-- 回款 -->
+        <template v-if="scope.row.checkRecord.checkFlowId == 2">
+          <el-link type="primary" @click="backItemClick(scope.row)">
+            {{ scope.row.object.backId }}
+          </el-link>
+        </template>
+
+       
       </template>
     </el-table-column>
 
@@ -124,15 +138,14 @@
     />
   </div>
 
-  <!-- 审批文件（合同）抽屉 -->
+  <!-- 查看审批 -->
   <el-drawer v-model="drawer" title="I am the title" :with-header="false">
     <!-- 文件信息 -->
-    <div>
+    <!-- <div>
       <div class="basic-info">合同信息</div>
       <div class="info">
         <span>合同编号</span>
         <span>{{ checkFile.data.contractNo }}</span>
-        <!-- {{checkFile.data}} -->
       </div>
       <div class="info">
         <span>合同名称</span>
@@ -166,7 +179,7 @@
         <span>合同备注信息</span>
         <span>{{ checkFile.data.contractDescribe }}</span>
       </div>
-    </div>
+    </div> -->
 
     <!-- 审批人时间线  1:通过审批  2：拒绝通过  3：待我审批（审批中）-->
     <div>
@@ -223,6 +236,16 @@
       </span>
     </template>
   </el-dialog>
+
+  <!-- 审批文件（回款） 抽屉 -->
+  <el-drawer v-model="backDrawer" title="I am the title" :with-header="false">
+   <back-item :backId="backId" :backData="backData.data"/>
+  </el-drawer>
+
+  <!-- 审批文件（合同）抽屉 -->
+  <el-drawer v-model="contractDrawer" title="I am the title" :with-header="false" size="75%">
+   <contract-item :contractId="contractId" :contractData="contractData.data"/>
+  </el-drawer>
 </template>
 
 <script setup>
@@ -234,8 +257,10 @@ import {
   getRecordByMePage,
   updStatus,
 } from "@/api/check/checkFlow";
+import contractItem from './contractItem.vue'
 import { useStore } from "vuex";
 import { ElMessage } from "element-plus";
+import backItem from './backItem.vue'
 const store = useStore();
 
 const emit = defineEmits(['update'])
@@ -246,6 +271,8 @@ let type = ref("all");
 let checkRecord = reactive({ data: [] });
 let checkRecordMeta = { data: [] };
 let drawer = ref(false);
+let backDrawer = ref(false);
+let contractDrawer = ref(false);
 let checkFile = reactive({ data: {} }); // 抽屉打开的文件
 let checkUserItem = reactive({ data: [] });
 let page = reactive({
@@ -254,6 +281,10 @@ let page = reactive({
 });
 let dialogVisible = ref(false)
 let suggest = ref("")
+let backId = ref(0) ; // 子组件的传递的 回款id
+let backData = reactive({data:{}}) ; // 子组件的传递的 回款id
+let contractId = ref(0) ; // 子组件的传递的 合同id
+let contractData = reactive({data:{}}) ; // 子组件的传递的 合同id
 
 // 确定驳回按钮
 function rejectOK(){
@@ -421,29 +452,40 @@ onMounted(() => {
     getMeta(checkRecord.data);
   }
 
-  //   // 获取审批记录
-  //   getRecordBySendId(store.state.employee.user.user.empId).then((res) => {
-  //     checkRecordMeta.data = res.data;
-  //     checkRecordMeta.data.forEach((e) => {
-  //       checkRecord.data.push(e);
-  //     });
-  //   });
-
   // 获取审批类型
   getAllCheckFlow(1, 100).then((res) => {
     checkType.data = res.data.records;
   });
 });
 
-// 表格 合同触发
+// 表格 查看按钮触发
 function itemClick(row) {
   drawer.value = true;
   checkFile.data = row.object;
   checkUserItem.data = row.records;
 }
+
+//表格 回款触发
+function backItemClick(row){
+  backDrawer.value = true
+  backId.value = row.object.backId
+  backData.data = row
+}
+
+//表格 合同触发
+function contractItemClick(row){
+  contractDrawer.value = true
+  contractId.value = row.object.contractId
+  contractData.data = row
+} 
+
+
 </script>
 
 <style scoped>
+ .el-drawer.rtl {
+    background: #6aabc5;
+  }
 .info {
   margin-left: 20px;
   margin-top: 20px;
