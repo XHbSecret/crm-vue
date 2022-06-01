@@ -7,10 +7,10 @@
         stripe
         style="width: 100%"
         id="body-table"
-        :border ="true"
+        :border="true"
         @selection-change="handleSelectionChange"
       >
-        <el-table-column type="selection" width="55" />
+        <el-table-column type="selection" width="55" :selectable="selectInit" />
         <el-table-column fixed prop="productName" label="产品名" width="180">
         </el-table-column>
         <el-table-column prop="productType" label="户型" width="180" />
@@ -53,9 +53,7 @@ import {
 } from "vue";
 import { ElMessage, ElMessageBox } from "element-plus";
 import AddProductsfrom from "./AddProducts.vue";
-import {
-  getAllProducts,
-} from "@/api/system/product";
+import { getAllProducts } from "@/api/system/product";
 let pagePlugs = reactive({
   data: {
     pageNum: 1,
@@ -63,31 +61,37 @@ let pagePlugs = reactive({
     total: 0,
   },
 });
-const emits = defineEmits(["update:dialogShow","addproducts"]);
+const emits = defineEmits(["update:dialogShow", "addproducts"]);
 const onClose = () => {
   // 关键句，父组件则可通过 v-model:visible 同步子组件更新后的数据
   emits("update:dialogShow", false);
 };
 
-
 //添加
-const add =()=>{
-    emits("addproducts", Products.ProductsData,ceshi);
-    emits("update:dialogShow", false);
-}
+const add = () => {
+  emits("addproducts", Products.ProductsData, ceshi);
+  emits("update:dialogShow", false);
+};
 
-const ceshi =ref(0)
-let Products = reactive({ProductsData:[]})
+const ceshi = ref(0);
+let Products = reactive({ ProductsData: [] });
 //获取单选框选中的值
 function handleSelectionChange(val) {
   Products.ProductsData = [];
   val.forEach((item) => {
     Products.ProductsData.push(item);
-    console.log(ceshi)
+    console.log(ceshi);
     console.log(Products.ProductsData);
   });
 }
-
+//当你选中一条后警用其他数据
+function selectInit() {
+  if (Products.ProductsData.length==0) {
+    return true;
+  } else {
+    return false;
+  }
+}
 
 //挂载
 onMounted(() => {

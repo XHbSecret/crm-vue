@@ -1,4 +1,5 @@
 import request from '../../utils/request'
+// 根据客户id查询
 export const getContractByCustId = (custId)=>request({
     url: `/contract/customer/${custId}`,
     method: 'get'
@@ -28,4 +29,17 @@ export const searchByLike = (page,size,content)=>request({
 export const updateStatus = (contractId,contractStatus)=>request({
     url: `/contract/updStatus/${contractId}/${contractStatus}`,
     method: 'get',
+})
+
+//根据合同id删除
+export const deleteContract = (contractId)=>request({
+    url: `/contract/del/${contractId}`,
+    method: 'get',
+})
+
+//修改合同草稿
+export const updateContract = (data)=>request({
+    url: `contract/update`,
+    method: 'post',
+    data
 })
