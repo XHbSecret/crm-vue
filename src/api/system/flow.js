@@ -4,6 +4,11 @@ export const getFlows = (pageNum,pageSize)=>request({
     url: `/user/allFlows/${pageNum}/${pageSize}`,
     method: 'get',
   })
+
+export const getAllFlows =()=>request({
+  url: `/user/allFlows`,
+    method: 'get',
+})
 //获取单个流程的详情
 export const getFlowDetails = (flowId)=>request({
   url: `/user/allFlow/${flowId}`,

@@ -5,9 +5,10 @@
     width="40%"
     :before-close="handleClose"
   >
+    <!-- 表单区域 -->
     <el-form :model="addForm" label-width="120px" ref="formRef" :rules="rules">
       <el-form-item label="活动名" prop="activityName">
-        <el-input v-model="addForm.activityName" />
+        <el-input v-model="addForm.activityName" placeholder="请输入活动名" />
       </el-form-item>
       <el-form-item label="活动形式" prop="activityType">
         <el-select
@@ -24,7 +25,11 @@
         </el-select>
       </el-form-item>
       <el-form-item label="活动内容" prop="activityContent">
-        <el-input type="textarea" v-model="addForm.activityContent" />
+        <el-input
+          type="textarea"
+          v-model="addForm.activityContent"
+          placeholder="请输入内容"
+        />
       </el-form-item>
       <el-form-item label="开始时间" prop="activityStartTime">
         <el-date-picker
@@ -43,19 +48,20 @@
         />
       </el-form-item>
       <el-form-item label="活动支出" prop="activityCost">
-        <el-input v-model="addForm.activityCost" />
+        <el-input v-model="addForm.activityCost" placeholder="请输入金额" />
       </el-form-item>
+      <!-- 操作 -->
       <el-form-item>
         <el-button type="info" @click="handleClose()">取消</el-button>
         <el-button
           type="primary"
-          @click="addActivity()"
+          @click="addActivitys()"
           v-if="dialogTittle == '添加活动'"
           >添加</el-button
         >
         <el-button
           type="primary"
-          @click="editActivity()"
+          @click="editActivitys()"
           v-else-if="dialogTittle == '修改活动'"
           >保存</el-button
         >
@@ -75,7 +81,7 @@ import {
   watch,
 } from "vue";
 import { ElMessage } from "element-plus";
-const api = getCurrentInstance()?.appContext.config.globalProperties.$API;
+import { addActivity, editActivity } from "@/api/system/activity";
 const emits = defineEmits(["update:modelValue", "updateDate"]);
 const props = defineProps({
   dialogTittle: {
@@ -114,15 +120,17 @@ const options = [
 ];
 const formRef = ref(null);
 
+//关闭
 const handleClose = () => {
   formRef.value.resetFields();
   emits("update:modelValue", false);
 };
 
-const addActivity = () => {
+// 添加活动
+const addActivitys = () => {
   formRef.value.validate(async (valid) => {
     if (valid) {
-      api.activity.addActivity(addForm.value).then(() => {
+      addActivity(addForm.value).then(() => {
         ElMessage({
           message: "添加成功！！！！",
           type: "success",
@@ -136,10 +144,12 @@ const addActivity = () => {
     }
   });
 };
-const editActivity = () => {
+
+// 修改活动
+const editActivitys = () => {
   formRef.value.validate(async (valid) => {
     if (valid) {
-      api.activity.editActivity(addForm.value).then(() => {
+      editActivity(addForm.value).then(() => {
         ElMessage({
           message: "修改成功！！！！",
           type: "success",
@@ -161,6 +171,7 @@ watch(
   },
   { deep: true, immediate: true }
 );
+// 校验规则
 const rules = {
   activityName: [
     { required: true, message: "请输入流程名", trigger: "blur" },
@@ -179,7 +190,7 @@ const rules = {
   activityCost: [
     { required: true, message: "请输入金额,如：130000.36", trigger: "blur" },
     {
-      pattern: "^[0-9]+(.[0-9]{2})?$",
+      pattern: "[1-9]d*.d*|0.d*[1-9]d*",
       message: "格式不正确",
       trigger: "blur",
     },

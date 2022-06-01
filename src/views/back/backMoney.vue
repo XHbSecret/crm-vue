@@ -46,7 +46,7 @@
   <!-- 表格 -->
   <el-row class="row">
     <el-table :data="backList.data" height="420px" stripe style="width: 100%">
-      <el-table-column prop="backNo" label="回款编号" fixed />
+      <el-table-column prop="backNo" label="回款编号" fixed width="180px"/>
       <el-table-column prop="customer.custDetailName" label="客户名称" />
       <el-table-column prop="contract.contractNo" label="合同编号" />
       <el-table-column prop="backMethod" label="回款方式" />
@@ -54,7 +54,75 @@
       <el-table-column prop="backDescribe" label="备注" />
       <el-table-column prop="employeeDatail.empName" label="负责人" />
       <el-table-column prop="backTime" label="回款时间" />
-      <el-table-column prop="backStatus" label="回款状态" fixed="right" />
+      <el-table-column prop="backStatus" label="回款状态" fixed="right">
+        <template v-slot="scope">
+          <el-popover
+            placement="top-start"
+            title="审核进度"
+            :width="200"
+            trigger="hover"
+            @show="showStatus(scope.row.backId,scope.row.backStatus)"
+            @hide="disableStatus"
+          >
+            <template v-slot>
+              <el-timeline class="info">
+              <el-timeline-item
+                v-for="(activity, index) in checkUser.data.records"
+                :key="index"
+                :timestamp="activity.checkTime"
+                :color="
+                  activity.checkStatus == 1
+                    ? '#0bbd87'
+                    : activity.checkStatus == 2
+                    ? 'red'
+                    : '#e4e7ed'
+                "
+              >
+                审批人：{{ activity.checkUserVO.userName }}&nbsp;&nbsp;&nbsp;&nbsp;
+                <template v-if="activity.checkStatus == 2">
+                  <el-tag class="ml-2" type="danger"
+                    >拒绝通过，原因是：{{ activity.checkAdvice }}</el-tag
+                  >
+                </template>
+                <template v-else-if="activity.checkStatus == 1">
+                  <el-tag>审批通过</el-tag>
+                </template>
+                <template v-if="activity.checkStatus == 3">
+                  <el-tag class="ml-2" type="info">审批中...</el-tag>
+                </template>
+              </el-timeline-item>
+            </el-timeline>
+            </template>
+
+            <template #reference>
+              <div v-if="scope.row.backStatus == 0">
+                <div class="cycle check-draft"></div>
+                <span>未审核</span>
+              </div>
+              <div v-else-if="scope.row.backStatus == 1">
+                <div class="cycle check-ok"></div>
+                <span>审核通过</span>
+              </div>
+              <div v-else-if="scope.row.backStatus == 3">
+                <div class="cycle check-wait"></div>
+                <span>审核中</span>
+              </div>
+              <div v-else-if="scope.row.backStatus == 2">
+                <div class="cycle check-no"></div>
+                <span>审核未通过</span>
+              </div>
+            </template>
+          </el-popover>
+          
+        </template>
+      </el-table-column>
+      <el-table-column  label="操作" fixed="right" align="center" width="280px">
+        <template v-slot="scope">
+          <template v-if="scope.row.backStatus ==0">
+            <el-button type="primary" @click="backBtn(scope.row.backId)">回款（审核）</el-button>
+          </template>
+        </template>
+      </el-table-column>
     </el-table>
   </el-row>
 
@@ -169,7 +237,8 @@
 <script setup>
 import { reactive, ref } from "@vue/reactivity";
 import { Search, Plus } from "@element-plus/icons-vue";
-import { getAllBackMoney } from "@/api/back/backMoney";
+import { getAllBackMoney,updateStatusById } from "@/api/back/backMoney";
+import { getRecordByService } from "@/api/check/checkFlow";
 import { CustomerSearch } from "@/api/customer/index";
 import { onMounted } from "@vue/runtime-core";
 import { useStore } from "vuex";
@@ -205,6 +274,29 @@ let Customerterm = reactive({
   empId,
   custDetailName: "",
 });
+
+let checkUser = reactive({data:{}})
+// 状态显示
+function showStatus(contractId,status){
+  if(status != 0){
+    getRecordByService(2,contractId).then((res) => {
+      console.log(res.data)
+      checkUser.data = res.data;
+    });
+  }
+}
+
+// 状态消失
+function disableStatus(){
+  checkUser.data ={}
+}
+
+// 回款审核按钮
+function backBtn(backId){
+  updateStatusById(backId).then(res=>{
+    console.log(res.data)
+  })
+}
 
 // 客户dialog框，选择后确认
 function customerConfirm() {
@@ -270,6 +362,22 @@ export default {
 </script>
 
 <style>
+.check-draft {
+  background-color: #bfbfbf;
+}
+.check-wait {
+  background-color: #398dff;
+}
+.check-ok {
+  background-color: #20b559;
+}
+.cycle {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 5px;
+  margin-right: 5px;
+}
 .select-input .el-input__wrapper {
   background-color: #eee;
   cursor: pointer;

@@ -10,6 +10,13 @@ import * as contract from './contract/index'
 import * as checkFlow from './check/checkFlow'
 import * as customerContract from'./contract/contract'
 import * as backMoney from './back/backMoney'
+import * as echartss from './echartss/index'
+import * as sales from './sales/index'
+
+import * as customerContract from'./contract/contract'
+
+import * as backMoney from './back/backMoney'
+
 export default {
     activity,
     login,
@@ -20,6 +27,14 @@ export default {
     product,
     contract,
     checkFlow,
+
     customerContract,
+    backMoney,
+
+    echartss,
+    sales,
+
+    customerContract,
+
     backMoney
 }
