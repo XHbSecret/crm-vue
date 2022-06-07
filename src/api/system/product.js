@@ -42,3 +42,10 @@ export const getProdcutVos=()=>request({
   url:`/product/findProdcutVo`,
   method:'get'
 })
+
+//修改商品详情
+export const updateProduct=(data)=>request({
+  url:`product/updateProduct`,
+  method:'post',
+  data
+})

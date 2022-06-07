@@ -36,11 +36,27 @@
   </header>
   <div id="head">
     <div v-show="custList.multipleTable.length > 0">
-      <span style="font-size: smaller">已选中{{ custList.multipleTable.length }}条数据</span
+      <span style="font-size: smaller"
+        >已选中{{ custList.multipleTable.length }}条数据</span
       >&nbsp;&nbsp;&nbsp;
       <el-button type="primary">导出选中</el-button>
       <el-button type="primary" @click="BatchReturn">退回公海</el-button>
       <el-button type="primary" @click="rallotSwitch">转让客户</el-button>
+    </div>
+    <div v-show="custList.multipleTable.length == 0" id="head">
+      <span>场景：</span>
+      <el-select
+        v-model="Customerterm.custType"
+        class="m-2"
+        @change="getcustList()"
+      >
+        <el-option
+          v-for="item in options"
+          :key="item.value"
+          :label="item.label"
+          :value="item.value"
+        />
+      </el-select>
     </div>
   </div>
 
@@ -252,12 +268,40 @@ let pagePlugs = reactive({
 //获取后端返回的数据
 let custList = reactive({ d: [], multipleTable: [] });
 
+
+//场景
+const options = [
+  {
+    value: "",
+    label: "全部客户",
+  },
+  {
+    value: 1,
+    label: "房源",
+  },
+  {
+    value: 2,
+    label: "租房",
+  },
+  {
+    value: 3,
+    label: "买房",
+  },
+  {
+    value: 4,
+    label: "居家装修",
+  },
+]
+
 //挂载
 onMounted(async () => {
   console.log("-----加载中开始调用查询方法-----");
   GetList();
 });
-
+const getcustList=()=>{
+  console.log(Customerterm)
+  GetList();
+}
 //回调方法
 const sxkh = () => {
   GetList();
@@ -278,6 +322,7 @@ console.log("empId =  ", empId);
 let Customerterm = reactive({
   empId: empId,
   custDetailName: "",
+  custType:""
 });
 //测试查询
 const GetList = () => {

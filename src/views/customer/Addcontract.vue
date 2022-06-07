@@ -36,6 +36,7 @@
                 <el-input
                   placeholder="Approved by"
                   v-model="contract.contractNo"
+                  disabled
                 />
               </el-form-item>
               <el-form-item label="合同名称">
@@ -89,6 +90,21 @@
                   />
                 </el-select>
               </el-form-item>
+              <el-form-item label="房源" prop="companyId">
+                <el-select
+                  ref="count"
+                  v-model="contract.companyId"
+                  placeholder="请选中"
+                  @change="getCustId"
+                >
+                  <el-option
+                    v-for="item in data.CustIdlist"
+                    :key="item.custId"
+                    :label="item.customerDetail.custDetailName"
+                    :value="item.custId"
+                  />
+                </el-select>
+              </el-form-item>
               <el-form-item label="备注">
                 <el-input
                   type="textarea"
@@ -129,6 +145,12 @@
                 </template>
               </el-table-column>
               <el-table-column prop="productPrice" label="报价" width="180" />
+              <el-table-column prop="productArea" label="面积" width="180" />
+              <el-table-column
+                prop="productValuation"
+                label="估价/￥"
+                width="180"
+              />
               <el-table-column
                 prop="productIntroduce"
                 label="介绍"
@@ -144,7 +166,6 @@
                 label="装修类型"
                 width="180"
               />
-              <el-table-column prop="productArea" label="面积" width="180" />
             </el-table>
             <span style="font-size: smaller"
               >已选中{{ product.data.length }}件商品,</span
@@ -169,16 +190,15 @@
         </el-scrollbar>
         <div style="float: right">
           <el-button type="primary" @click="qvxiao">取消</el-button>
-          <el-button type="primary" @click="tijiao">保存草稿</el-button>
-          <el-button type="primary" @click="shenhe">提交审核</el-button>
+          <el-button type="primary" @click="tijiao">保存</el-button>
         </div>
-        {{ props.rowData }}
       </el-card>
     </el-dialog>
     <AddProductsfrom
       v-if="dialogShow"
       v-model:dialogShow="dialogShow"
       @addproducts="add"
+      :custId="contract.companyId"
     ></AddProductsfrom>
   </div>
 </template>
@@ -195,6 +215,9 @@ import {
 import { ElMessage, ElMessageBox } from "element-plus";
 import AddProductsfrom from "./AddProducts.vue";
 import { addContractTo } from "@/api/contract/index";
+import { useStore } from "vuex";
+import { CustomerSearch } from "@/api/customer/index.js";
+import { nanoid } from "nanoid";
 const api = getCurrentInstance()?.appContext.config.globalProperties.$API; // api （axios管理的后端接口）
 
 const dialogShow = ref(false);
@@ -218,11 +241,17 @@ const props = defineProps({
 const data = reactive({
   formData: {},
   emplist: [],
+  CustIdlist: [],
 });
 
 //添加合同页面打开添加商品组件
 const AddProducts = () => {
-  dialogShow.value = true;
+  if(contract.companyId!=null){
+    dialogShow.value = true;
+  }else{
+    ElMessage.error("请选择房源，在进行添加商品操作");
+  }
+  
 };
 
 //查询员工信息
@@ -234,6 +263,14 @@ const allEmp = () => {
     }
   });
 };
+const getCustId = (value) => {
+  data.CustIdlist.forEach((item) => {
+    if (item.custId == value) {
+      contract.companyId = item.custId;
+    }
+  });
+};
+
 //下拉菜单的点击事件
 const getempId = (value) => {
   data.emplist.forEach((item) => {
@@ -248,8 +285,8 @@ const getempId = (value) => {
 const add = (val, val2) => {
   product.data = val;
   contract.productId = product.data[0].productNo;
-  contract.contractMoney = product.data[0].productPrice; //合同金额
-  contract.contractNoPay = product.data[0].productPrice; //合同未支付金额
+  contract.contractMoney = product.data[0].productValuation; //合同金额
+  contract.contractNoPay = product.data[0].productValuation; //合同未支付金额
 };
 
 const pObj = toRefs(props).rowInfo;
@@ -261,6 +298,8 @@ const contract = reactive({
   contractMoney: 0,
   contractTotalCommission: 0,
   contractStatus: 0,
+  companyId:null,
+  contractNo:nanoid()
 });
 
 //收取佣金的百分比
@@ -290,22 +329,7 @@ const tijiao = () => {
   console.log(contract);
   console.log(product);
 };
-//提交审核
-const shenhe =()=>{
-  contract.contractStatus = 3
-  addContractTo(contract) // 使用接口，调用
-    .then((response) => {
-      if (response.code == 200) {
-        ElMessage({
-          type: "success",
-          message: "成功添加",
-        });
-        onClose();
-      } else {
-        ElMessage.error("添加失败，请联系管理员");
-      }
-    });
-}
+
 //取消点击事件
 const qvxiao = () => {
   emits("update:dialogShow", false);
@@ -338,9 +362,34 @@ const onClose = () => {
   emits("update:dialogShow", false);
   emits("GetContract");
 };
+//useStore 获取store
+const store = useStore();
+let Customerterm = reactive({
+  empId: null,
+  custType: 1,
+});
+let pagePlugs = reactive({
+  data: {
+    page: 1,
+    size: 10,
+    total: 0,
+  },
+});
+//从token 获取empid
+const getCustIdBycustType = () => {
+  Customerterm.empId = store.state.employee.user.user.empId;
+  CustomerSearch(pagePlugs.data.page, pagePlugs.data.size, Customerterm).then(
+    (response) => {
+      if (response.code == 200) {
+        data.CustIdlist = response.data.records;
+      }
+    }
+  );
+};
 onMounted(() => {
   data.formData = JSON.parse(JSON.stringify(props.rowInfo));
   allEmp();
+  getCustIdBycustType();
 });
 </script>
 <style lang="scss" scoped>

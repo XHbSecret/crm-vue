@@ -1,7 +1,6 @@
+<!-- 这是租房组件 -->
 <template>
-  <el-tabs type="border-card" style="margin: -20px;" @tab-click="handleClick">
-    <el-tab-pane label="售房">
-      <header id="header">
+   <header id="header">
         <el-row type="flex" justify="space-between">
           <el-col :span="3" style="width: 600px">
             <img
@@ -14,7 +13,7 @@
                 font-weight: bold;
                 margin-left: 10px;
               "
-              >房产出售</span
+              >房产出租</span
             ></el-col
           >
           <el-col :span="5">
@@ -90,15 +89,8 @@
         <el-table-column prop="productPrice" label="售价/平方米" width="180" />
         <el-table-column prop="productValuation" label="估价/￥" width="180" />
         <el-table-column prop="productQuantity" label="房屋数量" width="180" />
-        <el-table-column prop="employeeDatail.empName" label="负责人" width="180" />
-        <el-table-column prop="productUnit" label="单位" width="180" >
-          <template v-slot="scope">
-            <p v-if="scope.row.productUnit == 1">套</p>
-            <p v-else-if="scope.row.productUnit == 2">间</p>
-            <p v-else-if="scope.row.productUnit == 3">幢</p>
-            <p v-else-if="scope.row.productUnit == 4">栋</p>
-          </template>
-        </el-table-column>
+        <el-table-column prop="productUnit" label="单位" width="180" />
+        <el-table-column prop="rentalPrices" label="月租/￥" width="180" />
         <el-table-column prop="productIntroduce" label="介绍" width="180" />
         <el-table-column prop="productSell" label="售价方式" width="180">
           <template v-slot="scope">
@@ -120,16 +112,11 @@
           label="装修类型"
           width="180"
         />
-        <el-table-column
-          prop="customerDetail.custDetailName"
-          label="提供者"
-          width="180"
-        />
       </el-table>
       <el-pagination
-        v-model:currentPage="pagePlugs.data.pageNum"
-        v-model:page-size="pagePlugs.data.pageSize"
-        :page-sizes="[5, 10, 15, 20, 30]"
+        v-model:currentPage="pagePlugs.data.page"
+        v-model:page-size="pagePlugs.data.size"
+        :page-sizes="[10, 20, 30, 40, 50]"
         layout="total,sizes, prev, pager, next, jumper"
         :total="pagePlugs.data.total"
         @size-change="handleSizeChange"
@@ -137,26 +124,20 @@
         background
       />
       <!-- 添加插件 -->
-      <pDialog
+      <productDialog
         v-model="dialogVisible"
         :dialogTittle="dialogTittle"
-        :mode ="mode"
-        @AddData="getProduct()"
-      ></pDialog>
+        @updateDate="getProduct"
+        :mode="mode"
+      ></productDialog>
 
       <!-- 抽屉 -->
-      <pDraw
+      <productDraw
         v-if="drawer"
         v-model:drawer="drawer"
         :rowInfo="rowInfo"
         @upData ="getProduct()"
-      ></pDraw>
-    </el-tab-pane>
-    <el-tab-pane label="租房" name="first">
-      <renting ref="SeaComp" ></renting>
-    </el-tab-pane>
-    <el-tab-pane label="房源公海">房源公海</el-tab-pane>
-  </el-tabs>
+      ></productDraw>
 </template>
 
 <script setup>
@@ -169,11 +150,12 @@ import {
   upProduct,
   downProduct,
 } from "@/api/system/product";
+import productDialog from "./productDialog.vue";
+import productDraw from "./productDraw.vue";
 import { useStore } from "vuex";
-import pDialog from "./productDialog.vue";
-import pDraw from "./productDraw.vue";
-import renting from "./renting.vue"
 const drawer = ref(false);
+const dialogVisible = ref(false);
+const dialogTittle = ref("");
 const seaches = ref("");
 const num = ref(0);
 let datas = reactive({ tableData: [] });
@@ -181,7 +163,7 @@ let searchData = reactive({ tableData: [] });
 let pagePlugs = reactive({
   data: {
     pageNum: 1,
-    pageSize: 5,
+    pageSize: 10,
     total: 0,
   },
 });
@@ -210,12 +192,11 @@ const getcommodity = () => {
 //储存查询商品条件数据
 const productQuery = reactive({
   productStatus: "",
-  productSell:1,
+  productSell:2,
   empId:null,
   productCustId:null
 });
-//useStore 获取store
-const store = useStore();
+
 //搜索框根据产品名模糊查询
 const addProductByName = () => {
   getProduct();
@@ -225,7 +206,12 @@ const addProductByName = () => {
 onMounted(() => {
   getProduct();
 });
-
+//暴露方法
+defineExpose({
+  getProduct,
+});
+//useStore 获取store
+const store = useStore();
 function getProduct() {
   console.log(productQuery);
   productQuery.empId = store.state.employee.user.user.empId;
@@ -242,18 +228,12 @@ function handleSelectionChange(val) {
   num.value = val.length;
 }
 
-
-//打开添加产品组件
-const dialogVisible = ref(false);
-const dialogTittle = ref("");
 const mode = ref()
 function addProduct() {
   dialogVisible.value = true;
-  dialogTittle.value = "添加出售产品";
-  mode.value=1
+  dialogTittle.value = "添加出租产品";
+  mode.value=2
 }
-
-
 
 function delProduct() {
   ElMessageBox.confirm("你确认要删除这些产品吗？", "提示", {
@@ -309,19 +289,6 @@ function clickData(row) {
   rowInfo.value = row;
   console.log(JSON.parse(JSON.stringify(row)));
 }
-
-
-const SeaComp=ref(null)//获取子组件的方法
-const handleClick=(tab, event)=> {
-        // console.log(tab, event);
-        //这样才能获取每个el-tab-pane的name属性
-        //  console.log(tab.props.name);
-         if(tab.props.name == "first"){
-          // console.log(SeaComp.value)
-          SeaComp.value.getProduct()
-          console.log("hahaha")
-        }
-      }
 </script>
 
 <style scoped>

@@ -60,7 +60,13 @@
       label="合同编号"
       width="250px"
       fixed="left"
-    />
+    >
+      <template v-slot="scope">
+        <el-link type="primary" @click="contractItemClick(scope.row)">{{
+          scope.row.contractNo
+        }}</el-link>
+      </template>
+    </el-table-column>
     <el-table-column
       prop="contractTotalCommission"
       label="合同佣金"
@@ -71,20 +77,20 @@
       </template>
     </el-table-column>
 
-    <el-table-column prop="contractSignTime" label="合同签约时间" width="150px" />
-    <el-table-column prop="customerDetail.custDetailName" label="合同客户" width="120px">
-      <template v-slot="scope">
-        <el-link type="primary">{{
-          scope.row.customerDetail.custDetailName
-        }}</el-link>
-      </template>
+    <el-table-column
+      prop="contractSignTime"
+      label="合同签约时间"
+      width="150px"
+    />
+    <el-table-column
+      prop="customerDetail.custDetailName"
+      label="合同客户"
+      width="120px"
+    >
     </el-table-column>
-    <el-table-column prop="productId" label="合同产品" width="100px">
-      <template v-slot="scope">
-        <el-link type="primary">{{ scope.row.productId }}</el-link>
-      </template>
+    <el-table-column prop="product.productName" label="合同产品" width="100px">
     </el-table-column>
-    <el-table-column prop="empName" label="合同负责人" width="100px"/>
+    <el-table-column prop="empName" label="合同负责人" width="100px" />
     <el-table-column prop="contractDescribe" label="合同描述" />
     <el-table-column prop="contractStatus" label="合同状态" width="120px">
       <template v-slot="scope">
@@ -93,7 +99,7 @@
           title="审核进度"
           :width="200"
           trigger="hover"
-          @show="showStatus(scope.row.contractId,scope.row.contractStatus)"
+          @show="showStatus(scope.row.contractId, scope.row.contractStatus)"
           @hide="disableStatus"
         >
           <template v-slot>
@@ -110,7 +116,9 @@
                     : '#e4e7ed'
                 "
               >
-                审批人：{{ activity.checkUserVO.userName }}&nbsp;&nbsp;&nbsp;&nbsp;
+                审批人：{{
+                  activity.checkUserVO.userName
+                }}&nbsp;&nbsp;&nbsp;&nbsp;
                 <template v-if="activity.checkStatus == 2">
                   <el-tag class="ml-2" type="danger"
                     >拒绝通过，原因是：{{ activity.checkAdvice }}</el-tag
@@ -159,7 +167,7 @@
                 <span>审核未通过</span>
               </div>
             </template>
-             <template v-else>
+            <template v-else>
               <div>无</div>
             </template>
           </template>
@@ -180,7 +188,7 @@
   </el-table>
 
   <!-- 分页 -->
-  <el-row>
+  <!-- <el-row>
     <el-col :span="9" :offset="15">
       <el-pagination
         v-model:currentPage="page.currentPage"
@@ -190,7 +198,19 @@
         :total="page.total"
       />
     </el-col>
-  </el-row>
+  </el-row> -->
+  <div style="margin: 10px 0">
+    <el-pagination
+      v-model:currentPage="page.currentPage"
+      v-model:page-size="page.size"
+      :page-sizes="[5, 10, 20, 50]"
+      layout="total, sizes, prev, pager, next, jumper"
+      :total="page.total"
+      @size-change="handleSizeChange"
+      @current-change="handleChange"
+      style="float: right"
+    />
+  </div>
 
   <!-- 添加合同的dialog 框 -->
   <el-dialog
@@ -307,6 +327,21 @@
       </span>
     </template>
   </el-dialog>
+  <!-- 审批文件（合同）抽屉 -->
+  <!-- <el-drawer
+
+    v-model="contractDrawer"
+    title="I am the title"
+    :with-header="false"
+    size="75%"
+  >
+  {{contractList.data}}
+</el-drawer> -->
+  <contCT
+    v-if="contractDrawer"
+    v-model:contractDrawer="contractDrawer"
+    :rowInfo="rowInfo"
+  ></contCT>
 </template>
 
 <script setup>
@@ -325,7 +360,8 @@ import { CustomerSearch } from "@/api/customer/index";
 import { onMounted } from "@vue/runtime-core";
 import { useStore } from "vuex";
 import { ElMessage } from "element-plus";
-
+import contCT from "./contractCT.vue";
+import contractItem from "../check/contractItem.vue";
 const store = useStore();
 let searchContent = ref("");
 let searchType = ref("1");
@@ -336,7 +372,7 @@ let contractList = reactive({ data: [] });
 let productList = reactive({ data: [] });
 let page = reactive({
   currentPage: 1,
-  size: 10,
+  size: 5,
   total: 0,
 });
 let custPage = reactive({
@@ -361,7 +397,21 @@ function likeSearch() {
     });
   }
 }
-
+//合同分页
+function handleSizeChange(val) {
+  page.size = val;
+  getAllContractPage(page.currentPage, page.size).then((res) => {
+    contractList.data = res.data.records;
+    page.total = res.data.total;
+  });
+}
+function handleChange(val) {
+  page.currentPage = val;
+  getAllContractPage(page.currentPage, page.size).then((res) => {
+    contractList.data = res.data.records;
+    page.total = res.data.total;
+  });
+}
 // 添加合同的表单
 let addContractForm = reactive({
   empId: store.state.employee.user.user.empId,
@@ -374,7 +424,7 @@ let addContractForm = reactive({
   contractTotalCommission: "",
   contractSignTime: "",
   contractDescribe: "",
-  contractStatus: 1,
+  contractStatus: 0,
 });
 //关于客户数据的
 let selectCustomer = { name: "", id: 0 };
@@ -385,20 +435,33 @@ let Customerterm = reactive({
   custDetailName: "",
 });
 
-let checkUser = reactive({data:{}})
+//合同详情
+let contractDrawer = ref(false);
+//传入抽屉的值
+const rowInfo = ref({}); // 子组件的传递的 合同id
+
+//表格 合同触发
+function contractItemClick(row) {
+  contractDrawer.value = true;
+  rowInfo.value = row
+  // contractId.value = row.contractId
+  // contractData.data = rows
+}
+
+let checkUser = reactive({ data: {} });
 // 状态显示
-function showStatus(contractId,status){
-  if(status != 0){
-    getRecordByService(1,contractId).then((res) => {
-      console.log(res.data)
+function showStatus(contractId, status) {
+  if (status != 0) {
+    getRecordByService(1, contractId).then((res) => {
+      console.log(res.data);
       checkUser.data = res.data;
     });
   }
 }
 
 // 状态消失
-function disableStatus(){
-  checkUser.data ={}
+function disableStatus() {
+  checkUser.data = {};
 }
 
 // 提交审核
@@ -504,6 +567,7 @@ onMounted(() => {
   getAllContractPage(page.currentPage, page.size).then((res) => {
     contractList.data = res.data.records;
     page.total = res.data.total;
+    console.log(contractList.data);
   });
   // 产品新消息
   //TODO
@@ -514,7 +578,6 @@ function closeAddContract() {
   addContractForm = {};
 }
 </script>
-
 
 <script>
 export default {
