@@ -26,7 +26,7 @@
             <span style="font-weight: bold">基本信息</span>
             <el-form
               :inline="true"
-              :model="contract"
+              :model="data.contract"
               class="demo-form-inline"
               style="margin-left: 20px"
               label-position="left"
@@ -35,19 +35,19 @@
               <el-form-item label="合同编号">
                 <el-input
                   placeholder="Approved by"
-                  v-model="contract.contractNo"
+                  v-model="data.contract.contractNo"
                 />
               </el-form-item>
               <el-form-item label="合同名称">
                 <el-input
                   placeholder="Approved by"
-                  v-model="contract.contractName"
+                  v-model="data.contract.contractName"
                 />
               </el-form-item>
             </el-form>
             <el-form
               :inline="true"
-              :model="contract"
+              :model="data.contract"
               class="demo-form-inline"
               style="margin-left: 20px"
               label-position="left"
@@ -55,7 +55,7 @@
             >
               <el-form-item label="开始时间">
                 <el-date-picker
-                  v-model="contract.contractStartTime"
+                  v-model="data.contract.contractStartTime"
                   type="date"
                   label="结束时间"
                   placeholder="开始时间"
@@ -64,7 +64,7 @@
               </el-form-item>
               <el-form-item label="结束时间">
                 <el-date-picker
-                  v-model="contract.contractStopTime"
+                  v-model="data.contract.contractStopTime"
                   type="date"
                   label="结束时间"
                   placeholder="结束时间"
@@ -77,9 +77,10 @@
               <el-form-item label="公司签约人">
                 <el-select
                   ref="count"
-                  v-model="contract.empId"
+                  v-model="data.contract.empId"
                   placeholder="请选中"
                   @change="getempId"
+                  disabled
                 >
                   <el-option
                     v-for="item in data.emplist"
@@ -93,7 +94,7 @@
                 <el-input
                   type="textarea"
                   style="width: 500px"
-                  v-model="contract.contractDescribe"
+                  v-model="data.contract.contractDescribe"
                 />
               </el-form-item>
             </el-form>
@@ -102,7 +103,7 @@
             <p style="font-weight: bold">产品</p>
             <el-button @click="AddProducts">添加产品</el-button>
             <el-table
-              :data="product.data"
+              :data="data.contract.product"
               stripe
               style="width: 100%"
               id="body-table"
@@ -147,10 +148,10 @@
               <el-table-column prop="productArea" label="面积" width="180" />
             </el-table>
             <span style="font-size: smaller"
-              >已选中{{ product.data.length }}件商品,</span
+              >已选中{{ data.contract.product.length }}件商品,</span
             >
             <span style="font-size: smaller"
-              >总金额：{{ contract.contractMoney }}元,</span
+              >总金额：{{ data.contract.contractMoney }}元,</span
             >
             <span style="font-size: smaller"
               >收取佣金：<el-input-number
@@ -163,16 +164,14 @@
               />%</span
             >
             <span style="font-size: smaller"
-              >佣金：{{ contract.contractTotalCommission }}元,</span
+              >佣金：{{ data.contract.contractTotalCommission }}元,</span
             >
           </div>
         </el-scrollbar>
         <div style="float: right">
           <el-button type="primary" @click="qvxiao">取消</el-button>
           <el-button type="primary" @click="tijiao">保存草稿</el-button>
-          <el-button type="primary" @click="shenhe">提交审核</el-button>
         </div>
-        {{ props.rowData }}
       </el-card>
     </el-dialog>
     <AddProductsfrom
@@ -194,7 +193,8 @@ import {
 } from "vue";
 import { ElMessage, ElMessageBox } from "element-plus";
 import AddProductsfrom from "./AddProducts.vue";
-import { addContractTo } from "@/api/contract/index";
+import { updateContract, addContractTo } from "@/api/contract/index";
+import { number } from "echarts";
 const api = getCurrentInstance()?.appContext.config.globalProperties.$API; // api （axios管理的后端接口）
 
 const dialogShow = ref(false);
@@ -212,12 +212,22 @@ const props = defineProps({
     type: Object,
     default: () => {},
   },
+  judge: {
+    type: Number,
+    default: () => 0,
+  },
 });
 
 //接收父组件的数据复制
 const data = reactive({
   formData: {},
   emplist: [],
+  contract: {
+    contractMoney: 0,
+    contractTotalCommission: 0,
+    contractStatus: 0,
+    product: [],
+  },
 });
 
 //添加合同页面打开添加商品组件
@@ -246,69 +256,61 @@ const getempId = (value) => {
 
 //向表格添加数据
 const add = (val, val2) => {
-  product.data = val;
-  contract.productId = product.data[0].productNo;
-  contract.contractMoney = product.data[0].productPrice; //合同金额
-  contract.contractNoPay = product.data[0].productPrice; //合同未支付金额
+  data.contract.product = [];
+  data.contract.product = val;
+  data.contract.productId = data.contract.product[0].productNo;
 };
 
 const pObj = toRefs(props).rowInfo;
 
 //获取表单信息
-const contract = reactive({
-  custId: pObj.value.customerDetail.custId,
-  empName: pObj.value.employeeDatail.empName,
-  contractMoney: 0,
-  contractTotalCommission: 0,
-  contractStatus: 0,
-});
+let contract = reactive({});
 
 //收取佣金的百分比
 let ratio = ref(0);
 
 const handleChange = (value) => {
-  contract.contractTotalCommission =
-    contract.contractMoney * (ratio.value / 100);
+  data.contract.contractTotalCommission =
+    data.contract.contractMoney * (ratio.value / 100);
   console.log(value);
 };
 
 const product = reactive({ data: [] });
-//保存草稿
+//修改合同
 const tijiao = () => {
-  addContractTo(contract) // 使用接口，调用
-    .then((response) => {
-      if (response.code == 200) {
-        ElMessage({
-          type: "success",
-          message: "成功添加",
-        });
-        onClose();
-      } else {
-        ElMessage.error("添加失败，请联系管理员");
-      }
-    });
-  console.log(contract);
-  console.log(product);
+  if (JSON.stringify(props.judge) == "1") {
+    updateContract(data.contract) // 使用接口，调用
+      .then((response) => {
+        if (response.code == 200) {
+          onClose();
+          ElMessage({
+            type: "success",
+            message: "修改成功添加",
+          });
+          onClose();
+        } else {
+          ElMessage.error("修改失败，请联系管理员");
+        }
+      });
+  } else if (JSON.stringify(props.judge) == "2") {
+    data.contract.contractStatus = 0
+    addContractTo(data.contract) // 使用接口，调用
+      .then((response) => {
+        if (response.code == 200) {
+          onClose();
+          ElMessage({
+            type: "success",
+            message: "成功添加",
+          });
+        } else {
+          ElMessage.error("添加失败，请联系管理员");
+        }
+      });
+  }
 };
-//提交审核
-const shenhe =()=>{
-  contract.contractStatus = 3
-  addContractTo(contract) // 使用接口，调用
-    .then((response) => {
-      if (response.code == 200) {
-        ElMessage({
-          type: "success",
-          message: "成功添加",
-        });
-        onClose();
-      } else {
-        ElMessage.error("添加失败，请联系管理员");
-      }
-    });
-}
 //取消点击事件
 const qvxiao = () => {
-  emits("update:dialogShow", false);
+  emits("update:UpdShow", false);
 };
 const input = ref(pObj.value.customerDetail.custDetailName);
 
@@ -332,15 +334,18 @@ const houseType = [
   },
 ];
 
-const emits = defineEmits(["update:dialogShow", "GetContract"]);
+const emits = defineEmits(["update:UpdShow", "GetContract"]);
 const onClose = () => {
   // 关键句，父组件则可通过 v-model:visible 同步子组件更新后的数据
-  emits("update:dialogShow", false);
+  emits("update:UpdShow", false);
   emits("GetContract");
 };
 onMounted(() => {
   data.formData = JSON.parse(JSON.stringify(props.rowInfo));
   allEmp();
+  data.contract = JSON.parse(JSON.stringify(props.rowData));
+  ratio.value =
+    (data.contract.contractTotalCommission / data.contract.contractMoney) * 100;
 });
 </script>
 <style lang="scss" scoped>
