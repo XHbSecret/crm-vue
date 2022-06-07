@@ -4,14 +4,14 @@
     <el-header style="text-align: right; font-size: 12px; border: 1px solid gr">
       <div class="theme"></div>
       <div class="toolbar">
-        <el-dropdown trigger="click" >
-          <el-avatar>Tom</el-avatar>
+        <el-dropdown trigger="click">
+          <el-avatar>{{ empName }}</el-avatar>
           <template #dropdown>
             <el-dropdown-menu>
               <el-dropdown-item @click="person()"
                 ><el-icon><avatar /></el-icon>&nbsp;个人信息</el-dropdown-item
               >
-              <el-dropdown-item  divided @click="logOut()"
+              <el-dropdown-item divided @click="logOut()"
                 ><el-icon><expand /></el-icon>退出登录</el-dropdown-item
               >
             </el-dropdown-menu>
@@ -20,9 +20,7 @@
       </div>
     </el-header>
 
-    
     <el-container>
-
       <!-- 侧边栏 -->
       <el-aside width="200px" class="aside_bgc">
         <!-- <button @click="isCollapse = !isCollapse">123</button> -->
@@ -36,17 +34,16 @@
             text-color="#fff"
             :collapse="isCollapse"
           >
-
-           <el-menu-item index="/Amain">
-                <el-icon><Menu/></el-icon>
-                <span>首页</span>
-              </el-menu-item>
-          <!-- 遍历菜单 从 vuex中-->
+            <el-menu-item index="/Amain">
+              <el-icon><Menu /></el-icon>
+              <span>首页</span>
+            </el-menu-item>
+            <!-- 遍历菜单 从 vuex中-->
             <template
               v-for="(menu, index) in $store.state.employee.paths"
               :key="index"
             >
-            <!-- 有子菜单 ，就有下拉列表-->
+              <!-- 有子菜单 ，就有下拉列表-->
               <el-sub-menu
                 :index="menu.menuName"
                 v-if="menu.childMenuList != null"
@@ -58,13 +55,14 @@
                   <el-menu-item
                     :index="childMenu.menuPath"
                     v-for="(childMenu, index) in menu.childMenuList"
-                    :key="index">
+                    :key="index"
+                  >
                     {{ childMenu.menuName }}
                   </el-menu-item>
                 </el-menu-item-group>
               </el-sub-menu>
 
-            <!-- 没有子菜单 ，没有下拉列表-->
+              <!-- 没有子菜单 ，没有下拉列表-->
               <!-- <el-menu-item index="/sys/loginLog" v-else> -->
               <el-menu-item :index="menu.menuPath" v-else>
                 <el-icon><setting /></el-icon>
@@ -79,7 +77,6 @@
       <el-main>
         <router-view></router-view>
       </el-main>
-
     </el-container>
   </el-container>
 </template>
@@ -93,39 +90,37 @@ import {
   Expand,
   MoreFilled,
   Money,
-  Menu
+  Menu,
 } from "@element-plus/icons-vue";
-import { useStore } from 'vuex'    // 导入vuex
-import {  useRouter } from 'vue-router'
+import { useStore } from "vuex"; // 导入vuex
+import { useRouter } from "vue-router";
 import { getCurrentInstance } from "vue";
 
-
 const api = getCurrentInstance()?.appContext.config.globalProperties.$API; // api （axios管理的后端接口）
- const store = useStore()   // 创建对象
- const router = useRouter()  // 创建route
- let isCollapse = ref(false)  // 菜单收缩
+const store = useStore(); // 创建对象
+const router = useRouter(); // 创建route
+let isCollapse = ref(false); // 菜单收缩
 
+const empName = store.state.employee.user.user.employeeDatail.empName;
 // 退出登录
-async function logOut(){
+async function logOut() {
   //发送退出指令给后台：
-   api.login
-    .logout()
-    .then((response) => {
-      if(response.code == 200){
-        store.state.employee.token = ""  // 清空token
-        router.push({path:'/login'})
-      }
-    })
+  api.login.logout().then((response) => {
+    if (response.code == 200) {
+      store.state.employee.token = ""; // 清空token
+      router.push({ path: "/login" });
+    }
+  });
 }
 
 // 个人中心
-function person(){
-  router.push({path:'/person'})
+function person() {
+  router.push({ path: "/person" });
 }
 </script>
 
 <style scoped>
-.userInfo{
+.userInfo {
   font-size: 13px;
   color: #666;
 }

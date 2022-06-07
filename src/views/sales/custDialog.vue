@@ -7,8 +7,12 @@
     draggable
   >
     <el-row class="row-margin">
-      <el-col :span="8">
-        <el-input placeholder="请输入关键字" style="width: 20%" clearable>
+      <el-col :span="10">
+        <el-input
+          placeholder="请输入关键字"
+          clearable
+          v-model="customers.custName"
+        >
           <template #append>
             <el-button type="primary" :icon="Search" @click="searchLike()" />
           </template>
@@ -16,14 +20,15 @@
       </el-col>
     </el-row>
     <el-table
-      border
+      :data="tableData.cust"
       stripe
       style="width: 100%"
       height="350"
       :header-cell-style="{ 'text-align': 'center' }"
       :cell-style="{ 'text-align': 'center' }"
-      @selection-change="handleSelectionChange"
-      :data="tableData.cust"
+      ref="multipleTable"
+      @selection-change="selectionChange"
+      @select-all="selectAll"
     >
       <el-table-column type="selection"></el-table-column>
       <el-table-column
@@ -76,11 +81,30 @@
 </template>
 
 <script setup>
-import { onMounted, reactive } from "vue";
+import { onMounted, reactive, ref, watch } from "vue";
 import { findCust } from "@/api/sales/index";
+import { CustomerSearch } from "@/api/customer/index";
 import { Search } from "@element-plus/icons-vue";
-const emits = defineEmits(["update:modelValue"]);
+import { useStore } from "vuex";
+const multipleTable = ref(null);
+
+const emits = defineEmits(["update:modelValue", "getCust"]);
+const props = defineProps({
+  custlist: {
+    type: Object,
+    default: {},
+  },
+});
+const store = useStore();
+//从token 获取empid
+let empId = store.state.employee.user.user.empId;
+console.log("empId =  ", empId);
+const customers = reactive({
+  empId: empId,
+  custName: "",
+});
 const tableData = reactive({ cust: [] });
+const custList = reactive({ data: [] });
 let pagePlugs = reactive({
   data: {
     currentPage: 1,
@@ -92,23 +116,61 @@ let pagePlugs = reactive({
 onMounted(() => {
   findCusts();
 });
-
+function searchLike() {
+  findCusts();
+}
 function handClose() {
   emits("update:modelValue", false);
 }
-
+function addOpps() {
+  handClose();
+  emits("getCust", custList.data);
+}
 function findCusts() {
-  findCust(pagePlugs.data.currentPage, pagePlugs.data.pageSize).then((res) => {
-    tableData.cust = res.data.records;
-    pagePlugs.data.total = res.data.total;
-    console.log(tableData.cust);
+  CustomerSearch(
+    pagePlugs.data.currentPage,
+    pagePlugs.data.pageSize,
+    customers
+  ).then((res) => {
+    if (res.code == 200) {
+      console.log("xixi");
+      tableData.cust = res.data.records;
+      pagePlugs.data.total = res.data.total;
+      console.log(tableData.cust);
+      console.log(res.data);
+      console.log("-----查询方法调用结束-----");
+    }
   });
 }
 
-function handleSelectionChange(val) {
-  console.log(val);
+function selectionChange(selection, row) {
+  if (selection.length == 1) {
+    custList.data = selection[0];
+  } else if (selection.length > 1) {
+    custList.data = selection[1];
+    let del_row = selection.shift();
+    multipleTable.value.toggleRowSelection(del_row, false);
+  }
+  console.log(custList.data);
 }
+function selectAll(selection) {
+  if (selection.length > 1) {
+    selection.length = 1;
+  }
+}
+
+watch(
+  () => props.custlist,
+  () => {
+    console.log(props.custlist);
+    props.custlist = tableData.cust;
+  },
+  { deep: true, immediate: true }
+);
 </script>
 
-<style>
+<style scoped>
+:deep(.el-table__header-wrapper .el-checkbox) {
+  display: none;
+}
 </style>

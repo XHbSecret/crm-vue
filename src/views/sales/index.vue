@@ -1,14 +1,27 @@
 <template>
   <div id="head">
+    <!-- 搜索/按钮区域 -->
     <el-row>
-      <el-col :span="8"><h3>商机管理</h3></el-col>
+      <el-col :span="8" style="width: 700px">
+        <img
+          src="src\assets\opp.png"
+          style="height: 40px; width: 40px; vertical-align: middle"
+        />
+        <span
+          style="vertical-align: middle; font-weight: bold; margin-left: 10px"
+          >商机管理</span
+        ></el-col
+      >
       <el-col :span="5">
         <el-input
           placeholder="请输入商机名称"
-          @change="find()"
-          v-model="value1"
+          v-model="value1.oppName"
           clearable
-        />
+        >
+          <template #append>
+            <el-button :icon="Search" @click="find"></el-button>
+          </template>
+        </el-input>
       </el-col>
     </el-row>
   </div>
@@ -21,50 +34,60 @@
       >新建商机</el-button
     >
     <div style="float: left" v-show="Opportunities.datas.length > 0">
-      <span>已选中{{ num }}项&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
-      <el-button style="small" :icon="Switch">转移</el-button>
-      <el-button :icon="Delete">删除</el-button>
-      <el-button>导出选中</el-button>
+      <span style="font-size: small"
+        >已选中{{ num }}项&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span
+      >
+      <el-button style="small" :icon="Switch" @click="change()">转移</el-button>
+      <el-button :icon="Delete" @click="deleteSales()">删除</el-button>
+      <el-button type="primary" @click="exportExcel">导出选中</el-button>
     </div>
   </div>
   <el-table
     @selection-change="handleSelectionChange"
     :data="tableData.datas"
-    stripe
     style="width: 100%"
     height="450"
-    row-key="oppId"
-    empty-text="请新建商机"
+    v-loading="loading"
   >
     <el-table-column type="selection" width="55" />
-    <el-table-column
-      label="商机名称"
-      prop="oppName"
-      width="130"
-      fixed
-    ></el-table-column>
+    <el-table-column label="商机名称" prop="oppName" width="130" fixed>
+      <template v-slot="scope" default="{row}">
+        <a href="#" @click.prevent="showOppDetails(scope.row)">{{
+          scope.row.oppName
+        }}</a>
+      </template>
+    </el-table-column>
     <el-table-column
       label="负责人"
-      prop="employee.employeeDatail.empName"
+      prop="employeeDatail.empName"
       width="130"
     ></el-table-column>
-    <el-table-column
-      label="商机阶段"
-      prop="flowId"
-      width="130"
-    ></el-table-column>
+    <el-table-column label="商机阶段" prop="flowDetailsName" width="130">
+      <template v-slot="scope" default="{row}">
+        <p>{{ scope.row.flowDetails.flowDetailsName }}</p>
+      </template>
+    </el-table-column>
     <el-table-column
       label="客户名称"
       prop="customerDetail.custDetailName"
       width="130"
-    ></el-table-column>
-    <el-table-column label="创建人" width="130">
-      <template> </template>
+    >
+      <template v-slot="scope" default="{row}">
+        <a href="#" @click.prevent="showCustDetails(scope.row)">{{
+          scope.row.customerDetail.custDetailName
+        }}</a>
+      </template></el-table-column
+    >
+    <el-table-column label="创建人" width="130" prop="empCreateId">
+      <template v-slot="scope" default="{row}">
+        {{ scope.row.empCreateId }}
+      </template>
     </el-table-column>
     <el-table-column
-      label="商机金额"
+      label="商机金额/元"
       prop="oppMoney"
       width="130"
+      fixed="right"
     ></el-table-column>
     <el-table-column
       label="更新时间"
@@ -94,7 +117,7 @@
   <el-pagination
     v-model:currentPage="pagePlugs.data.currentPage"
     v-model:page-size="pagePlugs.data.pageSize"
-    :page-sizes="[10, 20, 30, 40]"
+    :page-sizes="[10, 30, 60, 90]"
     small
     background
     layout="total, sizes, prev, pager, next, jumper"
@@ -103,22 +126,111 @@
     @current-change="handleCurrentChange"
     style="float: right; height: 60px; line-height: 60px"
   />
-  <salesDialog v-model="dialogVisible" v-if="dialogVisible"></salesDialog>
+  <!-- 添加dialog框 -->
+  <salesDialog
+    v-model="dialogVisible"
+    v-if="dialogVisible"
+    @updateDate="getAllOppss"
+  ></salesDialog>
+  <!-- 变更负责人dialog框 -->
+  <changeDialog
+    v-model="dialog_change"
+    :emplist="Opportunities.datas"
+    @updateData="getAllOppss"
+  ></changeDialog>
+  <!-- 商机详情 -->
+  <oppDrawer v-model="drawer_opp" :oppDetails="oppDetails"></oppDrawer>
+  <!-- 客户详情 -->
+  <custDrawer v-model="drawer_cust" :custDetails="custDetails"></custDrawer>
+
+  <!-- 预览所要导出的数据 -->
+  <el-dialog title="预览" v-model="selectOpp" :before-close="handClose">
+    <el-table
+      :data="Opportunities.datas"
+      style="width: 100%"
+      height="450"
+      id="selectTable"
+    >
+      <el-table-column type="index" width="50" fixed />
+      <el-table-column label="商机名称" prop="oppName" width="130" fixed>
+      </el-table-column>
+      <el-table-column
+        label="负责人"
+        prop="employeeDatail.empName"
+        width="130"
+      ></el-table-column>
+      <el-table-column
+        label="商机阶段"
+        prop="flowDetails.flowDetailsName"
+        width="130"
+      >
+      </el-table-column>
+      <el-table-column
+        label="客户名称"
+        prop="customerDetail.custDetailName"
+        width="130"
+      >
+      </el-table-column>
+      <el-table-column label="创建人" width="130" prop="empCreateId">
+      </el-table-column>
+      <el-table-column
+        label="商机金额/元"
+        prop="oppMoney"
+        width="130"
+        fixed="right"
+      ></el-table-column>
+      <el-table-column
+        label="更新时间"
+        prop="oppUpdateTime"
+        width="200"
+      ></el-table-column>
+      <el-table-column
+        label="创建时间"
+        prop="oppStartTime"
+        width="200"
+      ></el-table-column>
+      <el-table-column
+        label="预计成交日期"
+        prop="oppStopTime"
+        width="200"
+      ></el-table-column>
+      <el-table-column
+        label="备注"
+        prop="oppNotes"
+        width="130"
+      ></el-table-column>
+    </el-table>
+    <el-button type="info" @click="handClose">取消</el-button>
+    <el-button type="primary" @click="exportToExcel">确认</el-button>
+  </el-dialog>
 </template>
 
 <script setup>
 import { ref, onMounted, reactive } from "vue";
-import { getAllOpp } from "@/api/sales/index";
-import { Delete, Switch, Plus } from "@element-plus/icons-vue";
+import { getAllOpp, getAllOpps, delSales } from "@/api/sales/index";
+import { Delete, Switch, Plus, Search } from "@element-plus/icons-vue";
+import { ElMessage, ElMessageBox } from "element-plus";
+import { CustomerSearch } from "@/api/customer/index";
 import salesDialog from "./salesDialog.vue";
-import { useStore } from "vuex";
+import oppDrawer from "./oppDrawer.vue";
+import custDrawer from "./custDrawer.vue";
+import changeDialog from "./changeDialog.vue";
+import htmlExcel from "../../utils/hemlExcel";
 
-const store = useStore();
-const value1 = ref("");
+const selectOpp = ref(false);
+const dialog_change = ref(false);
+const loading = ref(true);
+const oppDetails = ref({});
+const custDetails = ref({});
+const drawer_cust = ref(false);
+const drawer_opp = ref(false);
 const num = ref(0);
 const dialogVisible = ref(false);
 const tableData = reactive({ datas: [] });
-
+const Opportunities = reactive({ datas: [] });
+let value1 = reactive({
+  oppName: "",
+});
 // 分页
 let pagePlugs = reactive({
   data: {
@@ -127,19 +239,62 @@ let pagePlugs = reactive({
     total: 0,
   },
 });
+
 onMounted(() => {
-  getAllOpps();
+  getAllOppss();
 });
 
 function showDialog() {
   dialogVisible.value = true;
 }
-
-function find() {
-  console.log(value1.value);
+function showOppDetails(val) {
+  drawer_opp.value = true;
+  oppDetails.value = JSON.parse(JSON.stringify(val));
+  console.log(JSON.parse(JSON.stringify(val)));
+  console.log(oppDetails.value);
 }
-const Opportunities = reactive({ datas: [] });
+function showCustDetails(val) {
+  drawer_cust.value = true;
+  custDetails.value = JSON.parse(JSON.stringify(val));
+  console.log(JSON.parse(JSON.stringify(val)));
+  console.log(custDetails.value);
+}
+function find() {
+  getAllOpp(pagePlugs.data.currentPage, pagePlugs.data.pageSize, value1).then(
+    (response) => {
+      tableData.datas = response.data.records;
+      pagePlugs.data.total = response.data.total;
+      loading.value = false;
+      console.log(tableData.datas);
+      console.log(response.data);
+    }
+  );
+}
 
+function deleteSales() {
+  ElMessageBox.confirm("你确认要删除这些内容吗？", "提示", {
+    confirmButtonText: "确定",
+    cancelButtonText: "取消",
+    type: "warning",
+  })
+    .then(() => {
+      delSales(Opportunities.datas).then(() => {
+        ElMessage({
+          message: "删除成功！！！！",
+          type: "success",
+        });
+        getAllOppss();
+      });
+    })
+    .catch(() => {
+      ElMessage.info("取消删除");
+    });
+}
+
+function change() {
+  dialog_change.value = true;
+  Opportunities.datas;
+}
 // 多选框
 function handleSelectionChange(val) {
   Opportunities.datas = val;
@@ -148,12 +303,15 @@ function handleSelectionChange(val) {
 }
 
 // 所有数据
-function getAllOpps() {
-  getAllOpp(pagePlugs.data.currentPage, pagePlugs.data.pageSize).then(
+function getAllOppss() {
+  console.log("haha");
+  getAllOpps(pagePlugs.data.currentPage, pagePlugs.data.pageSize).then(
     (response) => {
       tableData.datas = response.data.records;
       pagePlugs.data.total = response.data.total;
+      loading.value = false;
       console.log(tableData.datas);
+      console.log(response.data);
     }
   );
 }
@@ -161,9 +319,24 @@ function getAllOpps() {
 // 分页函数
 function handleSizeChange(val) {
   pagePlugs.data.pageSize = val;
+  getAllOpps();
 }
 function handleCurrentChange(val) {
   pagePlugs.data.currentPage = val;
+  getAllOpps();
+}
+
+// 导出选中的数据
+function exportExcel() {
+  selectOpp.value = true;
+}
+function exportToExcel() {
+  htmlExcel.getExcel("#selectTable", "商机");
+  handClose();
+}
+
+function handClose() {
+  selectOpp.value = false;
 }
 </script>
 

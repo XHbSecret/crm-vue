@@ -1,11 +1,9 @@
-<!-- 员工dialog -->
 <template>
   <el-dialog
-    :model-value="dialogVisible_emp"
-    title="选择员工"
-    width="60%"
-    draggable
-    @close="handClose"
+    :model-value="dialogVisible"
+    title="变更负责人"
+    width="45%"
+    :before-close="handleClose"
   >
     <el-row class="row-margin">
       <el-col :span="8">
@@ -49,8 +47,8 @@
           <el-table-column label="描述" prop="employeeDatail.empDescribe" />
         </el-table>
         <br />
-        <el-button type="info" @click="handClose()">取消</el-button>
-        <el-button type="primary" @click="addOpps()">添加</el-button>
+        <el-button type="info" @click="handleClose()">取消</el-button>
+        <el-button type="primary" @click="editOpps()">确认</el-button>
 
         <!-- 分页 -->
         <el-pagination
@@ -74,19 +72,21 @@
 import { reactive, onMounted, ref, watch } from "vue";
 import { Search } from "@element-plus/icons-vue";
 import { getAllEmp, search } from "@/api/employee/login";
+import { editSales } from "@/api/sales/index";
+import { ElMessage, ElMessageBox } from "element-plus";
 
 let searchContent = reactive({ empName: "" });
-const emits = defineEmits(["update:modelValue"]);
+const emits = defineEmits(["update:modelValue", "updateData"]);
 const props = defineProps({
   emplist: {
-    type: Object,
-    default: {},
+    type: Array,
+    default: [],
   },
 });
 const tableDatas = reactive({ datas: [] });
 const multipleTable = ref(null);
 const emplist = reactive({ data: [] });
-
+const emplists = reactive({ data: [] });
 let pagePlugs = reactive({
   data: {
     currentPage: 1,
@@ -94,9 +94,11 @@ let pagePlugs = reactive({
     total: 0,
   },
 });
+
 onMounted(() => {
   getEmp();
 });
+
 function searchLike() {
   let content = searchContent.empName.replace(" ", "");
   if (content == "") {
@@ -109,9 +111,13 @@ function searchLike() {
     }
   );
 }
-function handClose() {
+
+function handleClose() {
+  multipleTable.value.clearSelection();
   emits("update:modelValue", false);
+  emits("updateData");
 }
+
 // 获取员工
 function getEmp() {
   getAllEmp(pagePlugs.data.currentPage, pagePlugs.data.pageSize).then(
@@ -123,10 +129,26 @@ function getEmp() {
   );
 }
 
-function addOpps() {
-  emits("update:modelValue", false);
-  emits("getEmpList", emplist.data);
+function editOpps() {
+  ElMessageBox.confirm("你确认要变更这些商机的负责人吗？", "提示", {
+    confirmButtonText: "确定",
+    cancelButtonText: "取消",
+    type: "warning ",
+  })
+    .then(() => {
+      editSales(emplist.data.empId, emplists.data).then(() => {
+        ElMessage({
+          message: "变更成功！！！！",
+          type: "success",
+        });
+        handleClose();
+      });
+    })
+    .catch(() => {
+      ElMessage.info("取消转移");
+    });
 }
+
 function selectionChange(selection, row) {
   if (selection.length == 1) {
     emplist.data = selection[0];
@@ -155,7 +177,8 @@ watch(
   () => props.emplist,
   () => {
     console.log(props.emplist);
-    props.emplist = tableDatas.datas;
+    emplists.data = props.emplist;
+    console.log(emplists.data);
   },
   { deep: true, immediate: true }
 );

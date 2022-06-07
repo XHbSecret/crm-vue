@@ -21,54 +21,65 @@
         <el-input v-model="flowDetail.flowLastTime" disabled></el-input>
       </el-form-item>
     </el-form>
-    <h5>流程明细</h5>
     <el-button type="primary" @click="addDetail">添加详情</el-button>
-    <el-table
-      :data="details.datas"
-      row-key="flowDetailsId"
-      style="width: 100%"
-      height="300"
-      stripe
-    >
-      <el-table-column
-        prop="flowDetailsName"
-        label="流程详情名"
-        width="150px"
-        fixed
-      />
-      <el-table-column prop="flowIsCheck" label="是否审核" width="150px" fixed>
-        <template v-slot="scope">
-          <el-tag v-if="scope.row.flowIsCheck == 1" type="success">是</el-tag>
-          <el-tag v-else type="danger">否</el-tag>
-        </template>
-      </el-table-column>
-      <el-table-column
-        prop="flowOrder"
-        label="顺序"
-        width="150px"
-        fixed
-        sortable
-      />
-      <el-table-column
-        prop="flowDetailsDesc"
-        label="说明"
-        width="150px"
-        fixed
-      />
-      <el-table-column label="操作">
-        <template #default="{ row }">
-          <el-button @click="editFlowDetail(row)" type="text" :icon="Edit"
-            >修改</el-button
+    <el-tabs>
+      <el-tab-pane label="流程明细">
+        <el-table
+          :data="details.datas"
+          row-key="flowDetailsId"
+          style="width: 100%"
+          height="300"
+          stripe
+        >
+          <el-table-column
+            prop="flowDetailsName"
+            label="流程详情名"
+            width="150px"
+            fixed
+          />
+          <el-table-column
+            prop="flowIsCheck"
+            label="是否审核"
+            width="150px"
+            fixed
           >
-          <el-button
-            @click="delFlow(row.flowDetailsId)"
-            type="text"
-            :icon="Delete"
-            >删除</el-button
-          >
-        </template>
-      </el-table-column>
-    </el-table>
+            <template v-slot="scope">
+              <el-tag v-if="scope.row.flowIsCheck == 1" type="success"
+                >是</el-tag
+              >
+              <el-tag v-else type="danger">否</el-tag>
+            </template>
+          </el-table-column>
+          <el-table-column
+            prop="flowOrder"
+            label="顺序"
+            width="150px"
+            fixed
+            sortable
+          />
+          <el-table-column
+            prop="flowDetailsDesc"
+            label="说明"
+            width="150px"
+            fixed
+          />
+          <el-table-column label="操作">
+            <template #default="{ row }">
+              <el-button @click="editFlowDetail(row)" type="text" :icon="Edit"
+                >修改</el-button
+              >
+              <el-button
+                @click="delFlow(row.flowDetailsId)"
+                type="text"
+                :icon="Delete"
+                >删除</el-button
+              >
+            </template>
+          </el-table-column>
+        </el-table>
+      </el-tab-pane>
+    </el-tabs>
+
     <el-dialog title="修改详情" v-model="edit" @close="cancle">
       <el-form :model="form" label-width="120px" :rules="rules" ref="formRef">
         <el-form-item label="流程详情名" prop="flowDetailsName">
