@@ -159,6 +159,7 @@ function showAdd(row) {
   }
 }
 
+// 删除活动
 function delActivitys() {
   ElMessageBox.confirm("你确认要删除这些活动吗？", "提示", {
     confirmButtonText: "确定",
@@ -178,6 +179,7 @@ function delActivitys() {
       ElMessage.info("取消删除");
     });
 }
+
 function handleSizeChange(val) {
   pagePlugs.data.pageSize = val;
   getActivity();

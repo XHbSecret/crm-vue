@@ -7,33 +7,16 @@
   >
     <el-form label-width="120px" ref="formRef" :model="addForm" :rules="rules">
       <el-form-item label="产品名" prop="productNo">
-        <el-select
-          placeholder="请选择产品"
+        <el-input
+          placeholder="选择产品"
+          @click="showProduct"
           v-model="addForm.productNo"
-          clearable
-        >
-          <el-option
-            v-for="item in options1.productVo"
-            :key="item.productNo"
-            :label="item.porductName"
-            :value="item.productNo"
-          ></el-option>
-        </el-select>
+          readonly="true"
+        ></el-input>
       </el-form-item>
 
       <el-form-item label="投放公司" prop="companyId">
-        <el-select
-          placeholder="请选择公司"
-          v-model="addForm.companyId"
-          clearable
-        >
-          <el-option
-            v-for="item in options2.companyVo"
-            :key="item.companyId"
-            :label="item.companyName"
-            :value="item.companyId"
-          ></el-option>
-        </el-select>
+        <el-input placeholder="选择公司" @click="showCompany"></el-input>
       </el-form-item>
 
       <el-form-item label="投放日期" prop="comProTime">
@@ -67,20 +50,23 @@
         <el-button @click="onclose()">取消</el-button>
       </el-form-item>
     </el-form>
+    <productDialog
+      v-model="dialogVisible_product"
+      v-if="dialogVisible_product"
+      @getProducts="getProducts"
+    ></productDialog>
   </el-dialog>
 </template>
 
 <script setup>
 import { ref, reactive, onMounted, watch, toRaw } from "vue";
-import { getProdcutVos } from "@/api/system/product";
-import { getCompanyVos } from "@/api/system/company";
 import { addComPro, editComPros } from "@/api/system/activity";
 import { ElMessage } from "element-plus";
+import productDialog from "../sales/productDialog.vue";
 const formRef = ref(null);
 const emits = defineEmits(["update:modelValue", "updateDate"]);
-const value1 = ref("");
-const value2 = ref("");
-
+const dialogVisible_product = ref(false);
+const products = ref({});
 const props = defineProps({
   dialogTittle: {
     type: String,
@@ -91,33 +77,14 @@ const props = defineProps({
     default: () => {},
   },
 });
-let addForm = ref({
+let addForm = reactive({
   productNo: "",
   companyId: "",
   comProTime: "",
   comProContent: "",
   comProCost: "",
 });
-const options1 = reactive({ productVo: [] });
-const options2 = reactive({ companyVo: [] });
-const options = [
-  {
-    value: 1,
-    label: "开始",
-  },
-  {
-    value: 0,
-    label: "未审核",
-  },
-  {
-    value: 2,
-    label: "结束",
-  },
-  {
-    value: 3,
-    label: "待审核",
-  },
-];
+
 const onclose = () => {
   emits("update:modelValue", false);
   formRef.value.resetFields();
@@ -125,8 +92,8 @@ const onclose = () => {
 const onSubmit = () => {
   formRef.value.validate(async (valid) => {
     if (valid) {
-      console.log(addForm.value);
-      addComPro(addForm.value).then((response) => {
+      console.log(addForm);
+      addComPro(addForm).then(() => {
         ElMessage({
           message: "添加成功！！！！",
           type: "success",
@@ -144,7 +111,7 @@ const onSubmit = () => {
 const editComPro = () => {
   formRef.value.validate(async (valid) => {
     if (valid) {
-      editComPros(addForm.value).then((response) => {
+      editComPros(addForm).then((response) => {
         console.log(response.data);
         ElMessage({
           message: "修改成功！！！！",
@@ -160,23 +127,15 @@ const editComPro = () => {
     }
   });
 };
-function getProductVo() {
-  getProdcutVos().then((response) => {
-    options1.productVo = response.data;
-    console.log(options1.productVo);
-  });
+function showProduct() {
+  dialogVisible_product.value = true;
 }
-function getCompanyVo() {
-  getCompanyVos().then((response) => {
-    options2.companyVo = response.data;
-    console.log(options2.companyVo);
-  });
+function getProducts(val) {
+  console.log(val);
+  products.value = val;
+  addForm.productNo = products.value.productNo;
+  console.log(addForm.productNo);
 }
-onMounted(() => {
-  getProductVo();
-  getCompanyVo();
-});
-
 // 监听
 watch(
   () => props.dialogValue,
@@ -184,13 +143,10 @@ watch(
     console.log(props.dialogValue);
     console.log(1234);
 
-    addForm.value = toRaw(props.dialogValue);
-    // addForm.value.companyId = props.dialogValue.company.companyId;
-    // addForm.value.productNo = props.dialogValue.product.productNo;
-    console.log(addForm.value.productNo);
-    console.log(addForm.value.companyId);
-
-    console.log(addForm.value);
+    addForm = toRaw(props.dialogValue);
+    console.log(addForm.productNo);
+    console.log(addForm.companyId);
+    console.log(addForm);
   },
   { deep: true, immediate: true }
 );
