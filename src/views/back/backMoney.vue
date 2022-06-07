@@ -46,7 +46,11 @@
   <!-- 表格 -->
   <el-row class="row">
     <el-table :data="backList.data" height="420px" stripe style="width: 100%">
-      <el-table-column prop="backNo" label="回款编号" fixed width="180px"/>
+      <el-table-column prop="backNo" label="回款编号" fixed width="180px">
+        <template v-slot="scope">
+          <el-link type="primary" @click="backNoLink(scope.row)">{{scope.row.backNo}}</el-link>
+        </template>
+      </el-table-column>
       <el-table-column prop="customer.custDetailName" label="客户名称" />
       <el-table-column prop="contract.contractNo" label="合同编号" />
       <el-table-column prop="backMethod" label="回款方式" />
@@ -232,6 +236,12 @@
       </span>
     </template>
   </el-dialog>
+
+  <!-- 回款详情的 抽屉 -->
+  <el-drawer v-model="backDrawer" title="I am the title" :with-header="false" size="75%">
+    <span>Hi there!</span>
+  </el-drawer>
+
 </template>
 
 <script setup>
@@ -276,6 +286,13 @@ let Customerterm = reactive({
 });
 
 let checkUser = reactive({data:{}})
+let backDrawer =  ref(false)
+
+// 表格中 回款编号 link点击
+function backNoLink(row){
+  backDrawer.value = true
+}
+
 // 状态显示
 function showStatus(contractId,status){
   if(status != 0){

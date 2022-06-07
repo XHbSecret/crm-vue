@@ -5,6 +5,11 @@ export const getAllBackMoney = (page,size)=>request({
     method: 'get'
   })
 
+export const getBackMoneyById = (backId)=>request({
+    url: `/back/one/${backId}`,
+    method: 'get'
+  })
+
 export const updateStatusById = (backId)=>request({
     url: `/back/updStatus/${backId}`,
     method: 'get'

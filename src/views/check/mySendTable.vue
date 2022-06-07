@@ -238,7 +238,7 @@
   </el-dialog>
 
   <!-- 审批文件（回款） 抽屉 -->
-  <el-drawer v-model="backDrawer" title="I am the title" :with-header="false">
+  <el-drawer v-model="backDrawer" title="I am the title" :with-header="false" size="75%">
    <back-item :backId="backId" :backData="backData.data"/>
   </el-drawer>
 

@@ -7,7 +7,7 @@
           <!-- 图标 -->
           <el-col :span="22">
             <img src="src/assets/backMoney.png" alt="" width="30" height="30" />
-            <a class="con-title">{{props.contractData.object.contractNo}}</a>
+            <a class="con-title" v-if="props.contractData.object!=null">{{props.contractData.object.contractNo}}</a>
           </el-col>
           <!-- 编辑按钮 -->
           <el-col :span="2">
