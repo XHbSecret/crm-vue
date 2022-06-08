@@ -3,7 +3,11 @@
     <!-- 顶部导航栏 -->
     <el-header style="text-align: right; font-size: 12px; border: 1px solid gr">
       <div class="theme"></div>
+      <div style="float:left;">
+        <img src="src/assets/logohaha.png" alt="" width="260" height="60" style="margin-left:-30px">
+      </div>
       <div class="toolbar">
+        
         <el-dropdown trigger="click">
           <el-avatar>{{ empName }}</el-avatar>
           <template #dropdown>
@@ -136,6 +140,7 @@ function person() {
 .el-header {
   position: relative;
   color: var(--el-text-color-primary);
+  /* background-color: #fff; */
   background: linear-gradient(to left, gray, gainsboro);
 }
 .layout-container-demo .el-aside {

@@ -51,3 +51,8 @@ export const getRecordByService = (flowId,serviceId)=>request({
   url: `/record/ser/${flowId}/${serviceId}`,
   method: 'get',
 })
+
+export const getRecordByCondition = (method,type,status,currentPage,size)=>request({
+  url: `/record/condition/${method}/${type}/${status}/${currentPage}/${size}`,
+  method: 'get',
+})
