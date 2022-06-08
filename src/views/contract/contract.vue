@@ -27,7 +27,7 @@
         :icon="Plus"
         type="warning"
         style="float: right; margin-right: 30px; background-color: #ff6a00"
-        @click="addContract()"
+        @click="addcontractfrom()"
         >新建合同</el-button
       >
     </el-col>
@@ -67,6 +67,11 @@
         }}</el-link>
       </template>
     </el-table-column>
+    <el-table-column prop="contractMoney" label="合同金额" width="100" >
+         <template v-slot="scope">
+        {{ scope.row.contractMoney }}元
+      </template>
+      </el-table-column>
     <el-table-column
       prop="contractTotalCommission"
       label="合同佣金"
@@ -88,7 +93,7 @@
       width="120px"
     >
     </el-table-column>
-    <el-table-column prop="product.productName" label="合同产品" width="100px">
+    <el-table-column prop="product[0].productName" label="合同产品" width="100px">
     </el-table-column>
     <el-table-column prop="empName" label="合同负责人" width="100px" />
     <el-table-column prop="contractDescribe" label="合同描述" />
@@ -175,30 +180,60 @@
       </template>
     </el-table-column>
     <el-table-column label="操作" width="280px" fixed="right" align="center">
-      <template v-slot="scope">
-        <template v-if="scope.row.contractStatus == 0"
-          ><!-- 草稿状态 -->
-          <el-button type="primary" @click="submitCheck(scope.row.contractId)"
+      <template #default="{ row }">
+          <el-button
+            type="text"
+            size="small"
+            @click="submitCheck(row.contractId)"
+            :disabled="
+              row.contractStatus == 3
+                ? true
+                : row.contractStatus == 1
+                ? true
+                : row.contractStatus ==2?true
+                : false
+            "
             >提交审核</el-button
           >
-          <el-button type="primary" @click="delContract()">删除</el-button>
+          <el-button
+            type="text"
+            size="small"
+            @click="upd(row)"
+            :disabled="
+              row.contractStatus == 3
+                ? true
+                : row.contractStatus == 2
+                ? true
+                : row.contractStatus == 1
+                ? true
+                : false
+            "
+            >修改</el-button
+          >
+          <el-button
+            type="text"
+            size="small"
+            @click="CopyTheNew(row)"
+            :disabled="row.contractStatus ==2?false:true"
+            >复制并新建合同</el-button
+          >
+          <el-button
+            type="text"
+            size="small"
+            @click="del(row)"
+            :disabled="
+              row.contractStatus == 3
+                ? true
+                : row.contractStatus == 1
+                ? true
+                : false
+            "
+            >删除</el-button
+          >
         </template>
-      </template>
     </el-table-column>
   </el-table>
 
-  <!-- 分页 -->
-  <!-- <el-row>
-    <el-col :span="9" :offset="15">
-      <el-pagination
-        v-model:currentPage="page.currentPage"
-        v-model:page-size="page.size"
-        :page-sizes="[5, 10, 20, 50]"
-        layout="total, sizes, prev, pager, next, jumper"
-        :total="page.total"
-      />
-    </el-col>
-  </el-row> -->
   <div style="margin: 10px 0">
     <el-pagination
       v-model:currentPage="page.currentPage"
@@ -212,121 +247,23 @@
     />
   </div>
 
-  <!-- 添加合同的dialog 框 -->
-  <el-dialog
-    v-model="dialogVisible"
-    title="添加合同"
-    width="40%"
-    draggable
-    @close="closeAddContract()"
-  >
-    <!-- 添加的表单 -->
-    <div class="addForm-info">基本信息</div>
-    <el-form
-      label-width="100px"
-      :model="addContractForm"
-      style="max-width: 460px"
-    >
-      <el-form-item label="客户">
-        <span class="select-input">
-          <el-input
-            :readonly="true"
-            v-model="addContractForm.custName"
-            @click="openSelectCustomer()"
-          />
-        </span>
-      </el-form-item>
-      <el-form-item label="合同编号">
-        <el-input v-model="addContractForm.contractNo" disabled />
-      </el-form-item>
-      <el-form-item label="合同金额">
-        <el-input v-model="addContractForm.contractMoney" />
-      </el-form-item>
-      <el-form-item label="佣金">
-        <el-input v-model="addContractForm.contractTotalCommission" />
-      </el-form-item>
-      <el-form-item label="签约时间">
-        <el-date-picker
-          value-format="YYYY-MM-DD"
-          v-model="addContractForm.contractSignTime"
-          type="date"
-          placeholder="签约时间"
-        />
-      </el-form-item>
-      <el-form-item label="备注">
-        <el-input type="textarea" v-model="addContractForm.contractDescribe" />
-      </el-form-item>
-    </el-form>
-
-    <!-- 产品 -->
-    <div class="addForm-info">产品信息</div>
-    <!-- <el-table
-      :data="customerList.data"
-      height="200px"
-      highlight-current-row
-      style="width: 100%"
-      @current-change="handleCurrentChange"
-    >
-      <el-table-column label="客户名称" prop="customerDetail.custDetailName" />
-      <el-table-column
-        prop="customerDetail.custDetailPhone"
-        label="电话"
-        sortable
-      />
-    </el-table> -->
-
-    <!-- 取消 确定 按钮 -->
-    <template #footer>
-      <span class="dialog-footer">
-        <el-button @click="dialogVisible = false">取消</el-button>
-        <el-button type="primary" @click="submitContract()">确定</el-button>
-      </span>
-    </template>
-  </el-dialog>
-
-  <!-- 选择客户的dialog框 -->
-  <el-dialog
-    v-model="dialogVisible_SelectCustomer"
-    title="选择客户"
-    width="40%"
-    draggable
-  >
-    <!-- 客户 -表格 -->
-    <el-table
-      :data="customerList.data"
-      height="200px"
-      highlight-current-row
-      style="width: 100%"
-      @current-change="handleCurrentChange"
-    >
-      <el-table-column label="客户名称" prop="customerDetail.custDetailName" />
-      <el-table-column
-        prop="customerDetail.custDetailPhone"
-        label="电话"
-        sortable
-      />
-    </el-table>
-
-    <!-- 分页 -->
-    <el-pagination
-      v-model:currentPage="custPage.currentPage"
-      v-model:page-size="custPage.size"
-      layout="prev, pager, next"
-      background
-      :total="custPage.total"
-      @current-change="handleCustPage"
-    />
-
-    <!-- 取消 确定 按钮 -->
-    <template #footer>
-      <span class="dialog-footer">
-        <el-button @click="dialogVisible_SelectCustomer = false"
-          >取消</el-button
-        >
-        <el-button type="primary" @click="customerConfirm()">确定</el-button>
-      </span>
-    </template>
-  </el-dialog>
+  <Addcontract
+    v-if="dialogShow"
+    v-model:dialogShow="dialogShow"
+    :rowInfo="data.formData"
+    @GetContract="getContract"
+    :title="addName"
+    :rowData="rowData"
+  ></Addcontract>
+    <UpdContractfrom
+    v-if="UpdShow"
+    v-model:UpdShow="UpdShow"
+    :rowInfo="data.formData"
+    :title="addName"
+    :rowData="rowData"
+    :judge = "judge"
+    @GetContract="getContract"
+  ></UpdContractfrom>
   <!-- 审批文件（合同）抽屉 -->
   <!-- <el-drawer
 
@@ -354,6 +291,7 @@ import {
   addContractTo,
   searchByLike,
   updateStatus,
+  deleteContract
 } from "@/api/contract/index";
 import { getRecordByService } from "@/api/check/checkFlow";
 import { CustomerSearch } from "@/api/customer/index";
@@ -362,6 +300,8 @@ import { useStore } from "vuex";
 import { ElMessage } from "element-plus";
 import contCT from "./contractCT.vue";
 import contractItem from "../check/contractItem.vue";
+import Addcontract from "./Addcontract.vue";
+import UpdContractfrom from "./UpdContract.vue";
 const store = useStore();
 let searchContent = ref("");
 let searchType = ref("1");
@@ -377,7 +317,7 @@ let page = reactive({
 });
 let custPage = reactive({
   currentPage: 1,
-  size: 4,
+  size: 5,
   total: 0,
 });
 
@@ -443,7 +383,7 @@ const rowInfo = ref({}); // 子组件的传递的 合同id
 //表格 合同触发
 function contractItemClick(row) {
   contractDrawer.value = true;
-  rowInfo.value = row
+  rowInfo.value = row;
   // contractId.value = row.contractId
   // contractData.data = rows
 }
@@ -469,6 +409,11 @@ function submitCheck(contractId) {
   updateStatus(contractId, 3).then((res) => {
     if (res.data) {
       ElMessage.success("提交成功");
+      getAllContractPage(page.currentPage, page.size).then((res) => {
+        contractList.data = res.data.records;
+        page.total = res.data.total;
+        console.log(contractList.data);
+      });
     } else {
       ElMessage.error("提交失败");
     }
@@ -494,6 +439,51 @@ function submitContract() {
     }
   });
 }
+//删除草稿
+const del = (row) => {
+  deleteContract(row.contractId) // 使用接口，调用
+    .then((response) => {
+      if (response.code == 200) {
+        getContract();
+        console.log("删除成功");
+      }
+    });
+};
+
+const dialogShow = ref(false);
+const data = reactive({
+  formData: {},
+});
+const addName = ref("");
+const rowData = ref({});
+//新增合同
+const addcontractfrom = () => {
+  addName.value = "新增合同";
+  dialogShow.value = true;
+  rowData.value = {};
+};
+const UpdShow = ref(false);
+const judge = ref(0)
+//修改草稿
+const upd = (row) => {
+  addName.value = "修改合同";
+  UpdShow.value = true;
+  rowData.value = row;
+  console.log(row)
+  judge.value=1
+};
+//复制并新建
+const CopyTheNew = (row) => {
+  console.log(row)
+  addName.value = "复制并新建";
+  UpdShow.value = true;
+  rowData.value = row;
+  judge.value=2
+};
+
+
+
+
 
 // 处理改变类型
 function handlerChangeType() {
@@ -560,7 +550,14 @@ function openSelectCustomer() {
 function addContract() {
   dialogVisible.value = true;
 }
-
+const getContract =()=>{
+   // 合同信息
+  getAllContractPage(page.currentPage, page.size).then((res) => {
+    contractList.data = res.data.records;
+    page.total = res.data.total;
+    console.log(contractList.data);
+  });
+}
 // 挂载
 onMounted(() => {
   // 合同信息

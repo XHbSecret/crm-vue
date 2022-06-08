@@ -8,7 +8,7 @@
       :with-header="false"
       size="75%"
     >
-    {{data.formData}}
+    <!-- {{data.formData}} -->
       <el-scrollbar height="700px">
         <el-card class="box-card">
           <template #header>
@@ -19,20 +19,25 @@
           <span style="font-weight: bold">房子信息</span>
           <el-form :model="data.formData" :inline="true">
             <el-form-item label="产品名称">
-              <span>{{ data.formData.product.productName }}</span>
+              <span>{{ data.formData.product[0].productName }}</span>
             </el-form-item>
             <el-form-item label="地址">
-              <span>{{ data.formData.product.productAddress }}</span>
+              <span>{{ data.formData.product[0].productAddress }}</span>
             </el-form-item>
             <el-form-item label="面积/㎡">
-              <span>{{ data.formData.product.productArea }}</span>
+              <span>{{ data.formData.product[0].productArea }}</span>
             </el-form-item>
-            <el-form-item label="售价￥/平方米">
-              <span>{{ data.formData.product.productPrice }}</span>
+            <el-form-item label="售价￥/㎡">
+              <span>{{ data.formData.product[0].productPrice }}</span>
             </el-form-item>
             <el-form-item label="售价/￥">
-              <span>{{ data.formData.product.productValuation }}</span>
+              <span>{{ data.formData.product[0].productValuation }}</span>
             </el-form-item>
+             <el-form-item label="出售方式">
+                  <span>{{
+                    data.formData.product[0].productSell == 1 ? "出售" : "出租"
+                  }}</span>
+                </el-form-item>
           </el-form>
           <span style="font-weight: bold">签约人</span>
           <el-form :model="data.CustData" :inline="true">
@@ -72,52 +77,52 @@
             <el-collapse-item :title="'房子信息'" name="1">
               <el-form :model="data.formData" :inline="true">
                 <el-form-item label="产品名称">
-                  <span>{{ data.formData.product.productName }}</span>
+                  <span>{{ data.formData.product[0].productName }}</span>
                 </el-form-item>
                 <el-form-item label="出售方式">
                   <span>{{
-                    data.formData.product.productSell == 1 ? "出售" : "出租"
+                    data.formData.product[0].productSell == 1 ? "出售" : "出租"
                   }}</span>
                 </el-form-item>
                 <el-form-item label="户型">
-                  <span>{{ data.formData.product.productType }}</span>
+                  <span>{{ data.formData.product[0].productType }}</span>
                 </el-form-item>
                 <el-form-item label="装修类别">
-                  <span>{{ data.formData.product.productDecorateType }}</span>
+                  <span>{{ data.formData.product[0].productDecorateType }}</span>
                 </el-form-item>
                 <el-form-item label="地址">
-                  <span>{{ data.formData.product.productAddress }}</span>
+                  <span>{{ data.formData.product[0].productAddress }}</span>
                 </el-form-item>
               </el-form>
               <el-form :model="data.formData" :inline="true">
                 <el-form-item label="单位">
                   <span>
                     {{
-                      data.formData.product.productUnit == 1
+                      data.formData.product[0].productUnit == 1
                         ? "套"
-                        : data.formData.product.productUnit == 2
+                        : data.formData.product[0].productUnit == 2
                         ? "间"
-                        : data.formData.product.productUnit == 3
+                        : data.formData.product[0].productUnit == 3
                         ? "幢"
-                        : data.formData.product.productUnit == 4
+                        : data.formData.product[0].productUnit == 4
                         ? "栋"
                         : "无"
                     }}</span
                   >
                 </el-form-item>
                 <el-form-item label="面积/㎡">
-                  <span>{{ data.formData.product.productArea }}</span>
+                  <span>{{ data.formData.product[0].productArea }}</span>
                 </el-form-item>
-                <el-form-item label="售价￥/平方米">
-                  <span>{{ data.formData.product.productPrice }}</span>
+                <el-form-item label="售价￥/㎡">
+                  <span>{{ data.formData.product[0].productPrice }}</span>
                 </el-form-item>
                 <el-form-item label="售价/￥">
-                  <span>{{ data.formData.product.productValuation }}</span>
+                  <span>{{ data.formData.product[0].productValuation }}</span>
                 </el-form-item>
               </el-form>
               <el-form :model="data.formData" :inline="true">
                 <el-form-item label="介绍">
-                  <span>{{ data.formData.product.productIntroduce }}</span>
+                  <span>{{ data.formData.product[0].productIntroduce }}</span>
                 </el-form-item>
               </el-form>
             </el-collapse-item>
@@ -267,7 +272,7 @@ const getCustrById = () => {
   });
 };
 const getClientById = () => {
-  getCustomerById(data.formData.product.productCustId).then((res) => {
+  getCustomerById(data.formData.product[0].productCustId).then((res) => {
     data.Client = res.data;
     console.log(data.CustData);
   });

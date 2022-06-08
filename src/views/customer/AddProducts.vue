@@ -29,6 +29,12 @@
         <el-table-column prop="productPrice" label="售价/平方米" width="180" />
         <el-table-column prop="productArea" label="面积/㎡" width="180" />
         <el-table-column prop="productValuation" label="估价/￥" width="180" />
+        <el-table-column prop="productSell" label="出售方式" width="180" >
+           <template v-slot="scope">
+            <p v-if="scope.row.productSell == 1">出售</p>
+            <p v-else-if="scope.row.productSell == 2">出租</p>
+          </template>
+        </el-table-column>
         <el-table-column prop="productIntroduce" label="介绍" width="180" />
         <el-table-column prop="productAddress" label="房子地址" width="180" />
         <el-table-column

@@ -15,7 +15,16 @@
         label="客户姓名"
         width="100"
       />
-      <el-table-column prop="contractMoney" label="合同金额" width="100" />
+      <el-table-column prop="contractMoney" label="合同金额" width="100" >
+         <template v-slot="scope">
+        {{ scope.row.contractMoney }}元
+      </template>
+      </el-table-column>
+      <el-table-column prop="contractTotalCommission" label="合同佣金" width="100" >
+         <template v-slot="scope">
+        {{ scope.row.contractTotalCommission }}元
+      </template>
+      </el-table-column>
       <el-table-column
         prop="contractStatus"
         label="合同状态"
@@ -50,6 +59,8 @@
             :disabled="
               row.contractStatus == 3
                 ? true
+                : row.contractStatus == 2
+                ? true
                 : row.contractStatus == 1
                 ? true
                 : false
@@ -79,6 +90,7 @@
         </template>
       </el-table-column>
     </el-table>
+    <!-- {{data.formData}} -->
   </div>
   <Addcontractfrom
     v-if="dialogShow"
@@ -169,11 +181,13 @@ const upd = (row) => {
   addName.value = "修改合同";
   UpdShow.value = true;
   rowData.value = row;
+  console.log(row)
   judge.value=1
 };
 
 //复制并新建
 const CopyTheNew = (row) => {
+  console.log(row)
   addName.value = "复制并新建";
   UpdShow.value = true;
   rowData.value = row;
