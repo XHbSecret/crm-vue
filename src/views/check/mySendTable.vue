@@ -3,7 +3,7 @@
   <div style="margin-top: 15px; margin-bottom: 10px">
     <span>审批类型：</span>
     <el-radio-group v-model="type" class="ml-4">
-      <el-radio label="all" size="large" @change="changeHaha()">全部</el-radio>
+      <el-radio label="0" size="large" @change="changeHaha()">全部</el-radio>
       <template v-for="type in checkType.data" :key="type.id">
         <el-radio :label="type.id" size="large" @change="changeHaha()">{{
           type.checkName
@@ -16,7 +16,7 @@
   <div>
     <span>审批状态：</span>
     <el-radio-group v-model="checkStatus" class="ml-4">
-      <el-radio label="all" size="large" @change="changeHaha()">全部 </el-radio>
+      <el-radio label="0" size="large" @change="changeHaha()">全部 </el-radio>
       <el-radio label="1" size="large" @change="changeHaha()"
         >审批通过</el-radio
       >
@@ -30,7 +30,7 @@
   <!-- 表格 -->
   <el-table
     :data="checkRecord.data"
-    height="300px"
+    height="320px"
     style="width: 100%; margin-top: 30px"
   >
     <el-table-column prop="checkRecord.id" label="编号" width="80" />
@@ -135,6 +135,7 @@
       :page-size="page.pageSize"
       layout="prev, pager, next"
       :total="page.total"
+      @current-change="handlerChange"
     />
   </div>
 
@@ -238,7 +239,7 @@
   </el-dialog>
 
   <!-- 审批文件（回款） 抽屉 -->
-  <el-drawer v-model="backDrawer" title="I am the title" :with-header="false">
+  <el-drawer v-model="backDrawer" title="I am the title" :with-header="false" size="75%">
    <back-item :backId="backId" :backData="backData.data"/>
   </el-drawer>
 
@@ -261,13 +262,14 @@ import contractItem from './contractItem.vue'
 import { useStore } from "vuex";
 import { ElMessage } from "element-plus";
 import backItem from './backItem.vue'
+import {getRecordByCondition} from '@/api/check/checkFlow'
 const store = useStore();
 
 const emit = defineEmits(['update'])
 const props = defineProps(["data", "me"]);
 let checkType = reactive({ data: [] });
-let checkStatus = ref("all");
-let type = ref("all");
+let checkStatus = ref("0");
+let type = ref("0");
 let checkRecord = reactive({ data: [] });
 let checkRecordMeta = { data: [] };
 let drawer = ref(false);
@@ -276,6 +278,7 @@ let contractDrawer = ref(false);
 let checkFile = reactive({ data: {} }); // 抽屉打开的文件
 let checkUserItem = reactive({ data: [] });
 let page = reactive({
+  current:1,
   pageSize: 5,
   total: 2,
 });
@@ -285,6 +288,14 @@ let backId = ref(0) ; // 子组件的传递的 回款id
 let backData = reactive({data:{}}) ; // 子组件的传递的 回款id
 let contractId = ref(0) ; // 子组件的传递的 合同id
 let contractData = reactive({data:{}}) ; // 子组件的传递的 合同id
+let method = ref(0);  
+
+//分页
+function handlerChange(val){
+  page.current = val
+   getMethod()
+  getConditionData(method.value)
+}
 
 // 确定驳回按钮
 function rejectOK(){
@@ -352,7 +363,7 @@ function checkInfoTo(data){
 }
 
 // 多条件改变
-function changeHaha() {
+function changeHaha2() {
   checkRecord.data = [];
   if (type.value == "all" && checkStatus.value == "all") {
     // 都是全部
@@ -384,7 +395,15 @@ function changeHaha() {
   }
 }
 
-// 类型改变
+// 多条件改变
+function changeHaha() {
+  checkRecord.data = [];
+  getMethod()
+  getConditionData(method.value)
+
+}
+
+// 类型改变 废弃
 function changeType() {
   checkRecord.data = [];
   if (type.value != "all") {
@@ -407,7 +426,7 @@ function changeType() {
   }
 }
 
-// 状态改变
+// 状态改变 废弃
 function changeStatus() {
   checkRecord.data = [];
   if (checkStatus.value == "all") {
@@ -444,13 +463,40 @@ function getMeta(data) {
   }
 }
 
+// 访问方式
+function getMethod(){
+ if(props.me == "all"){// 全部
+    method.value = 0
+  }else if(props.me == "send"){ // 我发送
+    method.value = 1
+  }else if(props.me == "isMe"){ // 待我审批
+    method.value = 2
+  }else if(props.me == "aleary"){ //我已审批
+    method.value = 3
+  }
+}
+
+// 多条件获取数据
+function getConditionData(method){
+    getRecordByCondition(method,type.value,checkStatus.value,
+    page.current,page.pageSize).then(res=>{
+      console.log("xixi  hei hei")
+      console.log(res.data)
+      checkRecord.data = res.data.records
+      page.total = res.data.total
+    })
+}
+
 // 挂载
 onMounted(() => {
-  checkRecord.data = props.data;
-  console.log("xixi")
-  if(props.data != null){
-    getMeta(checkRecord.data);
-  }
+  // checkRecord.data = props.data;
+  // console.log("xixi")
+  // if(props.data != null){
+  //   getMeta(checkRecord.data);
+  // }
+
+// 获取数据
+  getConditionData(0)
 
   // 获取审批类型
   getAllCheckFlow(1, 100).then((res) => {
