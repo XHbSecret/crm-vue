@@ -86,8 +86,11 @@
                 @click="changeStatus(row)"
                 >结束</el-button
               >
-              <el-button type="text" :disabled="row.comProStatus != 0"
-                >发起审核</el-button
+              <el-button
+                type="text"
+                :disabled="row.comProStatus != 0"
+                @click="check(row)"
+                >提交审核</el-button
               >
             </template>
           </el-table-column>
@@ -125,12 +128,11 @@ import { getAllAds, delComPros, editComProStatus } from "@/api/system/activity";
 import adsDrawerVue from "./adsDrawer.vue";
 import { Delete } from "@element-plus/icons-vue";
 import { ElMessageBox, ElMessage } from "element-plus";
-const loading = ref(true);
 
+const loading = ref(true);
 const dialogVisible = ref(false);
 const dialogTittle = ref("");
 const dialogValue = reactive({ datas: {} });
-
 const datas = reactive({ tableDatas: [] });
 const comprolist = reactive({ tableDatas: [] });
 const num = ref(0);
@@ -228,6 +230,9 @@ function changeStatus(row) {
       ElMessage.info("取消");
     });
 }
+// 发起审核
+function check(row) {}
+
 // 分页函数
 function handleSizeChange(val) {
   pagePlugs.data.pageSize = val;

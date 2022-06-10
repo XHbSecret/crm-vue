@@ -16,14 +16,31 @@ export const addOpp = (data)=>request({
   data
 })
 
+export const addOpps=(data)=>request({
+  url:`/opp/addOpps`,
+  method:"post",
+  data
+})
+
 export const findEmps = ()=>request({
   url:`/opp/findEmp`,
   method:"get"
 })
 
+export const findById = (opportunity)=>request({
+  url: `/opp/findEmpById`,
+  method: 'post',
+  data:opportunity
+})
+
 export const findCust = (page,size)=>request({
   url:`/opp/findCust/${page}/${size}`,
   method:"get"
+})
+
+export const findOppLogs = (oppId)=>request({
+  url:`/opp/findOppLog/${oppId}`,
+  method:'get'
 })
 
 // 批量删除
@@ -46,3 +63,21 @@ export const editSalesBySinger = (empId,opportunity)=>request({
   method:'post',
   data:opportunity
 })
+
+export const getFlowRecords =(oppId)=>request({
+  url:`/opp/getFlowRecordById/${oppId}`,
+  method:"post"
+})
+
+export const delOppById=(oppId)=>request({
+  url:`/opp/delById/${oppId}`,
+  method:"get"
+})
+
+// 修改阶段
+export const editSalesDetailsId= (detailsId,opportunity)=>request({
+  url:`/opp/updateByOppId/${detailsId}`,
+  method:'post',
+  data:opportunity
+})
+

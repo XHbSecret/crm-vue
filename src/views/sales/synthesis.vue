@@ -102,7 +102,9 @@
           <el-card style="widows: 200px">
             <el-collapse :border="true">
               <el-collapse-item
-                :title="pObj.employeeDatail.empName + '对该客户进行跟进'"
+                :title="
+                  pObj.employee.employeeDatail.empName + '对该客户进行跟进'
+                "
                 name="1"
               >
                 <div>
