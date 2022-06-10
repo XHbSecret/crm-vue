@@ -21,7 +21,7 @@
         </el-form-item>
       </el-form>
       <el-form :inline="true" :model="data.formData">
-        <el-form-item label="业务" prop="flow.flowName" style="width: 300px">
+        <el-form-item label="服务" prop="flow.flowName" style="width: 300px">
           <span v-if="formSwitch.flag">{{ data.formData.flow.flowName }}</span>
           <el-input
             v-else
@@ -30,7 +30,7 @@
           />
         </el-form-item>
         <el-form-item
-          label="业务阶段"
+          label="所到阶段"
           prop="flowDetails.flowDetailsName"
           style="width: 300px"
         >
@@ -93,10 +93,10 @@
       <span>系统信息</span>
       <el-form :inline="true" :model="data.formData">
         <el-form-item label="负责人">
-          <span>{{ data.formData.employeeDatail.empName }}</span>
+          <span>{{ data.formData.employee.employeeDatail.empName }}</span>
         </el-form-item>
         <el-form-item label="创建人">
-          <span>{{ data.formData.employeeDatail.empName }}</span>
+          <span>{{ data.formData.employee1.employeeDatail.empName }}</span>
         </el-form-item>
       </el-form>
       <el-form :inline="true" :model="data.formData">

@@ -6,6 +6,10 @@ export const getAllProducts=(page,size,data)=>request({
     data
 })
 
+export const getProductStatus=(page,size)=>request({
+  url:`/product/allProductStatus/${page}/${size}`,
+  method:'post'
+})
 
 //添加产品
 export const addProducts = (product)=>request({

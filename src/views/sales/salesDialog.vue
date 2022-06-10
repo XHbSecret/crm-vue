@@ -213,6 +213,7 @@ function selectDetails(val) {
   getFlowDetails(val)
     .then((response) => {
       options.details = response.data.flowDetails;
+
       console.log(options.details);
     })
     .catch(() => {});
@@ -238,6 +239,7 @@ function getAllFlow() {
 function addOpps() {
   formRef.value.validate(async (valid) => {
     if (valid) {
+      console.log(addForm);
       addOpp(addForm).then(() => {
         ElMessage({
           message: "添加成功！！！！",
@@ -269,7 +271,7 @@ const rules = reactive({
   flowId: [{ required: true, message: "请选择需求", trigger: "blur" }],
   oppStopTime: [{ required: true, message: "日期不能为空", trigger: "blur" }],
   oppNotes: [{ required: true, message: "备注不能为空", trigger: "blur" }],
-  productId: [{ required: true, message: "产品为空", trigger: "blur" }],
+  // productId: [{ required: true, message: "产品为空", trigger: "blur" }],
 });
 </script>
 

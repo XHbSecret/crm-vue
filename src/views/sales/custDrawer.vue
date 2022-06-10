@@ -84,7 +84,7 @@
               ><div class="vux-flexbox-item h-item">
                 <div class="h-title">负责人</div>
                 <div class="h-value text-one-line">
-                  {{ pObj.employeeDatail.empName }}
+                  {{ pObj.employee.employeeDatail.empName }}
                 </div>
               </div></el-col
             >
@@ -104,7 +104,7 @@
         <el-main style="margin-top: 20px; margin-right: 20px">
           <el-tabs type="border-card">
             <el-tab-pane label="基本信息">
-              <essential :rowInfo="data.formData"></essential>
+              <oppEssential1 :rowInfo="data.formData"></oppEssential1>
             </el-tab-pane>
             <el-tab-pane label="跟进">
               <synthesis :rowInfo="data.formData"></synthesis>
@@ -180,14 +180,14 @@
 
 <script setup>
 import { Edit } from "@element-plus/icons-vue";
-import Contactst from "../customer/Contactst.vue";
-import Visit from "../customer/visit.vue";
-import Accessory from "../customer/Accessory.vue";
-import essential from "../customer/essential.vue";
-import cooperation from "../customer/cooperation.vue";
-import contract from "../customer/contract.vue";
-import custPayments from "../customer/custPayments.vue";
-import synthesis from "../customer/synthesis.vue";
+import Contactst from "./Contactst.vue";
+import Visit from "./visit.vue";
+import Accessory from "./Accessory.vue";
+import oppEssential1 from "./oppEssential1.vue";
+import cooperation from "./cooperation.vue";
+import contract from "./contract.vue";
+import custPayments from "./custPayments.vue";
+import synthesis from "./synthesis.vue";
 import CustomerDialog from "../customer/customerDialog.vue";
 import { onMounted, reactive, watch, toRefs } from "vue";
 import { getAllByCustId } from "@/api/customer/index";

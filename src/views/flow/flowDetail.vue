@@ -21,9 +21,12 @@
         <el-input v-model="flowDetail.flowLastTime" disabled></el-input>
       </el-form-item>
     </el-form>
-    <el-button type="primary" @click="addDetail">添加详情</el-button>
+
     <el-tabs>
       <el-tab-pane label="流程明细">
+        <el-button type="primary" @click="addDetail" style="float: right"
+          >添加详情</el-button
+        >
         <el-table
           :data="details.datas"
           row-key="flowDetailsId"

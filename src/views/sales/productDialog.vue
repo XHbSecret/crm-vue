@@ -94,7 +94,7 @@
 <script setup>
 import { reactive, ref, onMounted, watch } from "vue";
 import { Search } from "@element-plus/icons-vue";
-import { getAllProducts } from "@/api/system/product";
+import { getAllProducts, getProductStatus } from "@/api/system/product";
 
 const emits = defineEmits(["update:modelValue", "getProducts"]);
 const props = defineProps({

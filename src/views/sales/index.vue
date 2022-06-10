@@ -48,6 +48,7 @@
     style="width: 100%"
     height="450"
     v-loading="loading"
+    async
   >
     <el-table-column type="selection" width="55" />
     <el-table-column label="商机名称" prop="oppName" width="130" fixed>
@@ -59,7 +60,7 @@
     </el-table-column>
     <el-table-column
       label="负责人"
-      prop="employeeDatail.empName"
+      prop="employee.employeeDatail.empName"
       width="130"
     ></el-table-column>
     <el-table-column label="商机阶段" prop="flowDetailsName" width="130">
@@ -67,22 +68,19 @@
         <p>{{ scope.row.flowDetails.flowDetailsName }}</p>
       </template>
     </el-table-column>
-    <el-table-column
-      label="客户名称"
-      prop="customerDetail.custDetailName"
-      width="130"
-    >
+    <el-table-column label="客户名称" prop="customerDetail.custId" width="130">
       <template v-slot="scope" default="{row}">
         <a href="#" @click.prevent="showCustDetails(scope.row)">{{
           scope.row.customerDetail.custDetailName
         }}</a>
       </template></el-table-column
     >
-    <el-table-column label="创建人" width="130" prop="empCreateId">
-      <template v-slot="scope" default="{row}">
-        {{ scope.row.empCreateId }}
-      </template>
-    </el-table-column>
+    <el-table-column
+      label="创建人"
+      width="130"
+      prop="employee1.employeeDatail.empName"
+    />
+
     <el-table-column
       label="商机金额/元"
       prop="oppMoney"
@@ -139,7 +137,13 @@
     @updateData="getAllOppss"
   ></changeDialog>
   <!-- 商机详情 -->
-  <oppDrawer v-model="drawer_opp" :oppDetails="oppDetails"></oppDrawer>
+  <oppDrawer
+    v-model="drawer_opp"
+    :nums="nums"
+    :oppDetails="oppDetails"
+    @updateData="getAllOppss"
+  >
+  </oppDrawer>
   <!-- 客户详情 -->
   <custDrawer v-model="drawer_cust" :custDetails="custDetails"></custDrawer>
 
@@ -207,7 +211,7 @@
 
 <script setup>
 import { ref, onMounted, reactive } from "vue";
-import { getAllOpp, getAllOpps, delSales } from "@/api/sales/index";
+import { getAllOpp, getAllOpps, delSales, findById } from "@/api/sales/index";
 import { Delete, Switch, Plus, Search } from "@element-plus/icons-vue";
 import { ElMessage, ElMessageBox } from "element-plus";
 import { CustomerSearch } from "@/api/customer/index";
@@ -225,9 +229,11 @@ const custDetails = ref({});
 const drawer_cust = ref(false);
 const drawer_opp = ref(false);
 const num = ref(0);
+const nums = ref(0);
 const dialogVisible = ref(false);
 const tableData = reactive({ datas: [] });
 const Opportunities = reactive({ datas: [] });
+const emps = reactive({ list: [] });
 let value1 = reactive({
   oppName: "",
 });
@@ -303,9 +309,9 @@ function handleSelectionChange(val) {
 }
 
 // 所有数据
-function getAllOppss() {
+async function getAllOppss() {
   console.log("haha");
-  getAllOpps(pagePlugs.data.currentPage, pagePlugs.data.pageSize).then(
+  await getAllOpps(pagePlugs.data.currentPage, pagePlugs.data.pageSize).then(
     (response) => {
       tableData.datas = response.data.records;
       pagePlugs.data.total = response.data.total;
@@ -314,6 +320,13 @@ function getAllOppss() {
       console.log(response.data);
     }
   );
+}
+
+function getEmpById() {
+  findById(tableData.datas).then((response) => {
+    emps.list = response.data;
+    console.log(emps.list);
+  });
 }
 
 // 分页函数
