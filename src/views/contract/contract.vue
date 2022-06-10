@@ -384,6 +384,7 @@ const rowInfo = ref({}); // 子组件的传递的 合同id
 function contractItemClick(row) {
   contractDrawer.value = true;
   rowInfo.value = row;
+  console.log(row)
   // contractId.value = row.contractId
   // contractData.data = rows
 }
