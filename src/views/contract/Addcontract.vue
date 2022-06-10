@@ -1,6 +1,6 @@
-<!-- 这是新增合同界面 -->
+<!--  -->
 <template>
-  <div>
+  <div class="Addcontract">
     <el-dialog
       :model-value="true"
       width="50%"
@@ -21,13 +21,12 @@
         <div>
           <span style="font-weight: bold">{{ title }}</span>
         </div>
-        <!-- {{data.contract}} -->
         <el-scrollbar height="550px">
           <div style="margin-top: 20px; margin-left: 20px">
             <span style="font-weight: bold">基本信息</span>
             <el-form
               :inline="true"
-              :model="data.contract"
+              :model="contract"
               class="demo-form-inline"
               style="margin-left: 20px"
               label-position="left"
@@ -36,20 +35,20 @@
               <el-form-item label="合同编号">
                 <el-input
                   placeholder="Approved by"
-                  v-model="data.contract.contractNo"
+                  v-model="contract.contractNo"
                   disabled
                 />
               </el-form-item>
               <el-form-item label="合同名称">
                 <el-input
                   placeholder="Approved by"
-                  v-model="data.contract.contractName"
+                  v-model="contract.contractName"
                 />
               </el-form-item>
             </el-form>
             <el-form
               :inline="true"
-              :model="data.contract"
+              :model="contract"
               class="demo-form-inline"
               style="margin-left: 20px"
               label-position="left"
@@ -57,7 +56,7 @@
             >
               <el-form-item label="开始时间">
                 <el-date-picker
-                  v-model="data.contract.contractStartTime"
+                  v-model="contract.contractStartTime"
                   type="date"
                   label="结束时间"
                   placeholder="开始时间"
@@ -66,23 +65,28 @@
               </el-form-item>
               <el-form-item label="结束时间">
                 <el-date-picker
-                  v-model="data.contract.contractStopTime"
+                  v-model="contract.contractStopTime"
                   type="date"
                   label="结束时间"
                   placeholder="结束时间"
                   value-format="YYYY-MM-DD HH:mm:ss"
                 />
               </el-form-item>
-              <el-form-item label="客户签约人">
-                <el-input v-model="input" disabled placeholder="Please input" />
+              <el-form-item label="客户">
+                <span class="select-input">
+                  <el-input
+                    :readonly="true"
+                    v-model="contract.custName"
+                    @click="openSelectCustomer()"
+                  />
+                </span>
               </el-form-item>
               <el-form-item label="公司签约人">
                 <el-select
                   ref="count"
-                  v-model="data.contract.empId"
+                  v-model="contract.empId"
                   placeholder="请选中"
                   @change="getempId"
-                  disabled
                 >
                   <el-option
                     v-for="item in data.emplist"
@@ -95,7 +99,7 @@
               <el-form-item label="房源" prop="companyId">
                 <el-select
                   ref="count"
-                  v-model="data.contract.companyId"
+                  v-model="contract.companyId"
                   placeholder="请选中"
                   @change="getCustId"
                 >
@@ -111,7 +115,7 @@
                 <el-input
                   type="textarea"
                   style="width: 500px"
-                  v-model="data.contract.contractDescribe"
+                  v-model="contract.contractDescribe"
                 />
               </el-form-item>
             </el-form>
@@ -120,7 +124,7 @@
             <p style="font-weight: bold">产品</p>
             <el-button @click="AddProducts">添加产品</el-button>
             <el-table
-              :data="data.contract.product"
+              :data="product.data"
               stripe
               style="width: 100%"
               id="body-table"
@@ -147,6 +151,12 @@
                 </template>
               </el-table-column>
               <el-table-column prop="productPrice" label="报价" width="180" />
+              <el-table-column prop="productArea" label="面积" width="180" />
+              <el-table-column
+                prop="productValuation"
+                label="估价/￥"
+                width="180"
+              />
               <el-table-column
                 prop="productIntroduce"
                 label="介绍"
@@ -162,13 +172,12 @@
                 label="装修类型"
                 width="180"
               />
-              <el-table-column prop="productArea" label="面积" width="180" />
             </el-table>
             <span style="font-size: smaller"
-              >已选中{{ data.contract.product.length }}件商品,</span
+              >已选中{{ product.data.length }}件商品,</span
             >
             <span style="font-size: smaller"
-              >总金额：{{ data.contract.contractMoney }}元,</span
+              >总金额：{{ contract.contractMoney }}元,</span
             >
             <span style="font-size: smaller"
               >收取佣金：<el-input-number
@@ -181,7 +190,7 @@
               />%</span
             >
             <span style="font-size: smaller"
-              >佣金：{{ data.contract.contractTotalCommission }}元,</span
+              >佣金：{{ contract.contractTotalCommission }}元,</span
             >
           </div>
         </el-scrollbar>
@@ -195,8 +204,52 @@
       v-if="dialogShow"
       v-model:dialogShow="dialogShow"
       @addproducts="add"
+      :custId="contract.companyId"
     ></AddProductsfrom>
   </div>
+  <!-- 选择客户的dialog框 -->
+  <el-dialog
+    v-model="dialogVisible_SelectCustomer"
+    title="选择客户"
+    width="40%"
+    draggable
+  >
+    <!-- 客户 -表格 -->
+    <el-table
+      :data="customerList.data"
+      height="200px"
+      highlight-current-row
+      style="width: 100%"
+      @current-change="handleCurrentChange"
+    >
+      <el-table-column label="客户名称" prop="customerDetail.custDetailName" />
+      <el-table-column
+        prop="customerDetail.custDetailPhone"
+        label="电话"
+        sortable
+      />
+    </el-table>
+
+    <!-- 分页 -->
+    <el-pagination
+      v-model:currentPage="custPage.currentPage"
+      v-model:page-size="custPage.size"
+      layout="prev, pager, next"
+      background
+      :total="custPage.total"
+      @current-change="handleCustPage"
+    />
+
+    <!-- 取消 确定 按钮 -->
+    <template #footer>
+      <span class="dialog-footer">
+        <el-button @click="dialogVisible_SelectCustomer = false"
+          >取消</el-button
+        >
+        <el-button type="primary" @click="customerConfirm()">确定</el-button>
+      </span>
+    </template>
+  </el-dialog>
 </template>
 
 <script setup>
@@ -209,53 +262,56 @@ import {
   toRefs,
 } from "vue";
 import { ElMessage, ElMessageBox } from "element-plus";
-import AddProductsfrom from "./AddProducts.vue";
-import { updateContract, addContractTo } from "@/api/contract/index";
-import { number } from "echarts";
+import AddProductsfrom from "../customer/AddProducts.vue";
+import { addContractTo } from "@/api/contract/index";
 import { useStore } from "vuex";
 import { CustomerSearch } from "@/api/customer/index.js";
+import { nanoid } from "nanoid";
 const api = getCurrentInstance()?.appContext.config.globalProperties.$API; // api （axios管理的后端接口）
-
-const dialogShow = ref(false);
 //获取父组件的数据
 const props = defineProps({
   title: {
     type: String,
     default: () => "",
   },
-  rowInfo: {
-    type: Object,
-    default: () => {},
-  },
-  rowData: {
-    type: Object,
-    default: () => {},
-  },
-  judge: {
-    type: Number,
-    default: () => 0,
-  },
+  //   rowInfo: {
+  //     type: Object,
+  //     default: () => {},
+  //   },
+  //   rowData: {
+  //     type: Object,
+  //     default: () => {},
+  //   },
 });
-
+const product = reactive({ data: [] });
+//获取表单信息
+const contract = reactive({
+  custId: null,
+  empName: null,
+  contractMoney: 0,
+  contractTotalCommission: 0,
+  contractStatus: 0,
+  companyId: null,
+  contractNo: nanoid(),
+});
 //接收父组件的数据复制
 const data = reactive({
   formData: {},
   emplist: [],
-  contract: {
-    contractMoney: 0,
-    contractTotalCommission: 0,
-    contractStatus: 0,
-    product: [],
-  },
   CustIdlist: [],
 });
-
-//添加合同页面打开添加商品组件
-const AddProducts = () => {
-  dialogShow.value = true;
+const emits = defineEmits(["update:dialogShow", "GetContract"]);
+const onClose = () => {
+  // 关键句，父组件则可通过 v-model:visible 同步子组件更新后的数据
+  emits("update:dialogShow", false);
+  emits("GetContract");
 };
-
-
+//useStore 获取store
+const store = useStore();
+let Customerterm = reactive({
+  empId: null,
+  custType: null,
+});
 let pagePlugs = reactive({
   data: {
     page: 1,
@@ -263,16 +319,10 @@ let pagePlugs = reactive({
     total: 0,
   },
 });
-
-let Customerterm = reactive({
-  empId: null,
-  custType: 1,
-});
-//useStore 获取store
-const store = useStore();
-//从token 获取empid
+//从token 获取empid 查询房源信息
 const getCustIdBycustType = () => {
   Customerterm.empId = store.state.employee.user.user.empId;
+  Customerterm.custType = 1;
   CustomerSearch(pagePlugs.data.page, pagePlugs.data.size, Customerterm).then(
     (response) => {
       if (response.code == 200) {
@@ -281,20 +331,32 @@ const getCustIdBycustType = () => {
     }
   );
 };
+let custPage = reactive({
+  currentPage: 1,
+  size: 5,
+  total: 0,
+});
+const dialogShow = ref(false);
+//收取佣金的百分比
+let ratio = ref(0);
+const handleChange = (value) => {
+  contract.contractTotalCommission =
+    contract.contractMoney * (ratio.value / 100);
+  console.log(value);
+};
+//添加合同页面打开添加商品组件
+const AddProducts = () => {
+  if (contract.companyId != null) {
+    dialogShow.value = true;
+  } else {
+    ElMessage.error("请选择房源，在进行添加商品操作");
+  }
+};
+//房源的下拉框
 const getCustId = (value) => {
   data.CustIdlist.forEach((item) => {
     if (item.custId == value) {
-      data.contract.companyId = item.custId;
-    }
-  });
-};
-
-//查询员工信息
-const allEmp = () => {
-  api.customer.allEmp().then((response) => {
-    if (response.code == 200) {
-      data.emplist = response.data.records;
-      console.log("加载成功");
+      contract.companyId = item.custId;
     }
   });
 };
@@ -304,103 +366,94 @@ const getempId = (value) => {
     if (item.empId == value) {
       console.log(item.empId);
       contract.empId = item.empId;
+      contract.empName = item.employeeDatail.empName;
     }
   });
 };
-
-//向表格添加数据
-const add = (val, val2) => {
-  data.contract.product = [];
-  data.contract.product = val;
-  data.contract.productId = data.contract.product[0].productNo;
+//查询员工信息
+const allEmp = () => {
+  api.customer.allEmp().then((response) => {
+    if (response.code == 200) {
+      data.emplist = response.data.records;
+      console.log("加载成功");
+    }
+  });
 };
-
-const pObj = toRefs(props).rowInfo;
-
-//获取表单信息
-let contract = reactive({});
-
-//收取佣金的百分比
-let ratio = ref(0);
-
-const handleChange = (value) => {
-  data.contract.contractTotalCommission =
-    data.contract.contractMoney * (ratio.value / 100);
-  console.log(value);
-};
-
-const product = reactive({ data: [] });
-//修改合同
+//保存草稿
 const tijiao = () => {
-  if (JSON.stringify(props.judge) == "1") {
-    updateContract(data.contract) // 使用接口，调用
-      .then((response) => {
-        if (response.code == 200) {
-          console.log(data.contract)
-          onClose();
-          ElMessage({
-            type: "success",
-            message: "修改成功",
-          });
-        } else {
-          ElMessage.error("修改失败，请联系管理员");
-        }
-      });
-  } else if (JSON.stringify(props.judge) == "2") {
-    data.contract.contractStatus = 0
-    addContractTo(data.contract) // 使用接口，调用
-      .then((response) => {
-        if (response.code == 200) {
-          onClose();
-          ElMessage({
-            type: "success",
-            message: "成功添加",
-          });
-        } else {
-          ElMessage.error("添加失败，请联系管理员");
-        }
-      });
-  }
+  addContractTo(contract) // 使用接口，调用
+    .then((response) => {
+      if (response.code == 200) {
+        ElMessage({
+          type: "success",
+          message: "成功添加",
+        });
+        onClose();
+      } else {
+        ElMessage.error("添加失败，请联系管理员");
+      }
+    });
+  console.log(contract);
+  console.log(product);
 };
+
 //取消点击事件
 const qvxiao = () => {
-  emits("update:UpdShow", false);
+  emits("update:dialogShow", false);
 };
-const input = ref(pObj.value.customerDetail.custDetailName);
-
-//选择合同类型
-const houseType = [
-  {
-    value: "1",
-    label: "定价合同",
-  },
-  {
-    value: "2",
-    label: "购房合同",
-  },
-  {
-    value: "3",
-    label: "租赁合同",
-  },
-  {
-    value: "4",
-    label: "房屋转让",
-  },
-];
-
-const emits = defineEmits(["update:UpdShow", "GetContract"]);
-const onClose = () => {
-  // 关键句，父组件则可通过 v-model:visible 同步子组件更新后的数据
-  emits("update:UpdShow", false);
-  emits("GetContract");
+const input = ref("haha");
+//向表格添加数据
+const add = (val, val2) => {
+  product.data = val;
+  contract.productId = product.data[0].productNo;
+  contract.contractMoney = product.data[0].productValuation; //合同金额
+  contract.contractNoPay = product.data[0].productValuation; //合同未支付金额
 };
+let dialogVisible_SelectCustomer = ref(false);
+let Customer = reactive({
+  empId: null,
+});
+// 选择客户input 点击 查询客户信息
+function openSelectCustomer() {
+  dialogVisible_SelectCustomer.value = true;
+  Customer.empId = store.state.employee.user.user.empId;
+  CustomerSearch(custPage.currentPage, custPage.size, Customer).then((res) => {
+    customerList.data = res.data.records;
+    custPage.total = res.data.total;
+  });
+}
+let customerList = reactive({ data: [] });
+let selectCustomer = { name: "", id: 0 };
+//客户分页
+function handleCustPage() {
+  customerList.data = [];
+  CustomerSearch(custPage.currentPage, custPage.size, Customer).then(
+    (res) => {
+      customerList.data = res.data.records;
+      custPage.total = res.data.total;
+    }
+  );
+}
+function handleCurrentChange(row) {
+  console.log("row");
+  console.log(row);
+  if (row != null) {
+    selectCustomer.id = row.custId;
+    selectCustomer.name = row.customerDetail.custDetailName;
+  }
+}
+function customerConfirm() {
+  dialogVisible_SelectCustomer.value = false;
+  if (selectCustomer != 0) {
+    contract.custId = selectCustomer.id;
+    contract.custName = selectCustomer.name;
+  }
+}
 onMounted(() => {
-  data.formData = JSON.parse(JSON.stringify(props.rowInfo));
-  allEmp();
-  data.contract = JSON.parse(JSON.stringify(props.rowData));
-  ratio.value =
-    (data.contract.contractTotalCommission / data.contract.contractMoney) * 100;
+  //   data.formData = JSON.parse(JSON.stringify(props.rowInfo));
+  //   allEmp();
   getCustIdBycustType();
+  allEmp();
 });
 </script>
 <style lang="scss" scoped>

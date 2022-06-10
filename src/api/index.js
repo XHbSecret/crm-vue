@@ -13,7 +13,6 @@ import * as backMoney from './back/backMoney'
 import * as echartss from './echartss/index'
 import * as sales from './sales/index'
 
-
 export default {
     activity,
     login,
@@ -30,8 +29,4 @@ export default {
 
     echartss,
     sales,
-
-    customerContract,
-
-    backMoney
 }

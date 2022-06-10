@@ -1,7 +1,11 @@
 // import request from '@/utils/request'
 
 import request from '../../utils/request'
-
+// 根据id查询emp
+export const getEmpById = (id)=>request({
+  url: `user/find/${id}`,
+  method: 'get'
+})
 export const login = (data)=>request({
     url: `/user/login`,
     method: 'post',

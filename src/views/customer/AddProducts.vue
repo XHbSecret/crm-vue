@@ -26,7 +26,15 @@
             <p v-else-if="scope.row.houseType == 8">安置房</p>
           </template>
         </el-table-column>
-        <el-table-column prop="productPrice" label="报价" width="180" />
+        <el-table-column prop="productPrice" label="售价/平方米" width="180" />
+        <el-table-column prop="productArea" label="面积/㎡" width="180" />
+        <el-table-column prop="productValuation" label="估价/￥" width="180" />
+        <el-table-column prop="productSell" label="出售方式" width="180" >
+           <template v-slot="scope">
+            <p v-if="scope.row.productSell == 1">出售</p>
+            <p v-else-if="scope.row.productSell == 2">出租</p>
+          </template>
+        </el-table-column>
         <el-table-column prop="productIntroduce" label="介绍" width="180" />
         <el-table-column prop="productAddress" label="房子地址" width="180" />
         <el-table-column
@@ -34,10 +42,22 @@
           label="装修类型"
           width="180"
         />
-        <el-table-column prop="productArea" label="面积" width="180" />
       </el-table>
-      <el-button>取消</el-button>
+      <div style="margin: 10px 0">
+        <el-pagination
+          v-model:currentPage="pagePlugs.data.pageNum"
+          v-model:page-size="pagePlugs.data.pageSize"
+          :page-sizes="[5, 10, 20, 30]"
+          layout="total, sizes, prev, pager, next, jumper"
+          :total="pagePlugs.data.total"
+          @size-change="handleSizeChange"
+          @current-change="handleCurrentChange"
+          style="float: right"
+        />
+      </div>
+      <el-button @click="onClose">取消</el-button>
       <el-button @click="add">确认</el-button>
+      {{ props.custId }}
     </el-dialog>
   </div>
 </template>
@@ -53,11 +73,12 @@ import {
 } from "vue";
 import { ElMessage, ElMessageBox } from "element-plus";
 import AddProductsfrom from "./AddProducts.vue";
+import { useStore } from "vuex";
 import { getAllProducts } from "@/api/system/product";
 let pagePlugs = reactive({
   data: {
     pageNum: 1,
-    pageSize: 10,
+    pageSize: 5,
     total: 0,
   },
 });
@@ -66,7 +87,12 @@ const onClose = () => {
   // 关键句，父组件则可通过 v-model:visible 同步子组件更新后的数据
   emits("update:dialogShow", false);
 };
-
+//接收父组件的值
+const props = defineProps({
+  custId: {
+    type: Number,
+  },
+});
 //添加
 const add = () => {
   emits("addproducts", Products.ProductsData, ceshi);
@@ -86,7 +112,7 @@ function handleSelectionChange(val) {
 }
 //当你选中一条后警用其他数据
 function selectInit() {
-  if (Products.ProductsData.length==0) {
+  if (Products.ProductsData.length == 0) {
     return true;
   } else {
     return false;
@@ -97,16 +123,34 @@ function selectInit() {
 onMounted(() => {
   getProduct();
 });
-
+const pObj = toRefs(props).custId;
 //储存查询商品条件数据
-const productQuery = reactive({});
+const productQuery = reactive({
+  productSell: 1,
+  empId: null,
+  productCustId: null,
+});
+//useStore 获取store
+const store = useStore();
 let datas = reactive({ tableData: [] });
 function getProduct() {
+  productQuery.empId = store.state.employee.user.user.empId;
+  productQuery.productCustId = props.custId;
   getAllProducts(pagePlugs.data.pageNum, pagePlugs.data.pageSize, productQuery) // 使用接口，调用
     .then((response) => {
       // 响应对象
       datas.tableData = response.data.records;
+      pagePlugs.data.total = response.data.total;
+      console.log(response.data);
     });
+}
+function handleSizeChange(val) {
+  pagePlugs.data.pageSize = val;
+  getProduct();
+}
+function handleCurrentChange(val) {
+  pagePlugs.data.pageNum = val;
+  getProduct();
 }
 </script>
 <style lang="scss" scoped>

@@ -35,7 +35,7 @@
               </div>
             </el-col>
             <el-col :span="8"
-              ><div class="t-section__ft">
+              ><div class="t-section__ft" style="text-align: right">
                 <el-button type="success">编辑</el-button>
                 <el-button type="primary">更改成交状态</el-button>
                 <el-button>...</el-button>

@@ -209,7 +209,7 @@ import {
   toRefs,
 } from "vue";
 import { ElMessage, ElMessageBox } from "element-plus";
-import AddProductsfrom from "./AddProducts.vue";
+import AddProductsfrom from "../customer/AddProducts.vue";
 import { updateContract, addContractTo } from "@/api/contract/index";
 import { number } from "echarts";
 import { useStore } from "vuex";
@@ -315,7 +315,7 @@ const add = (val, val2) => {
   data.contract.productId = data.contract.product[0].productNo;
 };
 
-const pObj = toRefs(props).rowInfo;
+const pObj = toRefs(props).rowData;
 
 //获取表单信息
 let contract = reactive({});

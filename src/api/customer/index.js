@@ -1,5 +1,10 @@
 // ----------表格组件所用到的方法----------
 import request from '../../utils/request'
+export const getCustomerById = (id)=>request({
+  url: `customer/${id}`,
+  method: 'get'
+})
+
 //多条件查询
 export const CustomerSearch = (page,size,data)=>request({
   url: `/customer/Multicondition/${page}/${size}`,

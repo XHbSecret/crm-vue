@@ -7,7 +7,7 @@
           <!-- 图标 -->
           <el-col :span="22">
             <img src="src/assets/backMoney.png" alt="" width="30" height="30" />
-            <a class="con-title">{{props.contractData.object.contractNo}}</a>
+            <a class="con-title" v-if="props.contractData.object!=null">{{props.contractData.object.contractNo}}</a>
           </el-col>
           <!-- 编辑按钮 -->
           <el-col :span="2">
@@ -53,11 +53,11 @@
             </div>
             <template v-if="c.checkStatus == 0"><!-- 未审核 -->
                 <div class="check-icon">
-                    <el-icon size="25px" color="#fd5b4a"><RemoveFilled /></el-icon>
+                    <el-icon size="25px" color="#fd5b4a"><Timer /></el-icon>
                 </div>
                 <div class="check-user">
                     <span style="margin-left: 5px">{{c.checkUserVO.userName}}</span>
-                    <span style="margin-left: 6px; font-size: 10px">审核被终止</span>
+                    <span style="margin-left: 6px; font-size: 10px">待审核</span>
                 </div>
             </template>
             <template v-else-if="c.checkStatus == 1"><!-- 通过审核 -->
