@@ -126,7 +126,7 @@
               <contract :rowInfo="data.formData"></contract>
             </el-tab-pane>
             <el-tab-pane label="回款">
-              <custPayments></custPayments>
+              <custPayments :rowInfo="data.formData"></custPayments>
             </el-tab-pane>
             <el-tab-pane label="回访"
               >回访

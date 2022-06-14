@@ -48,11 +48,19 @@
     <el-table :data="backList.data" height="420px" stripe style="width: 100%">
       <el-table-column prop="backNo" label="回款编号" fixed width="180px">
         <template v-slot="scope">
-          <el-link type="primary" @click="backNoLink(scope.row)">{{scope.row.backNo}}</el-link>
+          <el-link type="primary" @click="backNoLink(scope.row)">{{
+            scope.row.backNo
+          }}</el-link>
         </template>
       </el-table-column>
       <el-table-column prop="customer.custDetailName" label="客户名称" />
-      <el-table-column prop="contract.contractNo" label="合同编号" />
+      <el-table-column prop="contract.contractNo" label="合同编号">
+        <template v-slot="scope">
+          <el-link type="primary" @click="contractItemClick(scope.row)">{{
+            scope.row.contract.contractNo
+          }}</el-link>
+        </template>
+      </el-table-column>
       <el-table-column prop="backMethod" label="回款方式" />
       <el-table-column prop="backMoney" label="回款金额" />
       <el-table-column prop="backDescribe" label="备注" />
@@ -65,37 +73,39 @@
             title="审核进度"
             :width="200"
             trigger="hover"
-            @show="showStatus(scope.row.backId,scope.row.backStatus)"
+            @show="showStatus(scope.row.backId, scope.row.backStatus)"
             @hide="disableStatus"
           >
             <template v-slot>
               <el-timeline class="info">
-              <el-timeline-item
-                v-for="(activity, index) in checkUser.data.records"
-                :key="index"
-                :timestamp="activity.checkTime"
-                :color="
-                  activity.checkStatus == 1
-                    ? '#0bbd87'
-                    : activity.checkStatus == 2
-                    ? 'red'
-                    : '#e4e7ed'
-                "
-              >
-                审批人：{{ activity.checkUserVO.userName }}&nbsp;&nbsp;&nbsp;&nbsp;
-                <template v-if="activity.checkStatus == 2">
-                  <el-tag class="ml-2" type="danger"
-                    >拒绝通过，原因是：{{ activity.checkAdvice }}</el-tag
-                  >
-                </template>
-                <template v-else-if="activity.checkStatus == 1">
-                  <el-tag>审批通过</el-tag>
-                </template>
-                <template v-if="activity.checkStatus == 3">
-                  <el-tag class="ml-2" type="info">审批中...</el-tag>
-                </template>
-              </el-timeline-item>
-            </el-timeline>
+                <el-timeline-item
+                  v-for="(activity, index) in checkUser.data.records"
+                  :key="index"
+                  :timestamp="activity.checkTime"
+                  :color="
+                    activity.checkStatus == 1
+                      ? '#0bbd87'
+                      : activity.checkStatus == 2
+                      ? 'red'
+                      : '#e4e7ed'
+                  "
+                >
+                  审批人：{{
+                    activity.checkUserVO.userName
+                  }}&nbsp;&nbsp;&nbsp;&nbsp;
+                  <template v-if="activity.checkStatus == 2">
+                    <el-tag class="ml-2" type="danger"
+                      >拒绝通过，原因是：{{ activity.checkAdvice }}</el-tag
+                    >
+                  </template>
+                  <template v-else-if="activity.checkStatus == 1">
+                    <el-tag>审批通过</el-tag>
+                  </template>
+                  <template v-if="activity.checkStatus == 3">
+                    <el-tag class="ml-2" type="info">审批中...</el-tag>
+                  </template>
+                </el-timeline-item>
+              </el-timeline>
             </template>
 
             <template #reference>
@@ -117,13 +127,14 @@
               </div>
             </template>
           </el-popover>
-          
         </template>
       </el-table-column>
-      <el-table-column  label="操作" fixed="right" align="center" width="280px">
+      <el-table-column label="操作" fixed="right" align="center" width="280px">
         <template v-slot="scope">
-          <template v-if="scope.row.backStatus ==0">
-            <el-button type="primary" @click="backBtn(scope.row.backId)">回款（审核）</el-button>
+          <template v-if="scope.row.backStatus == 0">
+            <el-button type="primary" @click="backBtn(scope.row.backId)"
+              >回款（审核）</el-button
+            >
           </template>
         </template>
       </el-table-column>
@@ -238,21 +249,31 @@
   </el-dialog>
 
   <!-- 回款详情的 抽屉 -->
-  <el-drawer v-model="backDrawer" title="I am the title" :with-header="false" size="75%">
+  <el-drawer
+    v-model="backDrawer"
+    title="I am the title"
+    :with-header="false"
+    size="75%"
+  >
     <span>Hi there!</span>
   </el-drawer>
-
+  <!-- 客户抽屉 -->
+  <contCT
+    v-if="contractDrawer"
+    v-model:contractDrawer="contractDrawer"
+    :rowInfo="rowInfo"
+  ></contCT>
 </template>
 
 <script setup>
 import { reactive, ref } from "@vue/reactivity";
 import { Search, Plus } from "@element-plus/icons-vue";
-import { getAllBackMoney,updateStatusById } from "@/api/back/backMoney";
+import { getAllBackMoney, updateStatusById } from "@/api/back/backMoney";
 import { getRecordByService } from "@/api/check/checkFlow";
 import { CustomerSearch } from "@/api/customer/index";
 import { onMounted } from "@vue/runtime-core";
 import { useStore } from "vuex";
-
+import contCT from "../contract/contractCT.vue";
 const store = useStore();
 let searchContent = ref();
 let searchType = ref("1");
@@ -285,34 +306,34 @@ let Customerterm = reactive({
   custDetailName: "",
 });
 
-let checkUser = reactive({data:{}})
-let backDrawer =  ref(false)
+let checkUser = reactive({ data: {} });
+let backDrawer = ref(false);
 
 // 表格中 回款编号 link点击
-function backNoLink(row){
-  backDrawer.value = true
+function backNoLink(row) {
+  backDrawer.value = true;
 }
 
 // 状态显示
-function showStatus(contractId,status){
-  if(status != 0){
-    getRecordByService(2,contractId).then((res) => {
-      console.log(res.data)
+function showStatus(contractId, status) {
+  if (status != 0) {
+    getRecordByService(2, contractId).then((res) => {
+      console.log(res.data);
       checkUser.data = res.data;
     });
   }
 }
 
 // 状态消失
-function disableStatus(){
-  checkUser.data ={}
+function disableStatus() {
+  checkUser.data = {};
 }
 
 // 回款审核按钮
-function backBtn(backId){
-  updateStatusById(backId).then(res=>{
-    console.log(res.data)
-  })
+function backBtn(backId) {
+  updateStatusById(backId).then((res) => {
+    console.log(res.data);
+  });
 }
 
 // 客户dialog框，选择后确认
@@ -335,26 +356,40 @@ function handleCurrentChange(row) {
 }
 
 //客户分页
-function handleCustPage(){
-  customerList.data = []
-  CustomerSearch(custPage.currentPage, custPage.size, Customerterm).then((res) => {
-    customerList.data = res.data.records;
-    custPage.total = res.data.total
-  });
+function handleCustPage() {
+  customerList.data = [];
+  CustomerSearch(custPage.currentPage, custPage.size, Customerterm).then(
+    (res) => {
+      customerList.data = res.data.records;
+      custPage.total = res.data.total;
+    }
+  );
 }
 
 // 选择客户input 点击
 function openSelectCustomer() {
   dialogVisible_SelectCustomer.value = true;
-  CustomerSearch(custPage.currentPage, custPage.size, Customerterm).then((res) => {
-    customerList.data = res.data.records;
-    custPage.total = res.data.total
-  });
+  CustomerSearch(custPage.currentPage, custPage.size, Customerterm).then(
+    (res) => {
+      customerList.data = res.data.records;
+      custPage.total = res.data.total;
+    }
+  );
 }
 
 // 添加回款 按钮
 function addBack() {
   dialogVisible.value = true;
+}
+//合同详情
+let contractDrawer = ref(false);
+//传入抽屉的值
+const rowInfo = ref({}); // 子组件的传递的 合同id
+//表格 合同触发
+function contractItemClick(row) {
+  rowInfo.value = row;
+  contractDrawer.value = true;
+  console.log(row)
 }
 
 // 挂载
@@ -365,7 +400,6 @@ onMounted(() => {
   });
 });
 </script>
-
 
 <script>
 export default {

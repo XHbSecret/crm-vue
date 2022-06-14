@@ -56,3 +56,7 @@ export const getRecordByCondition = (method,type,status,currentPage,size)=>reque
   url: `/record/condition/${method}/${type}/${status}/${currentPage}/${size}`,
   method: 'get',
 })
+export const getBackMoneyByCustomerId = (custId)=>request({
+  url: `back/getBackMoneyByCustomerId/${custId}`,
+  method: 'get',
+})
