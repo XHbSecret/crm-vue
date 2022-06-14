@@ -23,9 +23,9 @@
     </el-form>
 
     <el-tabs>
-      <el-tab-pane label="流程明细">
+      <el-tab-pane label="流程步骤">
         <el-button type="primary" @click="addDetail" style="float: right"
-          >添加详情</el-button
+          >添加步骤</el-button
         >
         <el-table
           :data="details.datas"
@@ -36,7 +36,7 @@
         >
           <el-table-column
             prop="flowDetailsName"
-            label="流程详情名"
+            label="流程步骤名"
             width="150px"
             fixed
           />
@@ -121,7 +121,6 @@ import {
 } from "vue";
 import { Edit, Delete, Plus } from "@element-plus/icons-vue";
 import { ElMessage } from "element-plus";
-import flowInsertDetails from "./flowInsertDetails.vue";
 const api = getCurrentInstance()?.appContext.config.globalProperties.$API;
 
 const formRef = ref(null);

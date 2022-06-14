@@ -1,13 +1,35 @@
 import request from '../../utils/request'
-//获取所有流程
+//获取所有流程(无条件)
 export const getFlows = (pageNum,pageSize)=>request({
     url: `/user/allFlows/${pageNum}/${pageSize}`,
-    method: 'get',
+    method: 'post',
+  })
+
+// 查询流程（通过流程名）
+export const getFlowss = (pageNum,pageSize,data)=>request({
+    url: `/user/allFlowss/${pageNum}/${pageSize}`,
+    method: 'post',
+    data
   })
 
 export const getAllFlows =()=>request({
   url: `/user/allFlows`,
-    method: 'get',
+  method: 'get',
+})
+
+export const getAllFlowDetails=()=>request({
+  url:`/user/allFlowDetails`,
+  method:"get"
+})
+
+export const getAllFlowDetailss=()=>request({
+  url:`/user/allFlowDetailss`,
+  method:"get"
+})
+
+export const getALlFlowss=()=>request({
+  url:`/user/findAllFlow`,
+  method:"get"
 })
 //获取单个流程的详情
 export const getFlowDetails = (flowId)=>request({
@@ -15,6 +37,8 @@ export const getFlowDetails = (flowId)=>request({
   method: 'get',
   data:flowId
 })
+
+
 //添加流程
 export const addFlow = (flow)=>request({
     url: `/user/addFlows`,

@@ -11,11 +11,11 @@
       :rules="rules"
       ref="formRef"
     >
-      <el-form-item label="流程详情名" prop="flowDetailsName">
+      <el-form-item label="流程步骤名" prop="flowDetailsName">
         <el-col :span="10">
           <el-input
             v-model="flowDetail.flowDetailsName"
-            placeholder="请输入流程详情名"
+            placeholder="请输入流程步骤名"
           ></el-input>
         </el-col>
       </el-form-item>

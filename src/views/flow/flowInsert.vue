@@ -20,6 +20,32 @@
           <el-radio :label="0">禁用</el-radio>
         </el-radio-group>
       </el-form-item>
+      <el-form-item
+        v-for="(flowDetail, index) in addflow.flowDetails"
+        :label="'步骤' + (index + 1)"
+        :key="flowDetail.key"
+        :prop="'flowDetail.' + index + '.flowDetailsId'"
+      >
+        <el-select
+          v-model="flowDetail.flowDetailsId"
+          placeholder="请选择"
+          @change="changSelect(flowDetail.flowDetailsId)"
+        >
+          <el-option
+            v-for="item in fDetails.datas"
+            :key="item.flowDetailsId"
+            :label="item.flowDetailsName"
+            :value="item.flowDetailsId"
+            @click="showDetailsId(item)"
+          ></el-option>
+        </el-select>
+        <el-button @click="removeDomain(flowDetail)" type="text"
+          >删除</el-button
+        >
+      </el-form-item>
+      <el-form-item>
+        <el-button @click="addDomain">新增步骤</el-button>
+      </el-form-item>
     </el-form>
     <template #footer>
       <el-button type="primary" @click="confirm()">添加</el-button>
@@ -36,6 +62,7 @@ import {
   getCurrentInstance,
   defineEmits,
   defineProps,
+  watch,
 } from "vue";
 import { ElMessage } from "element-plus";
 const api = getCurrentInstance()?.appContext.config.globalProperties.$API;
@@ -45,7 +72,13 @@ const formRef = ref(null);
 let addflow = reactive({
   flowName: "",
   flowStatus: "",
+  flowDetails: [
+    {
+      flowDetailsId: "",
+    },
+  ],
 });
+const fDetails = reactive({ datas: [] });
 
 const emits = defineEmits(["update:modelValue", "updateDate"]);
 const props = defineProps({
@@ -54,9 +87,13 @@ const props = defineProps({
     default: "",
   },
 });
+onMounted(() => {
+  getFlowDetails();
+});
+
 const onclose = () => {
-  emits("update:modelValue", false);
   formRef.value.resetFields();
+  emits("update:modelValue", false);
 };
 const confirm = () => {
   formRef.value.validate(async (valid) => {
@@ -69,12 +106,34 @@ const confirm = () => {
         onclose();
         emits("updateDate");
       });
+      alert(JSON.stringify(addflow));
     } else {
       ElMessage.error("校验不通过！！！");
       return false;
     }
   });
 };
+function showDetailsId(value) {
+  console.log(value.flowDetailsId);
+}
+function getFlowDetails() {
+  api.flow.getAllFlowDetailss().then((res) => {
+    fDetails.datas = res.data;
+    console.log(fDetails.datas);
+  });
+}
+function removeDomain(item) {
+  var index = addflow.flowDetails.indexOf(item);
+  if (index !== -1) {
+    addflow.flowDetails.splice(index, 1);
+  }
+}
+function addDomain() {
+  addflow.flowDetails.push({
+    flowDetailsId: "",
+  });
+}
+
 // 校验规则
 const rules = reactive({
   flowName: [
