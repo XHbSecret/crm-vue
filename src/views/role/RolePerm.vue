@@ -85,8 +85,7 @@ function savePerms(){
        console.log("数据相同不发送")
     }else if(copy.length != copy2.length){    // 长度不一样，肯定修改了  要发送
        updatePerms()
-    }
-    else{                                    // 长度一样，但是数据可能不一样，所以遍历一下是否相同
+    }else{                                    // 长度一样，但是数据可能不一样，所以遍历一下是否相同
       for(i=0;i<copy.length;i++){  
           if(copy[i] != copy2[i]){ // 查到有不同的数据
               console.log("发送给后端的数据2.0",selectPerms.data)
@@ -116,20 +115,29 @@ function updatePerms(){
 }
 
 // 选择权限后触发事件
-function handleCheckChange(checkedNodes,checkedKeys,halfCheckedNodes,halfCheckedKeys ) {
+function handleCheckChange(checkedNodes,checkedKeys ) {
   isSave = true
   selectPerms.data = []
-  // console.log(checkedKeys)
-  let permsCopy = toRaw(checkedKeys.checkedNodes)
-   for(let i=0;i<permsCopy.length;i++){
-    // console.log(permsCopy[i])
-    if(permsCopy[i].childMenuList!=undefined && (permsCopy[i].childMenuList.length>0) ){ //  || (permsCopy[i].permChild.length>0
-      continue; 
-    }
-    selectPerms.data.push(permsCopy[i].menuId)
+  console.log(checkedKeys)
+  // let permsCopy = toRaw(checkedKeys.checkedNodes)
+  //  for(let i=0;i<permsCopy.length;i++){
+  //   // console.log(permsCopy[i])
+  //   if(permsCopy[i].childMenuList!=undefined && (permsCopy[i].childMenuList.length>0) ){ //  || (permsCopy[i].permChild.length>0
+  //     continue; 
+  //   }
+  //   selectPerms.data.push(permsCopy[i].menuId)
+  // }
+  //  if(checkedKeys.halfCheckedNodes.length>0 && checkedKeys.halfCheckedNodes[0].menuId>0){
+  //   selectPerms.data.push(checkedKeys.halfCheckedNodes[0].menuId)
+  //  }
+
+  selectPerms.data = checkedKeys.checkedKeys
+  for(let i=0;i<checkedKeys.halfCheckedKeys.length;i++){
+    // console.log(checkedKeys.halfCheckedKeys[i])
+    selectPerms.data.push(checkedKeys.halfCheckedKeys[i])
   }
-  // console.log("发给后端的数据")
-  // console.log(selectPerms.data)
+  console.log("发给后端的数据")
+  console.log(selectPerms.data)
 }
 
 
@@ -147,7 +155,8 @@ const prop = {
     if (node.level == 1) {
       return "first-title";
     }
-    if (perms.children == undefined || perms.children.length <= 0) {
+    // if (perms.children == undefined || perms.children.length <= 0) {
+    if (perms.menuType=='B') {
       return "last-title";
     }
     return null;

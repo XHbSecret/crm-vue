@@ -112,8 +112,9 @@ async function logOut() {
   api.login.logout().then((response) => {
     if (response.code == 200) {
       store.state.employee.token = ""; // 清空token
-      router.push({ path: "/login" });
+      
     }
+    router.push({ path: "/login" });
   });
 }
 

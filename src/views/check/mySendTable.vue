@@ -17,10 +17,10 @@
     <span>审批状态：</span>
     <el-radio-group v-model="checkStatus" class="ml-4">
       <el-radio label="0" size="large" @change="changeHaha()">全部 </el-radio>
-      <el-radio label="1" size="large" @change="changeHaha()"
+      <el-radio label="1" size="large" v-if="props.me!='isMe'" @change="changeHaha()"
         >审批通过</el-radio
       >
-      <el-radio label="2" size="large" @change="changeHaha()"
+      <el-radio label="2" size="large"  v-if="props.me!='isMe'" @change="changeHaha()"
         >审批驳回</el-radio
       >
       <el-radio label="3" size="large" @change="changeHaha()">审批中</el-radio>
@@ -398,6 +398,7 @@ function changeHaha2() {
 // 多条件改变
 function changeHaha() {
   checkRecord.data = [];
+  console.log("duo条件改变")
   getMethod()
   getConditionData(method.value)
 
@@ -444,14 +445,14 @@ function changeStatus() {
 
 // 监视 角色数据不为空 去获取该角色的用户数据
 watch(props, (newValue, oldValue) => {
-  console.log("ha");
-  console.log(oldValue);
-  console.log(newValue);
-  checkRecord.data = props.data;
+  // console.log("ha");
+  // console.log(oldValue);
+  // console.log(newValue);
+  // checkRecord.data = props.data;
   
-  if(props.data != null){
-    getMeta(checkRecord.data);
-  }
+  // if(props.data != null){
+  //   getMeta(checkRecord.data);
+  // }
 });
 
 // 生成源数据
@@ -465,6 +466,7 @@ function getMeta(data) {
 
 // 访问方式
 function getMethod(){
+  console.log("props = ",props.me)
  if(props.me == "all"){// 全部
     method.value = 0
   }else if(props.me == "send"){ // 我发送
@@ -478,12 +480,16 @@ function getMethod(){
 
 // 多条件获取数据
 function getConditionData(method){
+  console.log("xixi")
+    console.log(method,type.value,checkStatus.value)
     getRecordByCondition(method,type.value,checkStatus.value,
     page.current,page.pageSize).then(res=>{
-      console.log("xixi  hei hei")
-      console.log(res.data)
-      checkRecord.data = res.data.records
-      page.total = res.data.total
+      if(res.data!=null){
+        console.log("xixi  hei hei")
+        console.log(res.data)
+        checkRecord.data = res.data.records
+        page.total = res.data.total
+      }
     })
 }
 
@@ -496,7 +502,8 @@ onMounted(() => {
   // }
 
 // 获取数据
-  getConditionData(0)
+  getMethod()
+  getConditionData(method.value)
 
   // 获取审批类型
   getAllCheckFlow(1, 100).then((res) => {

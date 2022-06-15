@@ -38,10 +38,11 @@ export const getRoleByMenu = (menuId)=>request({
     method: 'get'
   })
 
-export const getEmpByRoleId = (roleId)=>request({
-    url: `/user/find/role/${roleId}`,
+export const getEmpByRoleId = (roleId,currentPage,size)=>request({
+    url: `/user/find/role/${roleId}/${currentPage}/${size}`,
     method: 'get'
   })
+
 
 export const updatePermsByRoleId = (roleId,permsIds)=>request({
   url: `/role/updateRoleMenuB/${roleId}`,

@@ -41,3 +41,7 @@ export const getPermsB = (roleId)=>request({
   url: `/role/menuB/${roleId}`,
   method: 'get',
 })
+export const checkedMenuAll = (roleId)=>request({
+  url: `/role/menuAll/${roleId}`,
+  method: 'get',
+})
