@@ -1,73 +1,216 @@
 <template>
   <el-card>
-    <div id="flow_main">
-      <div id="flow_main_header">
-        <h1>流程管理</h1>
-        <div id="header-but">
-          <el-button @click="addFlow()" type="success" :icon="Plus"
-            >新增流程</el-button
-          >
-        </div>
-      </div>
-      <el-table
-        :data="datas.tableData"
-        row-key="flowId"
-        style="width: 100%"
-        stripe
-        height="500"
-        @row-click="clickData"
+    <div>
+      已有流程
+      <el-button
+        :icon="ArrowDownBold"
+        style="float: right"
+        v-if="show == false"
+        @click="show = !show"
+        >展开</el-button
       >
-        <el-table-column prop="flowName" label="流程名" width="150px" fixed>
-        </el-table-column>
-        <el-table-column
-          prop="flowStatus"
-          label="流程状态"
-          width="120px"
-          type="int"
-        >
-          <template v-slot="scope">
-            <el-tag v-if="scope.row.flowStatus == 1" type="success"
-              >启用</el-tag
-            >
-            <el-tag v-else type="danger">禁用</el-tag>
-          </template>
-        </el-table-column>
-        <el-table-column prop="flowTime" label="创建时间" sortable />
-        <el-table-column prop="flowLastTime" label="最后修改时间" sortable />
-        <el-table-column label="操作">
-          <template #default="{ row }">
-            <el-button @click.stop="addFlowDetail(row)" type="text" :icon="Plus"
-              >添加</el-button
-            >
-            <el-button @click.stop="editFlow(row)" type="text" :icon="Edit"
-              >修改</el-button
-            >
-            <el-button
-              @click.stop="delFlow(row.flowId)"
-              type="text"
-              :icon="Delete"
-              >删除</el-button
-            >
-          </template>
-        </el-table-column>
-      </el-table>
-      <el-pagination
-        v-model:currentPage="pagePlugs.data.page"
-        v-model:page-size="pagePlugs.data.size"
-        :page-sizes="[10, 20, 30, 40, 50]"
-        layout="total,sizes, prev, pager, next, jumper"
-        :total="pagePlugs.data.total"
-        @size-change="handleSizeChange"
-        @current-change="handleCurrentChange"
-        background
-      />
+      <el-button
+        :icon="ArrowUpBold"
+        style="float: right"
+        v-if="show == true"
+        @click="show = !show"
+        >收起</el-button
+      >
     </div>
+    <transition name="flow">
+      <el-card
+        shadow="never"
+        v-loading="loading"
+        v-show="show"
+        style="margin: 20px"
+      >
+        <template #header>
+          <div class="card-header">
+            <el-row>
+              <el-col :span="4">
+                <el-button @click="addFlow()" type="success" :icon="Plus"
+                  >新增流程</el-button
+                >
+              </el-col>
+              <el-col :span="5">
+                <el-input
+                  placeholder="通过流程名查询流程"
+                  v-model="flow.flowName"
+                  clearable
+                >
+                  <template #append>
+                    <el-button :icon="Search" @click="findFlow"></el-button>
+                  </template>
+                </el-input>
+              </el-col>
+            </el-row>
+          </div>
+        </template>
+        <el-table
+          :data="datas.tableData"
+          row-key="flowId"
+          style="width: 95%"
+          stripe
+          height="250"
+          @row-click="clickData"
+        >
+          <el-table-column
+            label="流程名"
+            prop="flowName"
+            width="120"
+          ></el-table-column>
+          <el-table-column label="流程状态" prop="flowStatus">
+            <template #default="scope">
+              <el-tag v-if="scope.row.flowStatus == 1"> 启用 </el-tag>
+              <el-tag v-else type="danger"> 禁用 </el-tag>
+            </template>
+          </el-table-column>
+          <el-table-column label="创建时间" prop="flowTime"></el-table-column>
+          <el-table-column
+            label="修改时间"
+            prop="flowLastTime"
+          ></el-table-column>
+          <el-table-column label="操作">
+            <template #default="{ row }">
+              <el-button
+                @click.stop="addFlowDetail(row)"
+                type="text"
+                :icon="Plus"
+                >添加</el-button
+              >
+              <el-button @click.stop="editFlow(row)" type="text" :icon="Edit"
+                >修改</el-button
+              >
+              <el-button
+                @click.stop="delFlow(row.flowId)"
+                type="text"
+                :icon="Delete"
+                >删除</el-button
+              >
+            </template>
+          </el-table-column>
+        </el-table>
+        <el-pagination
+          v-model:currentPage="pagePlugs.data.page"
+          v-model:page-size="pagePlugs.data.size"
+          :page-sizes="[10, 20, 30, 40, 50]"
+          layout="total,sizes, prev, pager, next, jumper"
+          :total="pagePlugs.data.total"
+          @size-change="handleSizeChange"
+          @current-change="handleCurrentChange"
+          background
+        />
+        <hr />
+        <div style="text-align: center">
+          <p>所查结果</p>
+        </div>
+        <el-table
+          :data="datass.tableDatas"
+          row-key="flowId"
+          style="width: 100%"
+          stripe
+          height="100"
+          @row-click="clickData"
+        >
+          <el-table-column
+            label="流程名"
+            prop="flowName"
+            width="120"
+          ></el-table-column>
+          <el-table-column label="流程状态" prop="flowStatus">
+            <template #default="scope">
+              <el-tag v-if="scope.row.flowStatus == 1"> 启用 </el-tag>
+              <el-tag v-else type="danger"> 禁用 </el-tag>
+            </template>
+          </el-table-column>
+          <el-table-column label="创建时间" prop="flowTime"></el-table-column>
+          <el-table-column
+            label="修改时间"
+            prop="flowLastTime"
+          ></el-table-column>
+          <el-table-column label="操作">
+            <template #default="{ row }">
+              <el-button
+                @click.stop="addFlowDetail(row)"
+                type="text"
+                :icon="Plus"
+                >添加</el-button
+              >
+              <el-button @click.stop="editFlow(row)" type="text" :icon="Edit"
+                >修改</el-button
+              >
+              <el-button
+                @click.stop="delFlow(row.flowId)"
+                type="text"
+                :icon="Delete"
+                >删除</el-button
+              >
+            </template>
+          </el-table-column>
+        </el-table>
+      </el-card>
+    </transition>
   </el-card>
+
+  <el-card style="margin-top: 20px">
+    <div>
+      已有步骤
+      <el-button
+        :icon="ArrowDownBold"
+        style="float: right"
+        v-if="shows == false"
+        @click="shows = !shows"
+        >展开</el-button
+      >
+      <el-button
+        :icon="ArrowUpBold"
+        style="float: right"
+        v-if="shows == true"
+        @click="shows = !shows"
+        >收起</el-button
+      >
+    </div>
+    <transition name="flowDetails">
+      <el-card
+        shadow="never"
+        style="margin: 20px"
+        v-show="shows"
+        v-loading="loading"
+      >
+        <div>
+          <el-row>
+            <el-col :span="3">
+              <el-button @click="addFlowDetails()" type="success" :icon="Plus"
+                >新增流程步骤</el-button
+              >
+            </el-col>
+            <el-col :span="5">
+              <el-input placeholder="查询流程步骤">
+                <template #append>
+                  <el-button :icon="Search"></el-button>
+                </template>
+              </el-input>
+            </el-col>
+          </el-row>
+          <div style="margin-top: 20px">
+            <el-button
+              v-for="(index, item) in fDetails.datas"
+              :key="item"
+              type="primary"
+            >
+              {{ index.flowDetailsName }}
+            </el-button>
+          </div>
+        </div>
+      </el-card>
+    </transition>
+  </el-card>
+
   <!-- 添加流程 -->
   <flowInsert
     v-model="visible_add"
     :dialogTittle="dialogTittle"
-    @updateDate="getFlows"
+    @updateDate="getFlow"
     v-if="visible_add"
   ></flowInsert>
 
@@ -75,7 +218,7 @@
   <flowEditVue
     v-model="visible_edit"
     :dialogTittle="dialogTittle"
-    @updateDate="getFlows"
+    @updateDate="getFlow"
     :dialogValue="dialogValue"
     v-if="visible_edit"
   ></flowEditVue>
@@ -88,23 +231,20 @@
       <el-result icon="error" title="删除失败"> </el-result>
     </div>
   </el-dialog>
-  <!-- 显示流程详情 -->
+  <!-- 流程详情 -->
   <flowDetail
     v-model="drawer"
-    :dialogTittle="dialogTittle"
     :dialogValue="dialogValue"
-    @insertDetail="addFlowDetails"
-  ></flowDetail>
-  <!-- 添加流程详情 -->
-  <flowInsertDetails
-    v-model="visible_adds"
     :dialogTittle="dialogTittle"
-    @updateDate="getFlows"
-    :ids="ids"
-    :idss="idss"
-  ></flowInsertDetails>
+  ></flowDetail>
+  <insertDetails
+    v-model="visible_details"
+    v-if="visible_details"
+    @updateData="getFlowDetailss"
+  >
+  </insertDetails>
 </template>
-<style>
+<style >
 * {
   margin: 0;
   padding: 0;
@@ -121,23 +261,71 @@ h1 {
   font-size: larger;
   height: 50px;
 }
-#header-but {
-  float: right;
+.flow-enter-active {
+  animation: myAniY 1s;
+}
+
+.flow-leave-active {
+  animation: myAniX 1s reverse;
+}
+.flowDetails-enter-active {
+  animation: myAniY 1s;
+}
+
+.flowDetails-leave-active {
+  animation: myAniX 1s reverse;
+}
+@keyframes myAniY {
+  from {
+    transform: translateY(-100%);
+  }
+  to {
+    transform: translateY(0px);
+  }
+}
+@keyframes myAniX {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0px);
+  }
 }
 </style>
 <script setup>
 import { ref, reactive } from "@vue/reactivity";
 import { onMounted, getCurrentInstance } from "vue";
 import { ElMessage } from "element-plus";
-import { Edit, Delete, Plus } from "@element-plus/icons-vue";
+import {
+  Edit,
+  Delete,
+  Plus,
+  Search,
+  ArrowDownBold,
+  ArrowUpBold,
+} from "@element-plus/icons-vue";
 import flowInsert from "./flowInsert.vue";
 import flowInsertDetails from "./flowInsertDetails.vue";
 import flowEditVue from "./flowEdit.vue";
 import flowDetail from "./flowDetail.vue";
+import insertDetails from "./insertDetails.vue";
+import {
+  getFlows,
+  getAllFlowDetails,
+  getFlowss,
+  getFlowDetails,
+} from "@/api/system/flow";
 const api = getCurrentInstance()?.appContext.config.globalProperties.$API;
 
 let datas = reactive({ tableData: [] });
-
+let datass = reactive({ tableDatas: [] });
+let flow = reactive({
+  flowName: "",
+});
+let loading = ref(true);
+let show = ref(false);
+let shows = ref(false);
+const fDetails = reactive({ datas: [] });
 const visible_add = ref(false);
 const visible_edit = ref(false);
 const visible_del = ref(false);
@@ -155,19 +343,51 @@ let pagePlugs = reactive({
     total: 0,
   },
 });
-onMounted(() => {
-  getFlows();
-});
+const visible_details = ref(false);
 
-function getFlows() {
-  api.flow
-    .getFlows(pagePlugs.data.pageNum, pagePlugs.data.pageSize) // 使用接口，调用
+onMounted(() => {
+  getFlow();
+  getFlowDetailss();
+});
+function showFlow() {
+  show.value = true;
+}
+
+function getFlow() {
+  getFlows(pagePlugs.data.pageNum, pagePlugs.data.pageSize) // 使用接口，调用
     .then((response) => {
       // 响应对象
       datas.tableData = response.data.records;
+      console.log(response.data);
       pagePlugs.data.total = response.data.total;
+      loading.value = false;
     });
 }
+function getFlowDetailss() {
+  getAllFlowDetails().then((res) => {
+    fDetails.datas = res.data;
+    loading.value = false;
+    console.log(fDetails.datas);
+  });
+}
+function findFlow() {
+  if (flow.flowName != "") {
+    getFlowss(pagePlugs.data.pageNum, pagePlugs.data.pageSize, flow) // 使用接口，调用
+      .then((response) => {
+        // 响应对象
+        datass.tableDatas = response.data.records;
+        console.log(response.data);
+      });
+  } else {
+    getFlows(0, 0) // 使用接口，调用
+      .then((response) => {
+        // 响应对象
+        datass.tableDatas = response.data.records;
+        console.log(response.data);
+      });
+  }
+}
+
 // 添加流程
 function addFlow() {
   visible_add.value = true;
@@ -193,7 +413,7 @@ function delFlow(flowId) {
 function clickData(row) {
   drawer.value = true;
   dialogTittle.value = row.flowName;
-  api.flow.getFlowDetails(row.flowId).then((response) => {
+  getFlowDetails(row.flowId).then((response) => {
     dialogValue.value = response.data;
   });
 }
@@ -203,17 +423,16 @@ function addFlowDetail(row) {
   ids.value = row.flowId;
   console.log(ids.value);
 }
-function addFlowDetails(idsss) {
-  visible_adds.value = true;
-  idss.value = idsss;
-  console.log(idss.value);
+
+function addFlowDetails() {
+  visible_details.value = true;
 }
 function handleSizeChange(val) {
   pagePlugs.data.pageSize = val;
-  getFlows();
+  getFlow();
 }
 function handleCurrentChange(val) {
   pagePlugs.data.pageNum = val;
-  getFlows();
+  getFlow();
 }
 </script>
