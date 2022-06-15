@@ -64,8 +64,23 @@
               ><RoleEmp
                 :empList="empList.data"
                 :roleId="roleId"
-                @flushEmp="flushEmp(roleId)"
-            /></el-tab-pane>
+                @flushEmp="flushEmp(roleId)"/>
+                
+                <!-- 分页 -->
+                <el-row>
+                  <el-col :span="24" :offset="8"  >
+                  <div style="margin-bottom:20px">
+                        <el-pagination
+                        :page-size="page.size"
+                        background
+                        layout="prev,pager,next"
+                        :total="page.total"
+                        @current-change="handleCurrentChange"
+                      />
+                  </div>
+                  </el-col>
+                </el-row>
+                </el-tab-pane>
             <el-tab-pane label="角色权限" name="second"
               ><RolePerm
                 :checkedPerms="checkedPermList.data"
@@ -132,7 +147,7 @@ import {
   updateRole,
 
 } from "@/api/system/role";
-import {getAllPerms,  getPermsB,} from "@/api/system/menu";
+import {getAllPerms,  getPermsB,getAllMenu,checkedMenuAll} from "@/api/system/menu";
 import { onMounted } from "@vue/runtime-core";
 import { ElMessage } from "element-plus";
 import {useStore} from 'vuex'
@@ -155,6 +170,18 @@ let submitFlag = 0; // 提交方式，0：添加角色  1：修改角色
 
 let perms = reactive({data:[]})
 let checkedPermList = reactive({data:[]})
+
+let page = reactive({currentPage:1,size:4,total:0})
+
+// 角色分页改变事件
+function handleCurrentChange(val){
+  page.currentPage = val
+  console.log(roleId.value)
+  getEmpByRoleId(roleId.value,page.currentPage,page.size).then((res) => {
+    empList.data = res.data.records;
+    page.total = res.data.total
+  });
+}
 
 // 是否有创建角色的权限
 async function hasCreateRolePerm(){
@@ -233,25 +260,46 @@ async function getRole() {
   });
 }
 
+// 获取所有菜单
+async function getMenus(){
+  getAllMenu().then(res=>{
+    console.log("所有的菜单")
+    console.log(res)
+    console.log("end")
+  })
+}
+
 // 获取已经选中的权限
-function checkedPerms(){
-  getPermsB(roleList.data[0].roleId).then(res=>{
+async function checkedPerms(){
+  // getPermsB(roleList.data[0].roleId).then(res=>{
+  //   checkedPermList.data = res.data
+  //   console.log("已选择的权限",res.data)
+  // })
+  checkedMenuAll(roleList.data[0].roleId).then(res=>{
     checkedPermList.data = res.data
     console.log("已选择的权限",res.data)
   })
 }
 
-// 获取权限信息
-function allPerms(){
-  getAllPerms().then(res=>{
+// 获取所有权限信息
+async function allPerms(){
+  //6.12 修改
+  // getAllPerms().then(res=>{
+  //   perms.data = res.data
+  // })
+  getAllMenu().then(res=>{
+    console.log("所有的菜单")
+    console.log(res)
     perms.data = res.data
+    console.log("end")
   })
 }
 
 // 从后台获取用户信息  根据角色id
 async function getEmpByRole() {
-  getEmpByRoleId(roleList.data[0].roleId).then((res) => {
-    empList.data = res.data;
+  getEmpByRoleId(roleList.data[0].roleId,page.currentPage,page.size).then((res) => {
+    empList.data = res.data.records;
+    page.total = res.data.total
   });
 }
 
@@ -269,19 +317,22 @@ function changeRole(id) {
   num.value = id; // 样式..
   roleId.value = id;
 
+  page.currentPage = 1
+  page.total = 0
   // 获取员工对应的信息
-  getEmpByRoleId(id).then((res) => {  
-    empList.data = res.data;
+  getEmpByRoleId(id,page.currentPage,page.size).then((res) => {  
+    empList.data = res.data.records;
+    page.total = res.data.total
   });
 
   // 获取权限对应的信息
-  getAllPerms().then((res) => {  
-    perms.data = res.data;
-  });
-
-  //TODO
-    getPermsB(id).then(res=>{
-     checkedPermList.data = res.data
+  // getAllPerms().then((res) => {  
+  //   perms.data = res.data;
+  // });
+allPerms();
+ checkedMenuAll(id).then(res=>{
+    checkedPermList.data = res.data
+    console.log("已选择的权限",res.data)
   })
 }
 

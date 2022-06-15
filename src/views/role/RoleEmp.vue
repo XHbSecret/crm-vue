@@ -32,6 +32,8 @@
           </template>
         </el-table-column>
       </el-table>
+      <!-- 分页 -->
+
     </el-col>
   </el-row>
 
@@ -42,13 +44,12 @@
           <el-pagination
           pager-count="3"
           v-model:currentPage="currentPage4"
-          v-model:page-size="pageSize4"
-          :page-sizes="[10,15,30,50]"
+          v-model:page-size="page.size"
           :small="small"
           :disabled="disabled"
           background
-          layout="prev,pager,next,sizes,total,jumper"
-          :total="400"
+          layout="prev,pager,next"
+          :total="page.total"
           @size-change="handleSizeChange"
           @current-change="handleCurrentChange"
         />
@@ -61,10 +62,11 @@
     <!-- 选择关联的用户 -->
     <el-row>
       <el-col :span="4">
-        <span>关联员工：</span>
+        <!-- <span>关联员工：</span> -->
       </el-col>
       <el-col :span="8">
-        <el-select
+        
+        <!-- <el-select
           v-model="empIds"
           multiple
           placeholder="选择员工"
@@ -80,9 +82,10 @@
               :value="emp.empId"
             />
          </template>
-        </el-select>
+        </el-select> -->
       </el-col>
     </el-row>
+    <EmpDialog :roleId="props.roleId" @checked="selectEmpCom"/>
     <!-- 提交和取消按钮 -->
     <template #footer>
       <span class="dialog-footer">
@@ -100,7 +103,7 @@ import {getAllEmp} from "@/api/employee/login";
 import {addEmpRole,getEmpByRoleId,delEmp} from "@/api/system/role";
 import { ElMessage } from "element-plus";
 import {DeleteFilled} from "@element-plus/icons-vue";
-
+import EmpDialog from '../employee/EmpDialog.vue'
 
 
 const props = defineProps(["empList","roleId"]);
@@ -109,8 +112,21 @@ let empIds = ref([]);
 let searchEmp = ref("")
 
 let empList = reactive({data:[]});     // 搜索员工列表，从后台获取
+let page = reactive({currentPage:1,size:5,total:0})
 
 const emit = defineEmits(['flushEmp'])
+
+let comCheckedEmpList = reactive({data:[]})
+// 子组件传递过来的触发事件（选择的用户）
+function selectEmpCom(data){
+  console.log("传递过来的阐述")
+  empIds.value = []
+  for(let i=0;i<data.length;i++){
+    empIds.value.push(data[i].empId)
+  } 
+  console.log(empIds.value)
+
+}
 
 // 挂载： 加载用户信息
 onMounted(() => {});
