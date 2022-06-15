@@ -17,10 +17,19 @@ export const getAllFlows =()=>request({
   method: 'get',
 })
 
-export const getAllFlowDetails=()=>request({
-  url:`/user/allFlowDetails`,
+// 查询所有的步骤（有分页）
+export const getAllFlowDetails=(pageNum,pageSize)=>request({
+  url:`/user/allFlowDetails/${pageNum}/${pageSize}`,
   method:"get"
 })
+
+// 查询所有的步骤（有分页有条件）
+export const getAllFlowDetailsName=(pageNum,pageSize,flow)=>request({
+  url:`/user/allFlowDetails/${pageNum}/${pageSize}`,
+  method:"post",
+  data:flow
+})
+
 
 export const getAllFlowDetailss=()=>request({
   url:`/user/allFlowDetailss`,
@@ -54,6 +63,11 @@ export const delFlow = (Id)=>request({
 //修改流程
 export const editFlow = (flow)=>request({
   url: `/user/editFlow`,
+  method: 'post',
+  data:flow
+})
+export const editFlowStatus = (flow)=>request({
+  url: `/user/editFlowStatus`,
   method: 'post',
   data:flow
 })

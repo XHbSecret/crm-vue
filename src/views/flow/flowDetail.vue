@@ -6,21 +6,37 @@
     @opened="getFlowDetails"
     size="60%"
   >
-    <el-form :model="flowDetail">
-      <el-form-item label="流程名">
-        <el-input v-model="flowDetail.flowName" disabled></el-input>
-      </el-form-item>
-      <el-form-item label="流程状态">
-        <el-tag type="error" v-if="flowDetail.flowStatus == 0">禁用</el-tag>
-        <el-tag type="success" v-else>启用</el-tag>
-      </el-form-item>
-      <el-form-item label="创建时间">
-        <el-input v-model="flowDetail.flowTime" disabled></el-input>
-      </el-form-item>
-      <el-form-item label="最后修改时间">
-        <el-input v-model="flowDetail.flowLastTime" disabled></el-input>
-      </el-form-item>
-    </el-form>
+    <div>
+      <h3>基本详情</h3>
+      <el-row class="rows">
+        <el-col :span="4"><p>流程名</p></el-col>
+        <el-col :span="6">{{flowDetail.flowName}}</el-col>
+      </el-row>
+      <el-row>
+        <el-col :span="4"><p>流程状态</p></el-col>
+        <el-col :span="6"
+          ><el-switch 
+          v-model="flowDetail.flowStatus"
+            active-text="启用"
+            inactive-text="禁用"
+            @click.stop="changStatus(scope.row)"
+            active-color="#13ce66"
+            inactive-color="#ff4949"
+            :active-value="1"
+            :inactive-value="0"
+          >
+          </el-switch
+        ></el-col>
+      </el-row>
+      <el-row>
+        <el-col :span="4"><p>创建时间</p></el-col>
+        <el-col :span="6">{{flowDetail.flowTime}}</el-col>
+      </el-row>
+      <el-row>
+        <el-col :span="4"><p>修改时间</p></el-col>
+        <el-col :span="6">{{flowDetail.flowLastTime}}</el-col>
+      </el-row>
+    </div>
 
     <el-tabs>
       <el-tab-pane label="流程步骤">
@@ -40,24 +56,12 @@
             width="150px"
             fixed
           />
-          <el-table-column
-            prop="flowIsCheck"
-            label="是否审核"
-            width="150px"
-            fixed
-          >
-            <template v-slot="scope">
-              <el-tag v-if="scope.row.flowIsCheck == 1" type="success"
-                >是</el-tag
-              >
-              <el-tag v-else type="danger">否</el-tag>
-            </template>
-          </el-table-column>
+
           <el-table-column
             prop="flowOrder"
             label="顺序"
             width="150px"
-            fixed
+            type="index"
             sortable
           />
           <el-table-column
@@ -85,17 +89,11 @@
 
     <el-dialog title="修改详情" v-model="edit" @close="cancle">
       <el-form :model="form" label-width="120px" :rules="rules" ref="formRef">
-        <el-form-item label="流程详情名" prop="flowDetailsName">
+        <el-form-item label="步骤名" prop="flowDetailsName">
           <el-input v-model="form.flowDetailsName" />
         </el-form-item>
         <el-form-item label="是否审核" prop="flowIsCheck">
-          <el-radio-group v-model="form.flowIsCheck">
-            <el-radio :label="1">是</el-radio>
-            <el-radio :label="0">否</el-radio>
-          </el-radio-group>
-        </el-form-item>
-        <el-form-item label="顺序" prop="flowOrder">
-          <el-input v-model="form.flowOrder" />
+          <el-input type="textarea" v-model="form.flowIsCheck" />
         </el-form-item>
         <el-form-item label="说明">
           <el-input type="textarea" v-model="form.flowDetailsDesc" />
@@ -209,5 +207,8 @@ const rules = reactive({
 });
 </script>
 
-<style>
+<style scoped>
+ p{
+  font-size:large;
+}
 </style>

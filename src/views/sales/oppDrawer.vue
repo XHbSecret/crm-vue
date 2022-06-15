@@ -116,21 +116,18 @@
       <el-container>
         <el-main style="margin-top: 20px; margin-right: 20px">
           <el-tabs type="border-card">
-            <el-tab-pane label="日志">
+            <el-tab-pane label="操作记录">
               <oppActivity :rowInfo="data.formData"></oppActivity>
             </el-tab-pane>
             <el-tab-pane label="基本信息">
               <oppEssential :rowInfo="data.formData"></oppEssential>
             </el-tab-pane>
-            <el-tab-pane label="跟进">
-              <synthesis :rowInfo="data.formData"></synthesis>
-            </el-tab-pane>
             <el-tab-pane label="联系人" name="Contactst"
               >联系人
               <Contactst :rowInfo="data.formData" />
             </el-tab-pane>
-            <el-tab-pane label="协作人" name="cooperation">
-              <cooperation :rowInfo="data.formData"></cooperation>
+            <el-tab-pane label="产品">
+              <oppProduct :rowInfo="data.formData"></oppProduct>
             </el-tab-pane>
             <el-tab-pane label="合同">
               <contract :rowInfo="data.formData"></contract>
@@ -138,85 +135,12 @@
             <el-tab-pane label="回款">
               <custPayments :rowInfo="data.formData"></custPayments>
             </el-tab-pane>
-            <el-tab-pane label="回访"
-              >回访
-              <Visit :rowInfo="data.formData" />
-            </el-tab-pane>
-            <el-tab-pane label="附件"
-              >附件
-              <Accessory :rowInfo="data.formData" />
-            </el-tab-pane>
           </el-tabs>
         </el-main>
         <el-aside width="200px" style="margin-top: 20px; height: 100%">
           <el-tabs type="border-card" style="height: 99%">
             <el-tab-pane label="重要信息" style="margin: -10px">
-              <el-scrollbar height="450px">
-                <div class="essential1">
-                  <ul>
-                    <li class="li1">
-                      <p>商机名:</p>
-                      <span>{{ data.formData.oppName }}</span>
-                    </li>
-                    <li>
-                      <P>客户名:</P>
-                      <span>{{
-                        data.formData.customerDetail.custDetailName
-                      }}</span>
-                    </li>
-                    <li>
-                      <p>服务:</p>
-                      <span>{{ data.formData.flow.flowName }}</span>
-                    </li>
-                    <li>
-                      <p>所到阶段:</p>
-                      <span>{{
-                        data.formData.flowDetails.flowDetailsName
-                      }}</span>
-                    </li>
-                    <li>
-                      <p>商机金额:</p>
-                      <span>{{ data.formData.oppMoney }}元</span>
-                    </li>
-                    <li>
-                      <p>预计成交日:</p>
-                      <span>{{ data.formData.oppStopTime }}</span>
-                    </li>
-                    <li>
-                      <p>备注:</p>
-                      <span>{{
-                        data.formData.oppNotes == null
-                          ? "空"
-                          : data.formData.oppNotes
-                      }}</span>
-                    </li>
-                    <li>
-                      <p>负责人:</p>
-                      <span>{{
-                        data.formData.employee.employeeDatail.empName
-                      }}</span>
-                    </li>
-                    <li>
-                      <p>创建人:</p>
-                      <span>{{
-                        data.formData.employee1.employeeDatail.empName
-                      }}</span>
-                    </li>
-                    <li>
-                      <p>创建时间:</p>
-                      <span>{{ data.formData.oppStartTime }}</span>
-                    </li>
-                    <li>
-                      <p>最后跟进时间:</p>
-                      <span>{{ data.formData.custLastTime }}</span>
-                    </li>
-                    <li>
-                      <p>更新时间:</p>
-                      <span>{{ data.formData.oppUpdateTime }}</span>
-                    </li>
-                  </ul>
-                </div>
-              </el-scrollbar>
+              <oppMessage :rowInfo="data.formData"></oppMessage>
             </el-tab-pane>
           </el-tabs>
         </el-aside>
@@ -241,11 +165,12 @@ import oppEssential from "./oppEssential.vue";
 import cooperation from "./cooperation.vue";
 import contract from "./contract.vue";
 import custPayments from "./custPayments.vue";
-import synthesis from "./synthesis.vue";
-import CustomerDialog from "../customer/customerDialog.vue";
+// import CustomerDialog from "../customer/customerDialog.vue";
 import oppActivity from "./oppActivity.vue";
 import changeDialogSinger from "./changeDialogSinger.vue";
 import setps from "./setps.vue";
+import oppMessage from "./oppMessage.vue";
+import oppProduct from "./oppProduct.vue";
 import {
   delOppById,
   addOpps,
@@ -385,7 +310,7 @@ watch(
     getFlowRecord();
     getFlowDetailss();
     console.log("复制父组件的对象" + data.formData);
-    console.log(pObj);
+    console.log(data.formData);
   },
   {
     deep: true,
@@ -439,14 +364,5 @@ watch(
 
 .three_drawer {
   margin-top: 20px;
-}
-.essential1 ul li {
-  font-size: small;
-  margin-top: 40px;
-}
-.essential1 ul li span {
-}
-.essential1 ul .li1 {
-  margin: 0;
 }
 </style>

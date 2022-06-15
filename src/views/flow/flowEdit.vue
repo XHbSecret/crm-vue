@@ -76,6 +76,7 @@ watch(
 );
 
 function updateFlows() {
+  console.log(editFlows.value)
   formRef.value.validate(async (valid) => {
     if (valid) {
       api.flow.editFlow(editFlows.value).then(() => {
