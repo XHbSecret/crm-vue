@@ -42,7 +42,7 @@
           </el-input>
         </el-form-item>
 
-        <el-form-item label="业务" prop="flowId">
+        <el-form-item label="所选服务" prop="flowId">
           <el-select
             placeholder="请选择"
             v-model="addForm.flowId"
@@ -132,8 +132,9 @@ import empDialog from "./empDialog.vue";
 import custDialog from "./custDialog.vue";
 import productDialog from "./productDialog.vue";
 import { addOpp, findEmps } from "@/api/sales/index";
-import { getAllFlows, getFlowDetails } from "@/api/system/flow";
+import { getAllFlows, getFlowDetails, getALlFlowss } from "@/api/system/flow";
 import { useStore } from "vuex";
+
 const store = useStore();
 //从token 获取empid
 let empId = store.state.employee.user.user.employeeDatail.empId;
@@ -227,12 +228,14 @@ function handleClose() {
 
 // 获取所有流程
 function getAllFlow() {
-  getAllFlows()
+  getALlFlowss()
     .then((response) => {
       options1.flow = response.data;
+
       console.log(options1.flow);
     })
     .catch((err) => {});
+  // console.log("12345");
 }
 
 // 添加商机

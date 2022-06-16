@@ -1,0 +1,106 @@
+<template>
+  <!-- 员工表格 -->
+    <el-table
+      :data="selectEmpList.data"
+      :page-size="5"
+      style="width: 100%"
+      height="280px"
+      highlight-current-row
+      @selection-change="selectHandleCurrentChange"
+    >
+      <el-table-column type="selection" width="55" />
+      <el-table-column
+        fixed
+        prop="employeeDatail.empName"
+        label="姓名"
+        width="120"
+      />
+      <el-table-column
+        prop="employeeDatail.empPhone"
+        label="电话"
+        width="120"
+      />
+      <el-table-column prop="empCreateTime" label="入职时间" width="180" />
+
+      <el-table-column label="状态" width="120">
+        <template v-slot="scope">
+          <span v-if="scope.row.empStatus == 1"
+            ><el-tag class="ml-2" type="success">正常</el-tag></span
+          >
+          <span v-else><el-tag class="ml-2" type="danger">禁用</el-tag></span>
+        </template>
+      </el-table-column>
+
+      <el-table-column
+        prop="employeeDatail.empDescribe"
+        width="180"
+        label="描述"
+      />
+    </el-table>
+    <!-- 已选择：{{ selectEmp.empName }} -->
+    <!-- 分页 -->
+    <div style="float: right; margin-right: 20px">
+      <el-pagination
+        background
+        :page-size="page.size"
+        layout="prev, pager, next"
+        :total="page.total"
+        @current-change="handleCurrentChange"
+      />
+    </div>
+</template>
+
+<script setup>
+
+import { getAllEmp } from "@/api/employee/login";
+import { onMounted, reactive, toRaw } from "@vue/runtime-core";
+// import {  defineEmits,defineProps,} from 'vue'
+const emit = defineEmits(["checked"])
+const props = defineProps(["roleId"]);
+let selectEmpList = reactive({ data: [] });
+let page = reactive({
+    currentPage:1,
+    size:5,
+    total:0
+})
+
+
+//分页 选中
+function selectHandleCurrentChange(obj) {
+  console.log(obj);
+  let data = toRaw(obj)
+  // console.log(data)
+  emit("checked",data)
+  // if (obj != null && obj.employeeDatail != null) {
+  //   selectEmp.empName = obj.employeeDatail.empName;
+  //   selectEmp.empId = obj.empId;
+  // }
+}
+
+// 负责人 分页
+function handleCurrentChange(val) {
+  page.currentPage = val;
+
+  getAllEmp(page.currentPage, page.size).then((res) => {
+    // 获取所有的用户信息
+    selectEmpList.data = res.data.records;
+    page.total = res.data.total;
+    page.size = res.data.size;
+  });
+}
+
+onMounted(()=>{
+  // 加载用户数据，分页显示
+  getAllEmp(page.currentPage, page.size).then((res) => {
+    // 获取所有的用户信息
+    selectEmpList.data = res.data.records;
+    page.total = res.data.total;
+    page.size = res.data.size;
+  });
+})
+
+</script>
+
+<style>
+
+</style>

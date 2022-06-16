@@ -33,7 +33,10 @@
       @click="showDialog()"
       >新建商机</el-button
     >
-    <div style="float: left" v-show="Opportunities.datas.length > 0">
+    <div
+      v-show="Opportunities.datas.length > 0"
+      style="float: right; margin-right: 5px"
+    >
       <span style="font-size: small"
         >已选中{{ num }}项&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span
       >
@@ -160,7 +163,7 @@
       </el-table-column>
       <el-table-column
         label="负责人"
-        prop="employeeDatail.empName"
+        prop="employee.employeeDatail.empName"
         width="130"
       ></el-table-column>
       <el-table-column
@@ -175,7 +178,11 @@
         width="130"
       >
       </el-table-column>
-      <el-table-column label="创建人" width="130" prop="empCreateId">
+      <el-table-column
+        label="创建人"
+        width="130"
+        prop="employee1.employeeDatail.empName"
+      >
       </el-table-column>
       <el-table-column
         label="商机金额/元"
@@ -211,7 +218,7 @@
 
 <script setup>
 import { ref, onMounted, reactive } from "vue";
-import { getAllOpp, getAllOpps, delSales, findById } from "@/api/sales/index";
+import { getAllOpp, getAllOpps, delSales, findById} from "@/api/sales/index";
 import { Delete, Switch, Plus, Search } from "@element-plus/icons-vue";
 import { ElMessage, ElMessageBox } from "element-plus";
 import { CustomerSearch } from "@/api/customer/index";
@@ -345,6 +352,7 @@ function exportExcel() {
 }
 function exportToExcel() {
   htmlExcel.getExcel("#selectTable", "商机");
+  ElMessage.success("导出成功！！！");
   handClose();
 }
 

@@ -1,13 +1,44 @@
 import request from '../../utils/request'
-//获取所有流程
+//获取所有流程(无条件)
 export const getFlows = (pageNum,pageSize)=>request({
     url: `/user/allFlows/${pageNum}/${pageSize}`,
-    method: 'get',
+    method: 'post',
+  })
+
+// 查询流程（通过流程名）
+export const getFlowss = (pageNum,pageSize,data)=>request({
+    url: `/user/allFlowss/${pageNum}/${pageSize}`,
+    method: 'post',
+    data
   })
 
 export const getAllFlows =()=>request({
   url: `/user/allFlows`,
-    method: 'get',
+  method: 'get',
+})
+
+// 查询所有的步骤（有分页）
+export const getAllFlowDetails=(pageNum,pageSize)=>request({
+  url:`/user/allFlowDetails/${pageNum}/${pageSize}`,
+  method:"get"
+})
+
+// 查询所有的步骤（有分页有条件）
+export const getAllFlowDetailsName=(pageNum,pageSize,flow)=>request({
+  url:`/user/allFlowDetails/${pageNum}/${pageSize}`,
+  method:"post",
+  data:flow
+})
+
+
+export const getAllFlowDetailss=()=>request({
+  url:`/user/allFlowDetailss`,
+  method:"get"
+})
+
+export const getALlFlowss=()=>request({
+  url:`/user/findAllFlow`,
+  method:"get"
 })
 //获取单个流程的详情
 export const getFlowDetails = (flowId)=>request({
@@ -15,6 +46,8 @@ export const getFlowDetails = (flowId)=>request({
   method: 'get',
   data:flowId
 })
+
+
 //添加流程
 export const addFlow = (flow)=>request({
     url: `/user/addFlows`,
@@ -30,6 +63,11 @@ export const delFlow = (Id)=>request({
 //修改流程
 export const editFlow = (flow)=>request({
   url: `/user/editFlow`,
+  method: 'post',
+  data:flow
+})
+export const editFlowStatus = (flow)=>request({
+  url: `/user/editFlowStatus`,
   method: 'post',
   data:flow
 })

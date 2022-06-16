@@ -81,7 +81,8 @@
           label="姓名"
           width="180"
         />
-        <el-table-column prop="empNumber" label="登录账号" width="180" />
+        <!-- <el-table-column prop="empNumber" label="登录账号" width="180" /> -->
+        <el-table-column prop="dept.deptName" label="部门" width="180" />
         <el-table-column
           prop="employeeDatail.empPhone"
           label="电话"
