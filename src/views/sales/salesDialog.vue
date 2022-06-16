@@ -42,7 +42,7 @@
           </el-input>
         </el-form-item>
 
-        <el-form-item label="业务" prop="flowId">
+        <el-form-item label="所选服务" prop="flowId">
           <el-select
             placeholder="请选择"
             v-model="addForm.flowId"

@@ -29,7 +29,6 @@
         <el-select
           v-model="flowDetail.flowDetailsId"
           placeholder="请选择"
-          @change="changSelect(flowDetail.flowDetailsId)"
         >
           <el-option
             v-for="item in fDetails.datas"
@@ -54,7 +53,6 @@
   </el-dialog>
 </template>
 <script setup>
-// import { ref, reactive } from "@vue/reactivity";
 import {
   ref,
   reactive,
@@ -85,7 +83,7 @@ const props = defineProps({
   dialogTittle: {
     type: String,
     default: "",
-  },
+  }
 });
 onMounted(() => {
   getFlowDetails();
@@ -111,6 +109,7 @@ const confirm = () => {
       ElMessage.error("校验不通过！！！");
       return false;
     }
+    console.log(addflow)
   });
 };
 function showDetailsId(value) {
@@ -133,6 +132,8 @@ function addDomain() {
     flowDetailsId: "",
   });
 }
+
+
 
 // 校验规则
 const rules = reactive({
