@@ -5,6 +5,12 @@
       <el-tab-pane label="客户">
           <Customer ref="listComp"></Customer>
       </el-tab-pane>
+      <el-tab-pane label="合作伙伴">
+          <FYCustomer></FYCustomer>
+      </el-tab-pane>
+      <el-tab-pane label="共享客户">
+          <shared></shared>
+      </el-tab-pane>
       <el-tab-pane label="公海" name="first">
           <CustomerSea ref="SeaComp" @Sealist="SealistComp"></CustomerSea>
       </el-tab-pane>
@@ -15,8 +21,10 @@
 <script setup>
 import { defineAsyncComponent,reactive,ref } from 'vue'
 import Customer  from "./customer.vue";
+import shared  from "./Shared.vue";
 // let CustomerSea = defineAsyncComponent(() => import('./customerSea.vue'))//异步组件
 import CustomerSea from './customerSea.vue'
+import FYCustomer from './FYCustomer.vue';
 //tabs 的name
 const data = reactive({
   activeName:""

@@ -2,10 +2,10 @@
 <template>
   <div class="cooperation">
     <div >
-      <el-button type="warning" @click="addMin">创建团队</el-button>
-      <el-button @click="rallotSwitch" type="primary">添加团队成员</el-button>
+      <el-button type="warning" @click="addMin" v-if="props.rowInfo.empId ==props.rowInfo.assPrincipal">创建团队</el-button>
+      <el-button @click="rallotSwitch" type="primary" v-if="props.rowInfo.empId ==props.rowInfo.assPrincipal">添加团队成员</el-button>
       <!-- <el-button type="primary" @click="rallotSwitch2">转让</el-button> -->
-      <el-button type="" @click="jiesan">解散团队</el-button>
+      <el-button type="" @click="jiesan" v-if="props.rowInfo.empId ==props.rowInfo.assPrincipal">解散团队</el-button>
     </div>
 
     <el-table :data="data.custList" style="width: 100%">
@@ -35,7 +35,7 @@
             type="text"
             size="small"
             @click="deleteCooperation(row)"
-            v-if="row.employeeDatail.empId != tokempId"
+            v-if="props.rowInfo.empId ==props.rowInfo.assPrincipal&& row.employeeDatail.empId != tokempId"
             >删除</el-button
           >
         </template>

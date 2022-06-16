@@ -9,7 +9,7 @@
         />
         <span
           style="vertical-align: middle; font-weight: bold; margin-left: 10px"
-          >客户管理</span
+          >合作伙伴</span
         ></el-col
       >
       <el-col :span="12">
@@ -20,21 +20,6 @@
           clearable
           @clear="Customerterm.custDetailName"
         >
-          <template #prepend>
-            <el-select
-              v-model="Customerterm.custType"
-              class="m-2"
-              style="width: 100px; background: white"
-              @change="GetList()"
-            >
-              <el-option
-                v-for="item in options"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value"
-              />
-            </el-select>
-          </template>
           <template #append>
             <el-button @click="GetList()"
               ><el-icon><search /></el-icon
@@ -113,7 +98,7 @@
       width="180"
       sortable
     />
-    <!-- <el-table-column prop="" label="跟进记录" width="120" sortable /> -->
+    <el-table-column prop="" label="跟进记录" width="120" sortable />
     <el-table-column
       prop="custType"
       label="客户类型"
@@ -213,14 +198,7 @@
 </template>
 
 <script setup>
-import {
-  getCurrentInstance,
-  onMounted,
-  reactive,
-  ref,
-  nextTick,
-  provide,
-} from "vue";
+import { getCurrentInstance, onMounted, reactive, ref } from "vue";
 import { useStore } from "vuex";
 import CustomerDialog from "./customerDialog.vue";
 import customeRallot from "./customeRallot.vue";
@@ -304,21 +282,6 @@ let pagePlugs = reactive({
 //获取后端返回的数据
 let custList = reactive({ d: [], multipleTable: [] });
 
-//场景
-const options = [
-  {
-    value: "",
-    label: "全部客户",
-  },
-  {
-    value: 3,
-    label: "买房",
-  },
-  {
-    value: 2,
-    label: "租房",
-  },
-];
 
 //挂载
 onMounted(async () => {
@@ -351,33 +314,24 @@ console.log("empId =  ", empId);
 let Customerterm = reactive({
   empId: empId,
   custDetailName: "",
-  custType: "",
+  custType: 1,
   custStatus: null,
   custShared: 1,
 });
 //测试查询
 const GetList = () => {
   console.log("-----查询方法被调用了-----");
-  if (Customerterm.custType == "") {
-    Customerterm.custStatus == null;
-    api.customer
-      .CustomerSearch(pagePlugs.data.page, pagePlugs.data.size, Customerterm)
-      .then((response) => {
-        if (response.code == 200) {
-          custList.d = response.data.records;
-          pagePlugs.data.total = response.data.total;
-        }
-      });
-  } else {
-    api.customer
-      .CustomerSearch(pagePlugs.data.page, pagePlugs.data.size, Customerterm)
-      .then((response) => {
-        if (response.code == 200) {
-          custList.d = response.data.records;
-          pagePlugs.data.total = response.data.total;
-        }
-      });
-  }
+  api.customer
+    .CustomerSearch(pagePlugs.data.page, pagePlugs.data.size, Customerterm)
+    .then((response) => {
+      if (response.code == 200) {
+        console.log("xixi");
+        custList.d = response.data.records;
+        pagePlugs.data.total = response.data.total;
+        console.log(custList);
+        console.log("-----查询方法调用结束-----");
+      }
+    });
 };
 const Buttonstyle = reactive({
   visibleCancel: "none",

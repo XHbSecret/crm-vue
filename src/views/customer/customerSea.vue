@@ -97,7 +97,7 @@
         width="180"
         sortable
       />
-      <el-table-column prop="" label="跟进记录" width="120" sortable />
+      <!-- <el-table-column prop="" label="跟进记录" width="120" sortable /> -->
       <el-table-column
         prop="custType"
         label="客户类型"
@@ -130,8 +130,6 @@
         width="120"
         sortable
       />
-      <el-table-column prop="" label="下一次联系时间" width="180  " />
-      <el-table-column prop="" label="负责人" width="120" />
       <el-table-column fixed="right" label="操作" width="120">
         <template #default="{ row }">
           <el-button type="text" size="small" @click="deleteOneCont(row)"
@@ -227,6 +225,7 @@ let pagePlugs = reactive({
 let Customerterm = reactive({
   empId: 0,
   custDetailName: "",
+  custShared: 1,
 });
 //获取后端返回的数据
 let custList = reactive({ data: [], multipleTable: [] });

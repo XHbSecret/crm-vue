@@ -115,7 +115,7 @@
           <el-card style="width: 400px">
             <el-collapse :border="true">
               <el-collapse-item
-                :title="pObj.employeeDatail.empName + '对该客户进行跟进'"
+                :title="data.employeeDatail.empName + '对该客户进行跟进'"
                 name="1"
               >
                 <div>
@@ -232,28 +232,6 @@ const FollowUpMode = [
     label: "活动",
   },
 ];
-// const visitStart = [
-//   {
-//     value: 1,
-//     label: "很不满意",
-//   },
-//   {
-//     value: 2,
-//     label: "不满意",
-//   },
-//   {
-//     value: 3,
-//     label: "一般",
-//   },
-//   {
-//     value: 4,
-//     label: "满意",
-//   },
-//   {
-//     value: 5,
-//     label: "很满意",
-//   },
-// ];
 
 const custStatus = [
   {

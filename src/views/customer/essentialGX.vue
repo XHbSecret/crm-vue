@@ -3,7 +3,7 @@
   <el-scrollbar height="600px">
     <div class="essential1">
       <span>基本信息</span>
-       <el-button @click="edit()">编辑</el-button>
+       <el-button @click="edit()" v-if="props.rowInfo.empId ==props.rowInfo.assPrincipal">编辑</el-button>
       <el-form :inline="true" :model="data.formData">
         <el-form-item label="客户姓名">
           <span v-if="formSwitch.flag">{{
@@ -53,13 +53,13 @@
       <el-form :inline="true" :model="data.formData">
         <el-form-item label="客户类型" prop="custType">
           <span v-if="formSwitch.flag">{{
-            data.formData.custType == 1
+            data.formData.customer.custType == 1
               ? "房源"
-              : data.formData.custType == 2
+              : data.formData.customer.custType == 2
               ? "租房"
-              : data.formData.custType == 3
+              : data.formData.customer.custType == 3
               ? "买房"
-              : data.formData.custType == 4
+              : data.formData.customer.custType == 4
               ? "居家装修"
               : "无"
           }}</span>
@@ -180,6 +180,7 @@
         </el-form-item>
       </el-form>
     </div>
+    <!-- {{props.rowInfo}} -->
   </el-scrollbar>
 </template>
 
@@ -200,6 +201,7 @@ const data = reactive({
     customerDetail: {},
     employee: {},
     employeeDatail: {},
+    customer:{}
   },
 });
 const cancel = () => {

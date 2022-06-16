@@ -12,7 +12,17 @@
       <el-table-column prop="contractName" label="合同名称" width="100" />
       <el-table-column
         prop="customerDetail.custDetailName"
-        label="客户姓名"
+        label="客户名称"
+        width="100"
+      />
+      <el-table-column
+        prop="customerContacts.contactName"
+        label="客户联系人"
+        width="100"
+      />
+      <el-table-column
+        prop="customerContacts.contactPhone"
+        label="联系电话"
         width="100"
       />
       <el-table-column prop="contractMoney" label="合同金额" width="100" >
@@ -20,9 +30,14 @@
         {{ scope.row.contractMoney }}元
       </template>
       </el-table-column>
-      <el-table-column prop="contractTotalCommission" label="合同佣金" width="100" >
+      <el-table-column prop="contractTotalCommission" label="房源佣金" width="100" >
          <template v-slot="scope">
         {{ scope.row.contractTotalCommission }}元
+      </template>
+      </el-table-column>
+      <el-table-column prop="contractServiceCharge" label="客户中介费" width="100" >
+         <template v-slot="scope">
+        {{ scope.row.contractServiceCharge }}元
       </template>
       </el-table-column>
       <el-table-column
@@ -127,6 +142,7 @@ import {
 } from "@/api/contract/index";
 import Addcontractfrom from "./Addcontract.vue";
 import UpdContractfrom from "./UpdContract.vue";
+import { ElMessage, ElMessageBox } from "element-plus";
 let contractList = reactive({ data: [] });
 
 const props = defineProps({
@@ -201,9 +217,13 @@ const rowData = ref({});
 const judge = ref(0)
 //新增合同
 const addcontractfrom = () => {
-  addName.value = "新增合同";
-  dialogShow.value = true;
-  rowData.value = {};
+  if(props.rowInfo.custStatus ==3){
+    dialogShow.value = true;
+    rowData.value = {};
+  }else{
+    ElMessage.error("客户进度未达到,请先跟进");
+  }
+  
 };
 
 //客户类型格式

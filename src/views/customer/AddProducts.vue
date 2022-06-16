@@ -92,6 +92,10 @@ const props = defineProps({
   custId: {
     type: Number,
   },
+   rowInfo: {
+    type: Object,
+    default: () => {},
+  },
 });
 //添加
 const add = () => {
@@ -121,19 +125,35 @@ function selectInit() {
 
 //挂载
 onMounted(() => {
+  productBy();
   getProduct();
+  console.log(props.rowInfo)
 });
 const pObj = toRefs(props).custId;
 //储存查询商品条件数据
 const productQuery = reactive({
-  productSell: 1,
+  productSell: null,
   empId: null,
   productCustId: null,
 });
+
+const productBy = ()=>{
+  if(props.rowInfo.custType==2){
+    productQuery.productSell = 2
+    console.log("这是租房合同:")
+    console.log(props.rowInfo)
+  }else if(props.rowInfo.custType==3){
+    productQuery.productSell = 1
+    console.log("这是买房合同")
+  }else{
+     productQuery.productSell = null
+  }
+}
 //useStore 获取store
 const store = useStore();
 let datas = reactive({ tableData: [] });
 function getProduct() {
+  console.log(props.rowInfo.custType)
   productQuery.empId = store.state.employee.user.user.empId;
   productQuery.productCustId = props.custId;
   getAllProducts(pagePlugs.data.pageNum, pagePlugs.data.pageSize, productQuery) // 使用接口，调用

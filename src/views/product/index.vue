@@ -164,7 +164,6 @@
     <el-tab-pane label="租房" name="first">
       <renting ref="SeaComp"></renting>
     </el-tab-pane>
-    <el-tab-pane label="房源公海">房源公海</el-tab-pane>
   </el-tabs>
 </template>
 

@@ -35,19 +35,20 @@
             </el-col>
             <el-col :span="8"
               ><div class="t-section__ft" style="text-align: right">
-                <el-button type="success" @click="handleEdit()">编辑</el-button>
                 <el-button
-                  type="primary"
-                  v-if="pObj.custType == 1 && pObj.custStatus == 3"
-                  @click="gaibian"
-                  >变为合作伙伴</el-button
+                  type="success"
+                  @click="handleEdit()"
+                  v-if="props.rowInfo.empId == props.rowInfo.assPrincipal"
+                  >编辑</el-button
                 >
                 <el-button
                   type="danger"
-                  v-if="pObj.custType == 1 && pObj.custStatus == 4"
-                  @click="qvxiao"
-                  >取消合作伙伴</el-button
+                  @click="transfer()"
+                  v-if="props.rowInfo.empId != props.rowInfo.assPrincipal"
+                  >退出团队</el-button
                 >
+                <!-- <el-button type="primary" v-if="pObj.custType == 1&&pObj.custStatus==3" @click="gaibian">变为合作伙伴</el-button>
+                <el-button type="danger" v-if="pObj.custType == 1&&pObj.custStatus==4" @click="qvxiao">取消合作伙伴</el-button> -->
                 <el-button>...</el-button>
               </div></el-col
             >
@@ -65,15 +66,15 @@
                   跟进进度:
                   <el-tag>
                     {{
-                      pObj.custStatus == 1
+                      pObj.customer.custStatus == 1
                         ? "初步接触"
-                        : pObj.custStatus == 2
+                        : pObj.customer.custStatus == 2
                         ? "有意向"
-                        : pObj.custStatus == 3
+                        : pObj.customer.custStatus == 3
                         ? "跟进中"
-                        : pObj.custStatus == 4
+                        : pObj.customer.custStatus == 4
                         ? "已合作"
-                        : pObj.custStatus == 5
+                        : pObj.customer.custStatus == 5
                         ? "无意向"
                         : "待开发"
                     }}
@@ -86,13 +87,13 @@
                 <div class="h-title">
                   客户类型:
                   {{
-                    pObj.custType == 1
+                    pObj.customer.custType == 1
                       ? "房源"
-                      : pObj.custType == 2
+                      : pObj.customer.custType == 2
                       ? "租房"
-                      : pObj.custType == 3
+                      : pObj.customer.custType == 3
                       ? "买房"
-                      : pObj.custType == 4
+                      : pObj.customer.custType == 4
                       ? "居家装修"
                       : "无"
                   }}
@@ -102,7 +103,7 @@
             <el-col :span="6"
               ><div class="vux-flexbox-item h-item">
                 <div class="h-title">
-                  负责人:
+                  主要负责人:
                   {{ pObj.employeeDatail.empName }}
                 </div>
               </div></el-col
@@ -111,7 +112,7 @@
               ><div class="vux-flexbox-item h-item">
                 <div class="h-title">
                   创建时间:
-                  {{ pObj.custCreateTime }}
+                  {{ pObj.customer.custCreateTime }}
                 </div>
               </div></el-col
             >
@@ -122,16 +123,16 @@
         <el-main style="margin-top: 20px; background: white">
           <el-tabs :tab-position="tabPosition" class="demo-tabs">
             <el-tab-pane label="基本信息">
-              <essential
+              <essentialGX
                 :rowInfo="data.formData"
                 @essentialGetList="essentialGetList"
-              ></essential>
+              ></essentialGX>
             </el-tab-pane>
             <el-tab-pane label="跟进">
-              <synthesis
+              <synthesisGX
                 :rowInfo="data.formData"
                 @essentialGetList="essentialGetList"
-              ></synthesis>
+              ></synthesisGX>
             </el-tab-pane>
             <el-tab-pane label="联系人" name="Contactst">
               <Contactst :rowInfo="data.formData" ref="ContactstDom" />
@@ -139,14 +140,13 @@
             <el-tab-pane
               label="团队成员"
               name="cooperation"
-              v-if="pObj.custType != 1"
             >
-              <cooperation
+              <cooperationGX
                 :rowInfo="data.formData"
                 @haha="essentialGetList"
-              ></cooperation>
+              ></cooperationGX>
             </el-tab-pane>
-            <el-tab-pane label="合同" v-if="pObj.custType != 1">
+            <el-tab-pane label="合同">
               <contract :rowInfo="data.formData"></contract>
             </el-tab-pane>
             <el-tab-pane label="回款">
@@ -194,11 +194,11 @@ import {
 import Contactst from "./Contactst.vue";
 import Visit from "./visit.vue";
 import Accessory from "./Accessory.vue";
-import essential from "./essential.vue";
-import cooperation from "./cooperation.vue";
+import essentialGX from "./essentialGX.vue";
+import cooperationGX from "./cooperationGX.vue";
 import contract from "./contract.vue";
 import custPayments from "./custPayments.vue";
-import synthesis from "./synthesis.vue";
+import synthesisGX from "./synthesisGX.vue";
 import customerCrder from "./customerCrder.vue";
 import CustomerDialog from "./customerDialog.vue";
 import { ElMessage, ElMessageBox } from "element-plus";
@@ -248,6 +248,33 @@ const getAllByCustId = () => {
     }
   });
 };
+
+//退出该团队
+function transfer() {
+  ElMessageBox.confirm("是否退出该团队?", "提示", {
+    confirmButtonText: "确认",
+    cancelButtonText: "取消",
+    type: "warning",
+  })
+    .then(() => {
+      console.log("haha");
+      api.customer.deleteAssociates(props.rowInfo.assId).then((response) => {
+        if (response.code == 200) {
+          essentialGetList();
+          onClose();
+          ElMessage({
+            type: "success",
+            message: "退出团队成功",
+          });
+        } else {
+          ElMessage.error("退出团队失败，请联系管理员");
+        }
+      });
+    })
+    .catch(() => {
+      // catch error
+    });
+}
 
 const gaibian = () => {
   api.customer

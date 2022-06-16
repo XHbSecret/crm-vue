@@ -28,6 +28,12 @@ export const updateCustomercust = (data)=>request({
   method: 'post',
   data
 })
+//根据客户id修改客户状态
+export const updateCustomercustStatusById = (id,custstatus)=>request({
+  url: `customer/status/${id}/${custstatus}`,
+  method: 'get'
+})
+
 //进行将客户数据放回公海的操作
 export const transfer = (custId,empId)=>request({
   url: `customer/transfer/${custId}/${empId}`,
@@ -71,7 +77,11 @@ export const deleteCustomer = (contactId)=>request({
   url: `Contacts/deleteCustomer/${contactId}`,
   method: 'get'
 })
-
+//查询所有联系人
+export const selectCustomerContacts = (custId)=>request({
+  url: `Contacts/selectCustomerContacts/${custId}`,
+  method: 'get'
+})
 
 
 
@@ -112,6 +122,27 @@ export const deleteVisit = (visitId)=>request({
 export const getAllAssociates = (custId)=>request({
   url: `Associates/getAllAssociates/1/10/${custId}`,
   method: 'get',
+})
+//得到共享给我的客户
+export const getAllAssociatesByEmpId = (current,limit,empId)=>request({
+  url: `Associates/getAllAssociatesByEmpId/${current}/${limit}/${empId}`,
+  method: 'get',
+})
+//得到我共享出去的客户
+export const getAllAssociatesByAssPrincipal = (current,limit,assPrincipal)=>request({
+  url: `Associates/getAllAssociatesByAssPrincipal/${current}/${limit}/${assPrincipal}`,
+  method: 'get',
+})
+//添加队长
+export const addAssociateMain = (data)=>request({
+  url: `Associates/addAssociateMain`,
+  method: 'post',
+  data
+})
+//解散团队
+export const deleteAllAssociates = (empid,custid)=>request({
+  url: `Associates/deleteAllAssociates/${empid}/${custid}`,
+  method: 'get'
 })
 
 

@@ -19,7 +19,19 @@
         "
       >
         <div>
-          <span style="font-weight: bold">{{ title }}</span>
+          <span style="font-weight: bold"
+            >新增{{
+              props.rowInfo.custType == 1
+                ? "房源"
+                : props.rowInfo.custType == 2
+                ? "租房"
+                : props.rowInfo.custType == 3
+                ? "买房"
+                : props.rowInfo.custType == 4
+                ? "居家装修"
+                : "无"
+            }}合同</span
+          >
         </div>
         <el-scrollbar height="550px">
           <div style="margin-top: 20px; margin-left: 20px">
@@ -41,8 +53,9 @@
               </el-form-item>
               <el-form-item label="合同名称">
                 <el-input
-                  placeholder="Approved by"
+                  placeholder="合同名称"
                   v-model="contract.contractName"
+                  disabled
                 />
               </el-form-item>
             </el-form>
@@ -61,6 +74,7 @@
                   label="结束时间"
                   placeholder="开始时间"
                   value-format="YYYY-MM-DD HH:mm:ss"
+                  style="width: 200px"
                 />
               </el-form-item>
               <el-form-item label="结束时间">
@@ -70,10 +84,61 @@
                   label="结束时间"
                   placeholder="结束时间"
                   value-format="YYYY-MM-DD HH:mm:ss"
+                  style="width: 200px"
                 />
               </el-form-item>
-              <el-form-item label="客户签约人">
+              <el-form-item label="客户名称">
                 <el-input v-model="input" disabled placeholder="Please input" />
+              </el-form-item>
+              <el-form-item label="联系人" v-if="props.rowInfo.custType != 1">
+                <el-select
+                  ref="count"
+                  v-model="contract.contactId"
+                  placeholder="请选中"
+                  @change="getcontactId"
+                  style="width: 200px"
+                >
+                  <el-option
+                    v-for="item in data.ContactsList"
+                    :key="item.contactId"
+                    :label="item.contactName"
+                    :value="item.contactId"
+                  >
+                    <span>{{ item.contactName }}</span>
+                    <el-tag
+                      class="mx-1"
+                      type="danger"
+                      style="float: right; margin-top: 5px"
+                      v-if="item.contactIsPolicy == 0"
+                      >主要联系人</el-tag
+                    >
+                  </el-option>
+                </el-select>
+              </el-form-item>
+              <el-form-item label="委托人" v-else>
+                <el-select
+                  ref="count"
+                  v-model="contract.contactId"
+                  placeholder="请选中"
+                  @change="getcontactId"
+                  style="width: 200px"
+                >
+                  <el-option
+                    v-for="item in data.ContactsList"
+                    :key="item.contactId"
+                    :label="item.contactName"
+                    :value="item.contactId"
+                  >
+                    <span>{{ item.contactName }}</span>
+                    <el-tag
+                      class="mx-1"
+                      type="danger"
+                      style="float: right; margin-top: 5px"
+                      v-if="item.contactIsPolicy == 0"
+                      >主要联系人</el-tag
+                    >
+                  </el-option>
+                </el-select>
               </el-form-item>
               <el-form-item label="公司签约人">
                 <el-select
@@ -81,6 +146,8 @@
                   v-model="contract.empId"
                   placeholder="请选中"
                   @change="getempId"
+                  style="width: 200px"
+                  disabled
                 >
                   <el-option
                     v-for="item in data.emplist"
@@ -90,12 +157,17 @@
                   />
                 </el-select>
               </el-form-item>
-              <el-form-item label="房源" prop="companyId">
+              <el-form-item
+                label="房源"
+                prop="companyId"
+                v-if="props.rowInfo.custType != 1"
+              >
                 <el-select
                   ref="count"
                   v-model="contract.companyId"
                   placeholder="请选中"
                   @change="getCustId"
+                  style="width: 200px"
                 >
                   <el-option
                     v-for="item in data.CustIdlist"
@@ -114,7 +186,10 @@
               </el-form-item>
             </el-form>
           </div>
-          <div style="margin-top: 20px; margin-left: 20px">
+          <div
+            style="margin-top: 20px; margin-left: 20px"
+            v-if="props.rowInfo.custType != 1"
+          >
             <p style="font-weight: bold">产品</p>
             <el-button @click="AddProducts">添加产品</el-button>
             <el-table
@@ -167,25 +242,102 @@
                 width="180"
               />
             </el-table>
-            <span style="font-size: smaller"
-              >已选中{{ product.data.length }}件商品,</span
-            >
-            <span style="font-size: smaller"
-              >总金额：{{ contract.contractMoney }}元,</span
-            >
-            <span style="font-size: smaller"
-              >收取佣金：<el-input-number
-                class="mx-4"
-                :min="0"
-                :max="100"
-                v-model="ratio"
-                controls-position="right"
-                @change="handleChange"
-              />%</span
-            >
-            <span style="font-size: smaller"
-              >佣金：{{ contract.contractTotalCommission }}元,</span
-            >
+          </div>
+          <div style="margin-top: 20px; margin-left: 20px">
+            <p style="font-weight: bold">收费模式</p>
+            <el-radio-group v-model="radio1" class="ml-4">
+              <el-radio :label="1" size="large">客户单项收费</el-radio>
+              <el-radio :label="2" size="large">房源单项收费</el-radio>
+              <el-radio :label="3" size="large">双项收费</el-radio>
+            </el-radio-group>
+            <div v-if="radio1 == 1">
+              <span style="font-size: smaller"
+                >已选中{{ product.data.length }}件商品,</span
+              >
+              <span style="font-size: smaller"
+                >总金额：{{ contract.contractMoney }}元,</span
+              >
+              <div></div>
+              <span style="font-size: smaller"
+                >收取中介费：<el-input-number
+                  class="mx-4"
+                  :min="0"
+                  :max="100"
+                  v-model="ratio2"
+                  controls-position="right"
+                  @change="contServiceCharge"
+                />%</span
+              >
+              <span style="font-size: smaller"
+                >向客户收取中介费：{{
+                  contract.contractServiceCharge
+                }}元,</span
+              >
+            </div>
+            <div v-if="radio1 == 2">
+              <span style="font-size: smaller"
+                >已选中{{ product.data.length }}件商品,</span
+              >
+              <span style="font-size: smaller"
+                >总金额：{{ contract.contractMoney }}元,</span
+              >
+              <div></div>
+              <span style="font-size: smaller"
+                >收取佣金：<el-input-number
+                  class="mx-4"
+                  :min="0"
+                  :max="100"
+                  v-model="ratio"
+                  controls-position="right"
+                  @change="handleChange"
+                />%</span
+              >
+              <span style="font-size: smaller"
+                >向房源收取佣金：{{ contract.contractTotalCommission }}元,</span
+              >
+            </div>
+            <div v-if="radio1 == 3">
+              <span style="font-size: smaller"
+                >已选中{{ product.data.length }}件商品,</span
+              >
+              <span style="font-size: smaller"
+                >总金额：{{ contract.contractMoney }}元,</span
+              >
+              <div>
+                <span style="font-size: smaller"
+                  >收取中介费：<el-input-number
+                    class="mx-4"
+                    :min="0"
+                    :max="100"
+                    v-model="ratio2"
+                    controls-position="right"
+                    @change="contServiceCharge"
+                  />%</span
+                >
+                <span style="font-size: smaller"
+                  >向客户收取中介费：{{
+                    contract.contractServiceCharge
+                  }}元,</span
+                >
+                <div></div>
+
+                <span style="font-size: smaller"
+                  >收取佣金：<el-input-number
+                    class="mx-4"
+                    :min="0"
+                    :max="100"
+                    v-model="ratio"
+                    controls-position="right"
+                    @change="handleChange"
+                  />%</span
+                >
+                <span style="font-size: smaller"
+                  >向房源收取佣金：{{
+                    contract.contractTotalCommission
+                  }}元,</span
+                >
+              </div>
+            </div>
           </div>
         </el-scrollbar>
         <div style="float: right">
@@ -199,6 +351,7 @@
       v-model:dialogShow="dialogShow"
       @addproducts="add"
       :custId="contract.companyId"
+      :rowInfo="data.formData"
     ></AddProductsfrom>
   </div>
 </template>
@@ -223,10 +376,6 @@ const api = getCurrentInstance()?.appContext.config.globalProperties.$API; // ap
 const dialogShow = ref(false);
 //获取父组件的数据
 const props = defineProps({
-  title: {
-    type: String,
-    default: () => "",
-  },
   rowInfo: {
     type: Object,
     default: () => {},
@@ -242,31 +391,57 @@ const data = reactive({
   formData: {},
   emplist: [],
   CustIdlist: [],
+  ContactsList: [],
 });
 
 //添加合同页面打开添加商品组件
 const AddProducts = () => {
-  if(contract.companyId!=null){
+  if (contract.companyId != null) {
     dialogShow.value = true;
-  }else{
+  } else {
     ElMessage.error("请选择房源，在进行添加商品操作");
   }
-  
 };
 
 //查询员工信息
 const allEmp = () => {
   api.customer.allEmp().then((response) => {
     if (response.code == 200) {
-      data.emplist = response.data.records;
       console.log("加载成功");
+      for (let index = 0; index < response.data.records.length; index++) {
+        if (response.data.records[index].empId == props.rowInfo.empId) {
+          data.emplist.push(response.data.records[index]);
+        }
+      }
     }
   });
 };
+
+const allContacts = () => {
+  api.customer.selectCustomerContacts(props.rowInfo.custId).then((response) => {
+    if (response.code == 200) {
+      console.log("加载成功");
+      // for (let index = 0; index < response.data.records.length; index++) {
+      //    if(response.data.records[index].empId ==props.rowInfo.empId){
+      data.ContactsList = response.data;
+      //    }
+      // }
+    }
+  });
+};
+
 const getCustId = (value) => {
   data.CustIdlist.forEach((item) => {
     if (item.custId == value) {
       contract.companyId = item.custId;
+    }
+  });
+};
+
+const getcontactId = (value) => {
+  data.CustIdlist.forEach((item) => {
+    if (item.custId == value) {
+      contract.contactId = item.contactId;
     }
   });
 };
@@ -295,20 +470,50 @@ const pObj = toRefs(props).rowInfo;
 const contract = reactive({
   custId: pObj.value.customerDetail.custId,
   empName: pObj.value.employeeDatail.empName,
+  contractName: null,
   contractMoney: 0,
   contractTotalCommission: 0,
+  contractServiceCharge:0,
   contractStatus: 0,
-  companyId:null,
-  contractNo:nanoid()
+  companyId: null,
+  contractNo: nanoid(),
+  empId: props.rowInfo.empId,
+  contactId: null,
 });
 
+const radio1 = ref(1);
 //收取佣金的百分比
 let ratio = ref(0);
-
+let ratio2 = ref(0);
 const handleChange = (value) => {
   contract.contractTotalCommission =
     contract.contractMoney * (ratio.value / 100);
   console.log(value);
+};
+
+const contServiceCharge = (value) => {
+  contract.contractServiceCharge =
+    contract.contractMoney * (ratio2.value / 100);
+  console.log(value);
+};
+
+
+const haha = () => {
+  let aData = new Date();
+  let dateValue =
+    aData.getFullYear() + "-" + (aData.getMonth() + 1) + "-" + aData.getDate();
+  let newmonth =
+    aData.getMonth() + 1 > 10
+      ? aData.getMonth() + 1
+      : "0" + (aData.getMonth() + 1);
+  let day = aData.getDate() > 10 ? aData.getDate() : "0" + aData.getDate();
+  if (props.rowInfo.custType == 1) {
+    contract.contractName = "房源合同" + dateValue + "-" + newmonth + "-" + day;
+  } else if (props.rowInfo.custType == 2) {
+    contract.contractName = "租房合同" + dateValue + "-" + newmonth + "-" + day;
+  } else if (props.rowInfo.custType == 3) {
+    contract.contractName = "买房合同" + dateValue + "-" + newmonth + "-" + day;
+  }
 };
 
 const product = reactive({ data: [] });
@@ -367,6 +572,8 @@ const store = useStore();
 let Customerterm = reactive({
   empId: null,
   custType: 1,
+  custStatus: 4,
+  custShared:1
 });
 let pagePlugs = reactive({
   data: {
@@ -390,6 +597,8 @@ onMounted(() => {
   data.formData = JSON.parse(JSON.stringify(props.rowInfo));
   allEmp();
   getCustIdBycustType();
+  haha();
+  allContacts();
 });
 </script>
 <style lang="scss" scoped>

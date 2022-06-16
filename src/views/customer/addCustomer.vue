@@ -7,12 +7,8 @@
     @close="onClose"
     close-on-press-escape
   >
-  <!--:rules="rules" 表单验证未作 -->
-    <el-form
-      :model="data.formData"
-      label-width="120px"
-      ref="customerFrom"
-    >
+    <!--:rules="rules" 表单验证未作 -->
+    <el-form :model="data.formData" label-width="120px" ref="customerFrom">
       <el-form-item label="联系人姓名" prop="contactName">
         <el-input v-model="data.formData.contactName" />
       </el-form-item>
@@ -46,6 +42,7 @@
         <el-button @click="cancel()">取消</el-button>
       </el-form-item>
     </el-form>
+    {{ pObj }}
   </el-dialog>
 </template>
 
@@ -71,6 +68,7 @@ const props = defineProps({
     type: Number,
   },
 });
+const pObj = toRefs(props).custId;
 const contactRelation = [
   {
     value: "1",
@@ -103,32 +101,30 @@ const onClose = () => {
   emit("update:addCustomer", false);
 };
 //取消
-const cancel =()=>{
+const cancel = () => {
   emit("update:addCustomer", false);
-}
+};
 //新增联系人
 const submitForm = () => {
   if (JSON.stringify(props.rowInfo) != "{}") {
-     ElMessageBox.confirm("确认修改吗?", "提示", {
+    ElMessageBox.confirm("确认修改吗?", "提示", {
       confirmButtonText: "确认",
       cancelButtonText: "取消",
       type: "warning",
     })
       .then(() => {
-        api.customer
-          .updateCustomer(data.formData)
-          .then((response) => {
-            if (response.code == 200) {
-              onClose();
-              emit("addCustomerList");
-              ElMessage({
-                type: "success",
-                message: "修改添加",
-              });
-            } else {
-              ElMessage.error("修改失败，请联系管理员");
-            }
-          });
+        api.customer.updateCustomer(data.formData).then((response) => {
+          if (response.code == 200) {
+            onClose();
+            emit("addCustomerList");
+            ElMessage({
+              type: "success",
+              message: "修改添加",
+            });
+          } else {
+            ElMessage.error("修改失败，请联系管理员");
+          }
+        });
       })
       .catch(() => {
         // catch error
@@ -143,15 +139,17 @@ const submitForm = () => {
         api.customer
           .addCustomer(props.custId, data.formData)
           .then((response) => {
-            if (response.code == 200) {
+            if (response.data == 1&&data.formData.contactIsPolicy==0) {
+              onClose();
+              emit("addCustomerList");
+              ElMessage.error("已有首要联系人");
+            } else {
               onClose();
               emit("addCustomerList");
               ElMessage({
                 type: "success",
                 message: "成功添加",
               });
-            } else {
-              ElMessage.error("添加失败，请联系管理员");
             }
           });
       })

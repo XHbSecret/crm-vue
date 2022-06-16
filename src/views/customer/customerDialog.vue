@@ -68,16 +68,28 @@
       </el-form-item>
       <el-form-item>
         <el-button type="primary" @click="submitForm()">保存</el-button>
+        <el-button type="primary" @click="saveSndNew()" v-if="props.zt ==1"
+          >保存并新建联系人</el-button
+        >
         <el-button @click="cancel()">取消</el-button>
       </el-form-item>
     </el-form>
   </el-dialog>
+  <addlxrs
+    :title="addName"
+    :rowInfo="rowInfo"
+    :custId="custId"
+    @addCustomerList="onClose"
+    v-if="addCustomer"
+    v-model:addCustomer="addCustomer"
+  ></addlxrs>
 </template>
 
 <script setup>
 import { unref, reactive, ref, getCurrentInstance, onMounted } from "vue";
 import { fromPairs } from "lodash";
 import { ElMessage, ElMessageBox } from "element-plus";
+import addlxrs from "./addCustomer.vue";
 const api = getCurrentInstance()?.appContext.config.globalProperties.$API; // api （axios管理的后端接口）
 //储存form表单的值
 const data = reactive({
@@ -137,6 +149,8 @@ const customerFrom = ref(null);
 function cancel() {
   emits("update:dialogShow", false);
 }
+
+const dialogKG = ref(false);
 //提交表单
 function submitForm() {
   customerFrom.value.validate(async (valid) => {
@@ -158,13 +172,14 @@ function submitForm() {
     } else if (JSON.stringify(props.zt) == "1") {
       // 新增
       console.log(props.empId);
-      api.customer.AddCustomer(props.empId,data.formData).then((response) => {
+      api.customer.AddCustomer(props.empId, data.formData).then((response) => {
         if (response.code == 200) {
           onClose();
           ElMessage({
             type: "success",
             message: "新增成功",
           });
+          console.log(response.data.records);
         } else {
           ElMessage.error("新增失败，请联系管理员");
         }
@@ -172,6 +187,26 @@ function submitForm() {
     }
   });
 }
+
+const addCustomer = ref(false);
+const addName = ref("");
+const rowInfo = ref({});
+const custId = ref();
+const saveSndNew = () => {
+  customerFrom.value.validate(async (valid) => {
+    if (!valid) return console.log("表单校验不通过");
+    api.customer.AddCustomer(props.empId, data.formData).then((response) => {
+      if (response.code == 200) {
+        addCustomer.value = true;
+        addName.value = "添加联系人";
+        custId.value = response.data.custId;
+        rowInfo.value = {};
+      } else {
+        ElMessage.error("新增失败，请联系管理员");
+      }
+    });
+  });
+};
 
 //接收父组件的值
 const props = defineProps({
@@ -191,9 +226,9 @@ const props = defineProps({
     type: Number,
     default: () => 0,
   },
-  empId:{
-    type:Number,
-  }
+  empId: {
+    type: Number,
+  },
 });
 onMounted(() => {
   data.formData = Object.assign({}, props.rowInfo);
