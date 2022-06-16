@@ -92,8 +92,7 @@ watch(
   font-size: small;
   margin-top: 40px;
 }
-.essential1 ul li span {
-}
+
 .essential1 ul .li1 {
   margin: 0;
 }

@@ -1,117 +1,113 @@
 <template>
   <el-drawer
     model-value="drawer"
-    :title="dialogTittle"
+    title="基本详情"
     @close="onclose"
     @opened="getFlowDetails"
     size="60%"
   >
-    <div>
-      <h3>基本详情</h3>
-      <el-row class="rows">
-        <el-col :span="4"><p>流程名</p></el-col>
-        <el-col :span="6">{{flowDetail.flowName}}</el-col>
-      </el-row>
-      <el-row>
-        <el-col :span="4"><p>流程状态</p></el-col>
-        <el-col :span="6"
-          ><el-switch 
-          v-model="flowDetail.flowStatus"
-            active-text="启用"
-            inactive-text="禁用"
-            @click.stop="changStatus(scope.row)"
-            active-color="#13ce66"
-            inactive-color="#ff4949"
-            :active-value="1"
-            :inactive-value="0"
+    <el-scrollbar height="450">
+      <div style="height: 150px">
+        <ul>
+          <li>
+            <p>流程名</p>
+            <span>{{ flowDetail.flowName }}</span>
+          </li>
+
+          <li>
+            <p>创建时间</p>
+            <span>{{ flowDetail.flowTime }}</span>
+          </li>
+          <li>
+            <p>修改时间</p>
+            <span>{{ flowDetail.flowLastTime }}</span>
+          </li>
+          <li>
+            <p>流程状态</p>
+            <span
+              ><el-switch
+                v-model="flowDetail.flowStatus"
+                active-text="启用"
+                inactive-text="禁用"
+                @click.stop="changStatus(flowDetail)"
+                active-color="#13ce66"
+                inactive-color="#ff4949"
+                :active-value="1"
+                :inactive-value="0"
+            /></span>
+          </li>
+        </ul>
+      </div>
+
+      <!-- 流程步骤 -->
+      <el-tabs>
+        <el-tab-pane label="流程步骤">
+          <el-button type="primary" @click="addDetail" style="float: right"
+            >添加步骤</el-button
           >
-          </el-switch
-        ></el-col>
-      </el-row>
-      <el-row>
-        <el-col :span="4"><p>创建时间</p></el-col>
-        <el-col :span="6">{{flowDetail.flowTime}}</el-col>
-      </el-row>
-      <el-row>
-        <el-col :span="4"><p>修改时间</p></el-col>
-        <el-col :span="6">{{flowDetail.flowLastTime}}</el-col>
-      </el-row>
-    </div>
+          <el-table
+            :data="details.datas"
+            row-key="flowDetailsId"
+            style="width: 100%"
+            height="300"
+            stripe
+          >
+            <el-table-column
+              prop="flowDetailsName"
+              label="流程步骤名"
+              width="150px"
+              fixed
+            />
 
-    <el-tabs>
-      <el-tab-pane label="流程步骤">
-        <el-button type="primary" @click="addDetail" style="float: right"
-          >添加步骤</el-button
-        >
-        <el-table
-          :data="details.datas"
-          row-key="flowDetailsId"
-          style="width: 100%"
-          height="300"
-          stripe
-        >
-          <el-table-column
-            prop="flowDetailsName"
-            label="流程步骤名"
-            width="150px"
-            fixed
-          />
+            <el-table-column
+              prop="flowOrder"
+              label="顺序"
+              width="150px"
+              type="index"
+              sortable
+            />
+            <el-table-column
+              prop="flowDetailsDesc"
+              label="说明"
+              width="150px"
+              fixed
+            />
+            <el-table-column label="操作">
+              <template #default="{ row }">
+                <el-button @click="editFlowDetail(row)" type="text" :icon="Edit"
+                  >修改</el-button
+                >
+                <el-button
+                  @click="delFlow(row.flowDetailsId)"
+                  type="text"
+                  :icon="Delete"
+                  >删除</el-button
+                >
+              </template>
+            </el-table-column>
+          </el-table>
+        </el-tab-pane>
+      </el-tabs>
+    </el-scrollbar>
 
-          <el-table-column
-            prop="flowOrder"
-            label="顺序"
-            width="150px"
-            type="index"
-            sortable
-          />
-          <el-table-column
-            prop="flowDetailsDesc"
-            label="说明"
-            width="150px"
-            fixed
-          />
-          <el-table-column label="操作">
-            <template #default="{ row }">
-              <el-button @click="editFlowDetail(row)" type="text" :icon="Edit"
-                >修改</el-button
-              >
-              <el-button
-                @click="delFlow(row.flowDetailsId)"
-                type="text"
-                :icon="Delete"
-                >删除</el-button
-              >
-            </template>
-          </el-table-column>
-        </el-table>
-      </el-tab-pane>
-    </el-tabs>
-
-    <el-dialog title="修改详情" v-model="edit" @close="cancle">
-      <el-form :model="form" label-width="120px" :rules="rules" ref="formRef">
-        <el-form-item label="步骤名" prop="flowDetailsName">
-          <el-input v-model="form.flowDetailsName" />
-        </el-form-item>
-        <el-form-item label="是否审核" prop="flowIsCheck">
-          <el-input type="textarea" v-model="form.flowIsCheck" />
-        </el-form-item>
-        <el-form-item label="说明">
-          <el-input type="textarea" v-model="form.flowDetailsDesc" />
-        </el-form-item>
-      </el-form>
-      <template #footer>
-        <el-button type="primary" @click="confirm()">修改</el-button>
-        <el-button type="info" @click="cancle()">取消</el-button>
-      </template>
-    </el-dialog>
+    <!-- 添加步骤 -->
+    <insertDetails
+      v-model="visible_details"
+      v-if="visible_details"
+      :dialogEditValue="dialogEditValue"
+      :dialogTittle="dialogTittles"
+      @updateData="getFlowDetails"
+    >
+    </insertDetails>
   </el-drawer>
 </template>
 
 <script setup>
+import insertDetails from "./insertDetails.vue";
+import { editFlowStatus } from "@/api/system/flow";
 import {
   ref,
   reactive,
-  onMounted,
   getCurrentInstance,
   defineEmits,
   defineProps,
@@ -121,9 +117,12 @@ import { Edit, Delete, Plus } from "@element-plus/icons-vue";
 import { ElMessage } from "element-plus";
 const api = getCurrentInstance()?.appContext.config.globalProperties.$API;
 
+const visible_details = ref(false);
+const dialogTittles = ref("");
+const dialogEditValue = ref({});
 const formRef = ref(null);
 const edit = ref(false);
-const emits = defineEmits(["update:modelValue", "insertDetail"]);
+const emits = defineEmits(["update:modelValue", "insertDetail", "updateData"]);
 const props = defineProps({
   dialogTittle: {
     type: String,
@@ -135,7 +134,7 @@ const props = defineProps({
   },
 });
 const flowDetail = ref({
-  flowname: "",
+  flowName: "",
   flowTime: "",
   flowLastTime: "",
   flowId: 0,
@@ -152,8 +151,8 @@ const onclose = () => {
   emits("update:modelValue", false);
 };
 const editFlowDetail = (row) => {
-  edit.value = true;
-  form.value = row;
+  visible_details.value = true;
+  dialogEditValue.value = row;
 };
 const confirm = () => {
   formRef.value.validate(async (valid) => {
@@ -171,10 +170,7 @@ const confirm = () => {
     }
   });
 };
-const cancle = () => {
-  edit.value = false;
-  formRef.value.resetFields();
-};
+
 const delFlow = (flowDetailsId) => {
   api.flow.delDetails(flowDetailsId).then(() => {
     ElMessage({
@@ -184,8 +180,18 @@ const delFlow = (flowDetailsId) => {
   });
 };
 const addDetail = () => {
-  console.log();
   emits("insertDetail", flowDetail.value.flowId);
+};
+const changStatus = (row) => {
+  console.log(row);
+  editFlowStatus(row)
+    .then(() => {
+      ElMessage.success("修改成功！！！");
+      emits("updateData");
+    })
+    .catch(() => {
+      ElMessage.error("修改失败！！！");
+    });
 };
 
 watch(
@@ -208,7 +214,16 @@ const rules = reactive({
 </script>
 
 <style scoped>
- p{
-  font-size:large;
+ul {
+  width:900px;
+  margin-top: 40px;
+}
+ul li {
+  width: 200px;
+  float: left;
+  list-style: none;
+}
+ul li span {
+  font-size: small;
 }
 </style>

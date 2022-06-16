@@ -90,7 +90,7 @@
           ></el-table-column>
           <el-table-column label="操作">
             <template #default="{ row }">
-              <el-button @click.stop="addDetails(row)" type="text" :icon="Plus"
+              <el-button @click.stop="addFlow(row)" type="text" :icon="Plus"
                 >添加</el-button
               >
               <el-button @click.stop="editFlow(row)" type="text" :icon="Edit"
@@ -196,6 +196,14 @@
               <el-tag type="danger" v-else>不需要</el-tag>
             </template>
           </el-table-column>
+          <el-table-column label="是否使用" prop="flowId" width="120">
+            <template v-slot="scope">
+              <el-tag type="danger" v-if="scope.row.flowId == null"
+                >未使用</el-tag
+              >
+              <el-tag v-else>已使用</el-tag>
+            </template>
+          </el-table-column>
           <el-table-column label="操作">
             <template v-slot="scope">
               <el-button
@@ -231,6 +239,7 @@
   <flowInsert
     v-model="visible_add"
     :dialogTittle="dialogTittle"
+    :dialogDetailsValue="dialogDetailsValue"
     @updateDate="getFlow"
     v-if="visible_add"
   ></flowInsert>
@@ -248,7 +257,7 @@
   <flowDetail
     v-model="drawer"
     :dialogValue="dialogValue"
-    :dialogTittle="dialogTittle"
+    @updateData="getFlow"
   ></flowDetail>
   <!-- 添加详情 -->
   <insertDetails
@@ -359,6 +368,9 @@ const dialogTittles = ref("");
 const dialogValue = ref({});
 const dialogEditValue = ref({});
 const height = ref(0);
+const visible_adds = ref(false);
+const dialogTittless = ref("");
+const dialogDetailsValue = ref({});
 
 // 流程的分页
 let pagePlugs = reactive({
@@ -400,6 +412,7 @@ function getFlow() {
       loading.value = false;
     });
 }
+
 // 获取步骤
 function getFlowDetailss() {
   getAllFlowDetails(pagePlugsd.data.pageNum, pagePlugsd.data.pageSize).then(
@@ -411,6 +424,7 @@ function getFlowDetailss() {
     }
   );
 }
+
 // 查询流程
 function findFlow() {
   if (flow.flowName != "") {
@@ -424,6 +438,7 @@ function findFlow() {
     getFlow();
   }
 }
+
 // 查询步骤
 function findFlowDetails() {
   if (flows.flowDetailsName != "") {
@@ -443,10 +458,18 @@ function findFlowDetails() {
 }
 
 // 添加流程
-function addFlow() {
-  visible_add.value = true;
-  dialogTittle.value = "添加流程";
+function addFlow(row) {
+  if (row == null) {
+    visible_add.value = true;
+    dialogTittle.value = "添加流程";
+    dialogDetailsValue.value = {};
+  } else {
+    visible_add.value = true;
+    dialogTittle.value = "添加步骤";
+    dialogDetailsValue.value = JSON.parse(JSON.stringify(row))
+  }
 }
+
 // 修改流程
 function editFlow(row) {
   visible_edit.value = true;
@@ -496,7 +519,6 @@ function clickData(row) {
     dialogValue.value = response.data;
   });
 }
-function addDetails(row) {}
 
 // 添加流程步骤
 function addFlowDetails(row) {
@@ -511,6 +533,7 @@ function addFlowDetails(row) {
   }
 }
 
+// 删除步骤
 function delDetail(row) {
   ElMessageBox.confirm("你确认要删除这个步骤吗？", "提示", {
     confirmButtonText: "确定",
