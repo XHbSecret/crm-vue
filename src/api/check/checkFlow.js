@@ -60,3 +60,18 @@ export const getBackMoneyByCustomerId = (custId)=>request({
   url: `back/getBackMoneyByCustomerId/${custId}`,
   method: 'get',
 })
+
+export const addCheckFlow = (checkFlow)=>request({
+  url: `/check/add`,
+  method: 'post',
+  data:checkFlow
+})
+export const delCheckFlow = (id)=>request({
+  url: `/check/del/${id}`,
+  method: 'get',
+})
+
+export const getAllCheckObj = ()=>request({
+  url: `/checkObj/all`,
+  method: 'get',
+})
