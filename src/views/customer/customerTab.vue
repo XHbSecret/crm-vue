@@ -26,20 +26,14 @@
 </template>
 
 <script setup>
-<<<<<<< HEAD
 import { defineAsyncComponent,reactive,ref } from 'vue'
 import Customer  from "./customer.vue";
 import shared  from "./Shared.vue";
 // let CustomerSea = defineAsyncComponent(() => import('./customerSea.vue'))//异步组件
 import CustomerSea from './customerSea.vue'
 import FYCustomer from './FYCustomer.vue';
-=======
-import { defineAsyncComponent, reactive, ref } from "vue";
-import Customer from "./customer.vue";
 import Sales from "../sales/index.vue";
 // let CustomerSea = defineAsyncComponent(() => import('./customerSea.vue'))//异步组件
-import CustomerSea from "./customerSea.vue";
->>>>>>> 43773b8e6c4393441b8c7144deac2d30b86a2785
 //tabs 的name
 const data = reactive({
   activeName: "",
