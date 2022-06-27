@@ -147,7 +147,7 @@
               ></cooperationGX>
             </el-tab-pane>
             <el-tab-pane label="合同">
-              <contract :rowInfo="data.formData"></contract>
+              <contractGX :rowInfo="data.formData"></contractGX>
             </el-tab-pane>
             <el-tab-pane label="回款">
               <custPayments :rowInfo="data.formData"></custPayments>
@@ -196,7 +196,7 @@ import Visit from "./visit.vue";
 import Accessory from "./Accessory.vue";
 import essentialGX from "./essentialGX.vue";
 import cooperationGX from "./cooperationGX.vue";
-import contract from "./contract.vue";
+import contractGX from "./contractGX.vue";
 import custPayments from "./custPayments.vue";
 import synthesisGX from "./synthesisGX.vue";
 import customerCrder from "./customerCrder.vue";

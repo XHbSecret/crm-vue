@@ -292,12 +292,12 @@ function nextOpp() {
     flowDetailsId,
   };
   console.log(records);
-  addOpps(records).then(() => {
-    editSalesDetailsId(flowDetailsId, data.formData).then(() => {
-      leng.value++;
-      emits("updateData");
-    });
-  });
+  // addOpps(records).then(() => {
+  //   editSalesDetailsId(flowDetailsId, data.formData).then(() => {
+  //     leng.value++;
+  //     emits("updateData");
+  //   });
+  // });
 }
 
 watch(

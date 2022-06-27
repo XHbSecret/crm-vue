@@ -42,11 +42,21 @@
           </template>
         </el-input>
       </el-col>
-      <el-col :span="5">
-        <el-button type="primary" @click="handleNew">新增</el-button>
+      <el-button type="primary" @click="handleNew">新增</el-button>
+      <el-upload
+        class="upload-demo"
+        multiple=""
+        method="post"
+        :action="exlsrc"
+        accept=".xlsx,.xls"
+        :show-file-list="false"
+        :on-success="success"
+        :headers="headers" 
+        name="excelFile"
+      >
         <el-button type="primary">导入</el-button>
-        <el-button type="primary" @click="downloadexcel">导出</el-button>
-      </el-col>
+      </el-upload>
+      <el-button type="primary" @click="downloadexcel">导出</el-button>
     </el-row>
   </header>
   <div id="head">
@@ -108,11 +118,12 @@
       </template>
     </el-table-column>
     <el-table-column
-      prop="custCreateTime"
-      label="创建时间"
-      width="180"
-      sortable
+      prop="custStatus"
+      label="客户状态"
+      width="120"
+      :formatter="custStatus"
     />
+    <el-table-column prop="employeeDatail.empName" label="负责人" width="120" />
     <!-- <el-table-column prop="" label="跟进记录" width="120" sortable /> -->
     <el-table-column
       prop="custType"
@@ -121,12 +132,19 @@
       sortable
       :formatter="cuType"
     />
+       <el-table-column
+      prop="custCreateTime"
+      label="创建时间"
+      width="180"
+      sortable
+    />
     <el-table-column
       prop="custLastTime"
       label="最后一次跟进时间"
       width="180"
       sortable
     />
+    <el-table-column prop="custNextTime" label="下一次联系时间" width="180  " />
     <el-table-column
       prop="customerDetail.custDetailPhone"
       label="电话"
@@ -150,14 +168,6 @@
       label="省,市,区/县"
       width="120"
       sortable
-    />
-    <el-table-column prop="custNextTime" label="下一次联系时间" width="180  " />
-    <el-table-column prop="employeeDatail.empName" label="负责人" width="120" />
-    <el-table-column
-      prop="custStatus"
-      label="客户状态"
-      width="120"
-      :formatter="custStatus"
     />
     <el-table-column fixed="right" label="操作" width="120">
       <template #default="{ row }">
@@ -284,6 +294,15 @@ const BatchReturn = () => {
       // catch error
     });
 };
+const store = useStore();
+//图片携带token
+let getToken = store.state.employee.token;
+const headers = { token: getToken };
+//导入的请求
+const exlsrc =ref("http://localhost:8088/customer/importexcel")
+
+
+
 
 //抽屉状态
 const chouti = ref(false);
@@ -344,7 +363,6 @@ const ThedrawerGetList = () => {
   GetList();
   console.log("我是父方法的函数 我被抽屉调用啦");
 };
-const store = useStore();
 //从token 获取empid
 let empId = store.state.employee.user.user.empId;
 console.log("empId =  ", empId);

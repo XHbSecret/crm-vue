@@ -94,7 +94,7 @@
         <el-table-column prop="productArea" label="面积/㎡" width="180" />
         <el-table-column prop="productPrice" label="售价/平方米" width="180" />
         <el-table-column prop="productValuation" label="估价/￥" width="180" />
-        <el-table-column prop="productQuantity" label="房屋数量" width="180" />
+        <!-- <el-table-column prop="productQuantity" label="房屋数量" width="180" /> -->
         <el-table-column
           prop="employeeDatail.empName"
           label="负责人"

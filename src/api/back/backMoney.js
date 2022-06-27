@@ -14,3 +14,8 @@ export const updateStatusById = (backId)=>request({
     url: `/back/updStatus/${backId}`,
     method: 'get'
   })
+  export const updata = (data)=>request({
+    url: `/back/update`,
+    method: 'post',
+    data
+  })

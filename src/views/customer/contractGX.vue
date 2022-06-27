@@ -108,14 +108,14 @@
     </el-table>
     <!-- {{data.formData}} -->
   </div>
-  <Addcontractfrom
+  <AddcontractfromGX
     v-if="dialogShow"
     v-model:dialogShow="dialogShow"
     :rowInfo="data.formData"
     @GetContract="getContract"
     :title="addName"
     :rowData="rowData"
-  ></Addcontractfrom>
+  ></AddcontractfromGX>
   <UpdContractfrom
     v-if="UpdShow"
     v-model:UpdShow="UpdShow"
@@ -141,7 +141,7 @@ import {
   updateStatus,
   deleteContract,
 } from "@/api/contract/index";
-import Addcontractfrom from "./Addcontract.vue";
+import AddcontractfromGX from "./AddcontractGX.vue";
 import UpdContractfrom from "./UpdContract.vue";
 import { ElMessage, ElMessageBox } from "element-plus";
 let contractList = reactive({ data: [] });
@@ -218,7 +218,7 @@ const rowData = ref({});
 const judge = ref(0)
 //新增合同
 const addcontractfrom = () => {
-  if(props.rowInfo.custStatus ==3){
+  if(props.rowInfo.customer.custStatus ==3){
     dialogShow.value = true;
     rowData.value = {};
   }else{
