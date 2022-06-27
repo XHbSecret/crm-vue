@@ -68,6 +68,12 @@ export const search = (content,page,size)=>request({
   method: 'get',
 })
 
+export const search2 = (searchVo)=>request({
+  url: `/user/search2`,
+  method: 'post',
+  data:searchVo
+})
+
 export const updatePwd = (empId,updatePwdVo)=>request({
   url: `/user/updatePwd/${empId}`,
   method: 'post',

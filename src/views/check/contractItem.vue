@@ -96,7 +96,7 @@
     <div class="level">
       <el-tabs type="border-card" style="height:400px">
         <el-tab-pane label="详细资料" lazy>
-            <contractInfo/>
+            <contractInfo :contractId="props.contractId"/>
         </el-tab-pane>
         <el-tab-pane label="产品" lazy>
             <productInfo/>
