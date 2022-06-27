@@ -55,14 +55,10 @@
       </el-table-column>
       <el-table-column prop="customer.custDetailName" label="客户名称" />
       <el-table-column prop="contract.contractNo" label="合同编号">
-        <template v-slot="scope">
-          <el-link type="primary" @click="contractItemClick(scope.row)">{{
-            scope.row.contract.contractNo
-          }}</el-link>
-        </template>
       </el-table-column>
       <el-table-column prop="backMethod" label="回款方式" />
       <el-table-column prop="backMoney" label="回款金额" />
+      <el-table-column prop="returnedMoney" label="已回款" />
       <el-table-column prop="backDescribe" label="备注" />
       <el-table-column prop="employeeDatail.empName" label="负责人" />
       <el-table-column prop="backTime" label="回款时间" />
@@ -132,8 +128,18 @@
       <el-table-column label="操作" fixed="right" align="center" width="280px">
         <template v-slot="scope">
           <template v-if="scope.row.backStatus == 0">
-            <el-button type="primary" @click="backBtn(scope.row.backId)"
+            <el-button type="primary" @click="backBtn(scope.row)"
               >回款（审核）</el-button
+            >
+          </template>
+          <template
+            v-if="
+              scope.row.backStatus == 0 &&
+              scope.row.backMoney != scope.row.returnedMoney
+            "
+          >
+            <el-button type="primary" @click="returnedMoney(scope.row)"
+              >添加回款金额</el-button
             >
           </template>
         </template>
@@ -248,6 +254,36 @@
     </template>
   </el-dialog>
 
+  <!-- 添加回款的dialog框 -->
+  <el-dialog
+    v-model="dialogVisible2"
+    title="添加回款"
+    width="30%"
+    :before-close="handleClose"
+  >
+    <span>回款金额：{{ returnedMoneyData.data.backMoney }}元</span> /
+    <span
+      >应付款：<el-input-number
+        v-model="returnedMoneyData.data.returnedMoney"
+        :min="1"
+        :max="returnedMoneyData.data.backMoney"
+      />元</span
+    >
+    <el-select v-model="returnedMoneyData.data.backMethod" class="m-2" placeholder="Select" size="large">
+      <el-option
+        v-for="item in options"
+        :key="item.value"
+        :label="item.label"
+        :value="item.value"
+      />
+    </el-select>
+    <template #footer>
+      <span class="dialog-footer">
+        <el-button @click="dialogVisible2 = false">取消</el-button>
+        <el-button type="primary" @click="submitReceivable">确认</el-button>
+      </span>
+    </template>
+  </el-dialog>
   <!-- 回款详情的 抽屉 -->
   <el-drawer
     v-model="backDrawer"
@@ -255,9 +291,37 @@
     :with-header="false"
     size="75%"
   >
-    <span>Hi there!</span>
+    <!-- {{ haha }} -->
+    <el-button
+      v-if="haha.backMoney != haha.returnedMoney"
+      type="primary"
+      @click="returnedMoney(haha)"
+      >添加回款金额</el-button
+    >
+    <el-descriptions title="回款详情">
+      <el-descriptions-item label="回款人">{{
+        haha.customer.custDetailName
+      }}</el-descriptions-item>
+      <el-descriptions-item label="应回款"
+        >{{ haha.backMoney }}元</el-descriptions-item
+      >
+      <el-descriptions-item label="已回款"
+        >{{ haha.returnedMoney }}元</el-descriptions-item
+      >
+      <el-descriptions-item label="支付方式">{{
+        haha.backMethod
+      }}</el-descriptions-item>
+      <el-descriptions-item label="负责人">{{
+        haha.employeeDatail.empName
+      }}</el-descriptions-item>
+      <el-descriptions-item label="合同编号">
+        <el-link type="primary" @click="backNoLink(haha.contract.contractId)">{{
+          haha.contract.contractNo
+        }}</el-link>
+      </el-descriptions-item>
+    </el-descriptions>
   </el-drawer>
-  <!-- 客户抽屉 -->
+  <!-- 合同抽屉 -->
   <contCT
     v-if="contractDrawer"
     v-model:contractDrawer="contractDrawer"
@@ -268,7 +332,12 @@
 <script setup>
 import { reactive, ref } from "@vue/reactivity";
 import { Search, Plus } from "@element-plus/icons-vue";
-import { getAllBackMoney, updateStatusById } from "@/api/back/backMoney";
+import { ElMessage, ElMessageBox } from "element-plus";
+import {
+  getAllBackMoney,
+  updateStatusById,
+  updata,
+} from "@/api/back/backMoney";
 import { getRecordByService } from "@/api/check/checkFlow";
 import { CustomerSearch } from "@/api/customer/index";
 import { onMounted } from "@vue/runtime-core";
@@ -278,6 +347,7 @@ const store = useStore();
 let searchContent = ref();
 let searchType = ref("1");
 let dialogVisible = ref(false);
+let dialogVisible2 = ref(false);
 let dialogVisible_SelectCustomer = ref(false);
 let backList = reactive({ data: [] });
 let page = reactive({
@@ -308,9 +378,11 @@ let Customerterm = reactive({
 
 let checkUser = reactive({ data: {} });
 let backDrawer = ref(false);
+let haha = ref();
 
 // 表格中 回款编号 link点击
 function backNoLink(row) {
+  haha.value = row;
   backDrawer.value = true;
 }
 
@@ -330,11 +402,62 @@ function disableStatus() {
 }
 
 // 回款审核按钮
-function backBtn(backId) {
-  updateStatusById(backId).then((res) => {
-    console.log(res.data);
-  });
+function backBtn(row) {
+  if (row.backMoney == row.returnedMoney) {
+    updateStatusById(row.backId).then((res) => {
+      console.log(res.data);
+    });
+  } else {
+    ElMessage.error("请先添加回款金额");
+  }
 }
+
+const returnedMoneyData = reactive({
+  data: {},
+});
+
+const num = ref(1);
+//打开并添加回款金额
+const returnedMoney = (row) => {
+  dialogVisible2.value = true;
+  console.log("这是修改已汇款金额请求：");
+  returnedMoneyData.data = row;
+  console.log(row.backId);
+};
+
+//提交回款金额
+const submitReceivable = () => {
+  dialogVisible2.value = false;
+  updata(returnedMoneyData.data).then((res) => {
+    if (res.code == 200) {
+      getAllBackMoney(page.currentPage, page.size).then((res) => {
+        backList.data = res.data.records;
+        page.total = res.data.total;
+      });
+    }
+  });
+};
+
+const options = [
+  {
+    value: '支付宝',
+    label: '支付宝',
+  },
+  {
+    value: '微信支付',
+    label: '微信支付',
+  },
+  {
+    value: '现金',
+    label: '现金',
+  },
+  {
+    value: '银行卡转账',
+    label: '银行卡转账',
+  }
+]
+
+
 
 // 客户dialog框，选择后确认
 function customerConfirm() {
@@ -387,9 +510,9 @@ let contractDrawer = ref(false);
 const rowInfo = ref({}); // 子组件的传递的 合同id
 //表格 合同触发
 function contractItemClick(row) {
-  rowInfo.value = row;
-  contractDrawer.value = true;
-  console.log(row)
+  // rowInfo.value = row;
+  // contractDrawer.value = true;
+  console.log(row);
 }
 
 // 挂载

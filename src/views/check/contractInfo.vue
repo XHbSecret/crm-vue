@@ -1,12 +1,13 @@
 <template>
   <el-scrollbar height="350px">
+    {{contractData.data}}
     <div class="title-info">基本信息</div>
     <div style="height:350px">
       <el-row class="row">
         <el-col :span="3">合同编号</el-col>
-        <el-col :span="8"> 123456 </el-col>
+        <el-col :span="8"> {{contractData.data.contractNo}} </el-col>
         <el-col :span="3"> 合同名称 </el-col>
-        <el-col :span="3"> hah </el-col>
+        <el-col :span="6"> {{contractData.data.contractName}} </el-col>
       </el-row>
       <el-row class="row">
         <el-col :span="3">客户名称</el-col>
@@ -29,6 +30,20 @@
 </template>
 
 <script setup>
+import { onMounted, reactive } from "@vue/runtime-core";
+import {getContractById} from "@/api/contract/index"; 
+const contractData = reactive({data:{}})
+
+  const props = defineProps(["contractId"]);
+ 
+ onMounted(()=>{
+  console.log("jiazai ")
+    getContractById(props.contractId).then(res=>{
+      console.log(res.data)
+      contractData.data = res.data
+    })
+  })
+
 </script>
 
 <style scoped>

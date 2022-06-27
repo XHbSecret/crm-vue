@@ -88,7 +88,7 @@
         <el-table-column prop="productArea" label="面积/㎡" width="180" />
         <el-table-column prop="productPrice" label="售价/平方米" width="180" />
         <el-table-column prop="productValuation" label="估价/￥" width="180" />
-        <el-table-column prop="productQuantity" label="房屋数量" width="180" />
+        <!-- <el-table-column prop="productQuantity" label="房屋数量" width="180" /> -->
         <el-table-column prop="productUnit" label="单位" width="180" />
         <el-table-column prop="rentalPrices" label="月租/￥" width="180" />
         <el-table-column prop="productIntroduce" label="介绍" width="180" />

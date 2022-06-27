@@ -43,3 +43,9 @@ export const updateContract = (data)=>request({
     method: 'post',
     data
 })
+
+//根据合同id查询
+export const getContractById = (contractId)=>request({
+    url: `contract/selectOne/${contractId}`,
+    method: 'get',
+})

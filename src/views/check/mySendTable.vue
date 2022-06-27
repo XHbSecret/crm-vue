@@ -354,7 +354,9 @@ function checkInfoTo(data){
   updStatus(data).then((res) => {
     if(res.data == true){
       ElMessage.success("审核完成！")
-      emit("update")
+       getMethod()
+       getConditionData(method.value)
+
     }else{
       ElMessage.error("审核失败！")
     }

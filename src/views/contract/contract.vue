@@ -72,6 +72,12 @@
       label="合同名称"
       width="150px"
     />
+        <el-table-column
+      prop="customerDetail.custDetailName"
+      label="合同客户"
+      width="120px"
+    >
+    </el-table-column>
     <el-table-column prop="contractMoney" label="合同金额" width="100">
       <template v-slot="scope"> {{ scope.row.contractMoney }}元 </template>
     </el-table-column>
@@ -89,12 +95,6 @@
       label="合同签约时间"
       width="150px"
     />
-    <el-table-column
-      prop="customerDetail.custDetailName"
-      label="合同客户"
-      width="120px"
-    >
-    </el-table-column>
     <el-table-column
       prop="product[0].productName"
       label="合同产品"
@@ -392,8 +392,6 @@ function contractItemClick(row) {
   contractDrawer.value = true;
   rowInfo.value = row;
   console.log(row);
-  // contractId.value = row.contractId
-  // contractData.data = rows
 }
 
 let checkUser = reactive({ data: {} });

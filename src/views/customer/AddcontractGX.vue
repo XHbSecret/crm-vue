@@ -21,13 +21,13 @@
         <div>
           <span style="font-weight: bold"
             >新增{{
-              props.rowInfo.custType == 1
+              props.rowInfo.customer.custStatus == 1
                 ? "房源"
-                : props.rowInfo.custType == 2
+                : props.rowInfo.customer.custType == 2
                 ? "租房"
-                : props.rowInfo.custType == 3
+                : props.rowInfo.customer.custType == 3
                 ? "买房"
-                : props.rowInfo.custType == 4
+                : props.rowInfo.customer.custType == 4
                 ? "居家装修"
                 : "无"
             }}合同</span
@@ -188,7 +188,6 @@
           </div>
           <div
             style="margin-top: 20px; margin-left: 20px"
-            v-if="props.rowInfo.custType != 1"
           >
             <p style="font-weight: bold">产品</p>
             <el-button @click="AddProducts">添加产品</el-button>
@@ -247,7 +246,7 @@
           </div>
           <div
             style="margin-top: 20px; margin-left: 20px"
-            v-if="props.rowInfo.custType == 3"
+            v-if="props.rowInfo.customer.custType == 3"
           >
             <p style="font-weight: bold">卖房收费模式</p>
              <p style="font-size:5px">最高租买房中介费总额不可超过成交额的3%</p>
@@ -362,7 +361,7 @@
           </div>
           <div
             style="margin-top: 20px; margin-left: 20px"
-            v-if="props.rowInfo.custType == 2"
+            v-if="props.rowInfo.customer.custType == 2"
           >
             <p style="font-weight: bold">租房收费模式</p>
             <p style="font-size:5px">最高租房中介费总额不可超过一万</p>
@@ -605,7 +604,7 @@ const contract = reactive({
   contractType:null,//合同类型
   companyId: null,
   contractNo: nanoid(),
-  empId: props.rowInfo.empId,
+  empId: props.rowInfo.customer.empId,
   contactId: null,
 });
 
@@ -769,10 +768,10 @@ const getCustIdBycustType = () => {
 };
 
 const htlx =()=>{
-  if(props.rowInfo.custType == 3){
+  if(props.rowInfo.customer.custType == 3){
   contract.contractType =1
   }else if(props.rowInfo.custType == 2){
-  contract.contractType =2
+  contract.customer.contractType =2
   }
 }
 onMounted(() => {
