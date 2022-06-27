@@ -47,6 +47,11 @@ export const getFlowDetails = (flowId)=>request({
   data:flowId
 })
 
+export const getFlowRecordss=(flowOppId)=>request({
+  url: `/user/allFlowRecord/${flowOppId}`,
+  method: 'get'
+})
+
 
 //添加流程
 export const addFlow = (flow)=>request({
@@ -88,4 +93,21 @@ export const editDetails= (flowDetail)=>request({
   url:`/user/editFlowDetails`,
   method:'post',
   data:flowDetail
+})
+
+export const addDetail =(ids,flowId)=>request({
+  url:`/user/addDetails/${flowId}`,
+  method:"post",
+  data:ids,
+})
+
+export const aditDetailNull = (id)=>request({
+  url:`/user/editFlowDetail/${id}`,
+  method:"post"
+})
+
+export const editFlowRecords=(data)=>request({
+  url:`/user/updateFlowRecords`,
+  method:"post",
+  data
 })

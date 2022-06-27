@@ -51,13 +51,7 @@
                 <div class="h-title">成交状态</div>
                 <div class="h-value text-one-line">
                   {{
-                    pObj.custStatus == 1
-                      ? "跟进阶段"
-                      : pObj.custStatus == 2
-                      ? "商机阶段"
-                      : pObj.custStatus == 3
-                      ? "成交阶段"
-                      : "无"
+                    pObj.oppStatus == 1? "未成交": pObj.oppStatus == 2? "已成交":"无"
                   }}
                 </div>
               </div>
@@ -67,13 +61,13 @@
                 <div class="h-title">客户类型</div>
                 <div class="h-value text-one-line">
                   {{
-                    pObj.custType == 1
+                    pObj.customer.custType == 1
                       ? "房源"
-                      : pObj.custType == 2
+                      : pObj.customer.custType == 2
                       ? "租房"
-                      : pObj.custType == 3
+                      : pObj.customer.custType == 3
                       ? "买房"
-                      : pObj.custType == 4
+                      : pObj.customer.custType == 4
                       ? "居家装修"
                       : "无"
                   }}

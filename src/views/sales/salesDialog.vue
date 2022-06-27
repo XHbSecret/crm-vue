@@ -18,10 +18,6 @@
           <el-input placeholder="请输入商机名" v-model="addForm.oppName" />
         </el-form-item>
 
-        <el-form-item label="商机金额（元）" prop="oppMoney">
-          <el-input placeholder="请输入金额" v-model="addForm.oppMoney" />
-        </el-form-item>
-
         <el-form-item label="负责人" prop="empChrgeId">
           <el-input
             placeholder="选择员工"
@@ -54,21 +50,6 @@
               :label="item.flowName"
               :value="item.flowId"
               filterable
-            ></el-option>
-          </el-select>
-        </el-form-item>
-
-        <el-form-item label="业务阶段" prop="flowDetailsId">
-          <el-select
-            placeholder="请选择"
-            v-model="addForm.flowDetailsId"
-            clearable
-          >
-            <el-option
-              v-for="item in options.details"
-              :key="item.flowDetailsId"
-              :label="item.flowDetailsName"
-              :value="item.flowDetailsId"
             ></el-option>
           </el-select>
         </el-form-item>
@@ -131,7 +112,7 @@ import { ElMessage } from "element-plus";
 import empDialog from "./empDialog.vue";
 import custDialog from "./custDialog.vue";
 import productDialog from "./productDialog.vue";
-import { addOpp, findEmps } from "@/api/sales/index";
+import { addOpp, findEmps, addOpportunity } from "@/api/sales/index";
 import { getAllFlows, getFlowDetails, getALlFlowss } from "@/api/system/flow";
 import { useStore } from "vuex";
 
@@ -150,15 +131,14 @@ const dialogVisible_product = ref(false);
 const options1 = reactive({ flow: [] });
 const options = reactive({ details: [] });
 const formRef = ref(null);
+const detailsIds = ref([]);
 let addForm = reactive({
   oppId: "",
   custId: "",
   empCreateId: empId,
   empChrgeId: "",
   oppName: "",
-  oppMoney: "",
   flowId: "",
-  flowDetailsId: "",
   oppStopTime: "",
   productId: "",
   oppNotes: "",
@@ -214,7 +194,6 @@ function selectDetails(val) {
   getFlowDetails(val)
     .then((response) => {
       options.details = response.data.flowDetails;
-
       console.log(options.details);
     })
     .catch(() => {});
@@ -231,7 +210,6 @@ function getAllFlow() {
   getALlFlowss()
     .then((response) => {
       options1.flow = response.data;
-
       console.log(options1.flow);
     })
     .catch((err) => {});
@@ -240,14 +218,20 @@ function getAllFlow() {
 
 // 添加商机
 function addOpps() {
+  const ids = reactive([]);
+  for (let i = 0; i < options.details.length; i++) {
+    ids.push(options.details[i].flowDetailsId);
+  }
+  addForm["flowDetailsIds"] = ids;
+  console.log(addForm)
   formRef.value.validate(async (valid) => {
     if (valid) {
-      console.log(addForm);
-      addOpp(addForm).then(() => {
+      await addOpp(addForm).then(() => {
         ElMessage({
           message: "添加成功！！！！",
           type: "success",
         });
+
         handleClose();
         emits("updateDate");
       });
@@ -259,15 +243,12 @@ function addOpps() {
   });
 }
 
+
 // 校验规则
 const rules = reactive({
   oppName: [
     { required: true, message: "商机名为空", trigger: "blur" },
     { pattern: "[\u4e00-\u9fa5]", message: "只能输入中文", trigger: "blur" },
-  ],
-  oppMoney: [
-    { required: true, message: "金额为空", trigger: "blur" },
-    { pattern: "^[0-9]*$", message: "只能输入数字", trigger: "blur" },
   ],
   empChrgeId: [{ required: true, message: "负责人为空", trigger: "blur" }],
   custId: [{ required: true, message: "客户为空", trigger: "blur" }],

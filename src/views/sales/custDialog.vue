@@ -11,7 +11,7 @@
         <el-input
           placeholder="请输入关键字"
           clearable
-          v-model="customers.custName"
+          v-model="Customerterm.custDetailName"
         >
           <template #append>
             <el-button type="primary" :icon="Search" @click="searchLike()" />
@@ -99,9 +99,10 @@ const store = useStore();
 //从token 获取empid
 let empId = store.state.employee.user.user.empId;
 console.log("empId =  ", empId);
-const customers = reactive({
+let Customerterm = reactive({
   empId: empId,
-  custName: "",
+  custDetailName: "",
+  custStatus: 3,
 });
 const tableData = reactive({ cust: [] });
 const custList = reactive({ data: [] });
@@ -127,15 +128,17 @@ function addOpps() {
   emits("getCust", custList.data);
 }
 function findCusts() {
+  console.log(Customerterm);
   CustomerSearch(
     pagePlugs.data.currentPage,
     pagePlugs.data.pageSize,
-    customers
+    Customerterm
   ).then((res) => {
     if (res.code == 200) {
       console.log("xixi");
       tableData.cust = res.data.records;
       pagePlugs.data.total = res.data.total;
+      console.log(res.data);
       console.log(tableData.cust);
       console.log(res.data);
       console.log("-----查询方法调用结束-----");
