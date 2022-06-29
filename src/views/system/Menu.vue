@@ -17,6 +17,7 @@
 
   <!-- 添加菜单 -->
   <el-button type="primary" plain class="textSize" @click="showAdd(false)"
+    v-show="$store.state.employee.perms.indexOf('menu/add')==-1?false:true"
     >添加菜单</el-button
   >
 
@@ -56,6 +57,7 @@
           size="small"
           type="text"
           @click="showAdd(scope.row)"
+           v-show="$store.state.employee.perms.indexOf('menu/add')==-1?false:true"
           >添加</el-button
         >
         <el-button
