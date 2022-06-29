@@ -136,6 +136,7 @@ const productQuery = reactive({
   productSell: null,
   empId: null,
   productCustId: null,
+  productSellable:0
 });
 
 const productBy = ()=>{

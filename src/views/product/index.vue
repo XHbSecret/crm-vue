@@ -41,6 +41,7 @@
         <el-button type="" :icon="Delete" @click="delProduct()">删除</el-button>
         <el-button type="" @click="UpProduct()">上架</el-button>
         <el-button type="" @click="DownProduct()">下架</el-button>
+        <el-button type="" @click="yichushou()">已出售</el-button>
       </div>
       <div v-show="productList.datas.length == 0" id="head">
         <span>场景：</span>
@@ -51,6 +52,19 @@
         >
           <el-option
             v-for="item in options"
+            :key="item.value"
+            :label="item.label"
+            :value="item.value"
+          />
+        </el-select>
+        <span>是否出售：</span>
+        <el-select
+          v-model="productQuery.productSellable"
+          class="m-2"
+          @change="getcommodity()"
+        >
+          <el-option
+            v-for="item in options2"
             :key="item.value"
             :label="item.label"
             :value="item.value"
@@ -67,15 +81,45 @@
       >
         <el-table-column type="selection" width="55" />
         <el-table-column fixed prop="productName" label="产品名" width="180">
-          <!-- <template #default="{ row }">
-            <a href="#" @click.prevent="clickData(row)">{{
-              row.productName
-            }}</a>
-          </template> -->
           <template #default="{ row }">
             <el-link type="primary" @click.prevent="clickData(row)">{{
               row.productName
             }}</el-link>
+          </template>
+        </el-table-column>
+        <el-table-column prop="productArea" label="面积/㎡" width="180" />
+        <el-table-column prop="productPrice" label="售价/平方米" width="180" />
+        <el-table-column prop="productValuation" label="估价/￥" width="180" />
+        <el-table-column
+          prop="productSellable"
+          label="是否已售卖/出租"
+          width="180"
+        >
+          <template v-slot="scope">
+            <p v-if="scope.row.productSellable == 0&&scope.row.productSell == 1">未售出</p>
+            <p v-if="scope.row.productSellable == 0&&scope.row.productSell == 2">未出租</p>
+            <p v-else-if="scope.row.productSellable == 1">跟进中</p>
+            <p v-else-if="scope.row.productSellable == 2">已售出</p>
+            <p v-else-if="scope.row.productSellable == 3">已出租</p>
+          </template>
+        </el-table-column>
+        <el-table-column
+          prop="employeeDatail.empName"
+          label="负责人"
+          width="180"
+        />
+        <el-table-column prop="productSell" label="售价方式" width="180">
+          <template v-slot="scope">
+            <p v-if="scope.row.productSell == 1">出售</p>
+            <p v-else-if="scope.row.productSell == 2">出租</p>
+          </template>
+        </el-table-column>
+        <el-table-column prop="productStatus" label="产品状态" width="180">
+          <template v-slot="scope">
+            <el-tag type="success" v-if="scope.row.productStatus == 1"
+              >上架</el-tag
+            >
+            <el-tag type="info" v-else>下架</el-tag>
           </template>
         </el-table-column>
         <el-table-column prop="productType" label="户型" width="180" />
@@ -91,15 +135,6 @@
             <p v-else-if="scope.row.houseType == 8">安置房</p>
           </template>
         </el-table-column>
-        <el-table-column prop="productArea" label="面积/㎡" width="180" />
-        <el-table-column prop="productPrice" label="售价/平方米" width="180" />
-        <el-table-column prop="productValuation" label="估价/￥" width="180" />
-        <!-- <el-table-column prop="productQuantity" label="房屋数量" width="180" /> -->
-        <el-table-column
-          prop="employeeDatail.empName"
-          label="负责人"
-          width="180"
-        />
         <el-table-column prop="productUnit" label="单位" width="180">
           <template v-slot="scope">
             <p v-if="scope.row.productUnit == 1">套</p>
@@ -109,20 +144,6 @@
           </template>
         </el-table-column>
         <el-table-column prop="productIntroduce" label="介绍" width="180" />
-        <el-table-column prop="productSell" label="售价方式" width="180">
-          <template v-slot="scope">
-            <p v-if="scope.row.productSell == 1">出售</p>
-            <p v-else-if="scope.row.productSell == 2">出租</p>
-          </template>
-        </el-table-column>
-        <el-table-column prop="productStatus" label="产品状态" width="180">
-          <template v-slot="scope">
-            <el-tag type="success" v-if="scope.row.productStatus == 1"
-              >上架</el-tag
-            >
-            <el-tag type="info" v-else>下架</el-tag>
-          </template>
-        </el-table-column>
         <el-table-column prop="productAddress" label="房子地址" width="180" />
         <el-table-column
           prop="productDecorateType"
@@ -176,6 +197,7 @@ import {
   delProducts,
   upProduct,
   downProduct,
+  updateProductSellableByproductNo
 } from "@/api/system/product";
 import { useStore } from "vuex";
 import pDialog from "./productDialog.vue";
@@ -210,6 +232,22 @@ const options = [
     label: "下架产品",
   },
 ];
+//下拉框查询
+const options2 = [
+  {
+    value: 0,
+    label: "未出售",
+  },
+  {
+    value: 1,
+    label: "跟进中",
+  },
+  {
+    value: 2,
+    label: "已出售",
+  },
+];
+
 //下拉框测试
 const getcommodity = () => {
   getProduct();
@@ -221,6 +259,7 @@ const productQuery = reactive({
   productSell: 1,
   empId: null,
   productCustId: null,
+  productSellable: 0,
 });
 //useStore 获取store
 const store = useStore();
@@ -283,6 +322,17 @@ function UpProduct() {
   upProduct(productList.datas).then(() => {
     ElMessage({
       message: "上架成功！！！！",
+      type: "success",
+    });
+    getProduct();
+  });
+}
+
+function yichushou() {
+  let productSellable  = 2;
+   updateProductSellableByproductNo(productList.datas,productSellable).then(() => {
+    ElMessage({
+      message: "修改状态成功！！！！",
       type: "success",
     });
     getProduct();
