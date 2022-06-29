@@ -53,3 +53,11 @@ export const updateProduct=(data)=>request({
   method:'post',
   data
 })
+
+
+//修改商品状态
+export const updateProductSellableByproductNo=(data,productSellable)=>request({
+  url:`product/updateProductSellableByproductNo/${productSellable}`,
+  method:'post',
+  data
+})

@@ -45,6 +45,9 @@
       >
         <el-option label="全部合同" value="1" />
         <el-option label="我负责的合同" value="2" />
+        <el-option label="租房合同" value="3" />
+        <el-option label="买房合同" value="4" />
+        <!-- <el-option label="我负责的合同" value="5" /> -->
       </el-select>
     </el-col>
   </el-row>
@@ -67,12 +70,11 @@
         }}</el-link>
       </template>
     </el-table-column>
+    <el-table-column prop="contractName" label="合同名称" width="150px" />
+    <el-table-column prop="contractType" label="合同类型" width="150px" >
+      <template v-slot="scope"> {{ scope.row.contractType==2?"租房合同":scope.row.contractType==3?"买房合同":"无" }} </template>
+    </el-table-column>
     <el-table-column
-      prop="contractName"
-      label="合同名称"
-      width="150px"
-    />
-        <el-table-column
       prop="customerDetail.custDetailName"
       label="合同客户"
       width="120px"
@@ -83,11 +85,20 @@
     </el-table-column>
     <el-table-column
       prop="contractTotalCommission"
-      label="合同佣金"
+      label="向房源收取佣金"
       width="100px"
     >
       <template v-slot="scope">
         {{ scope.row.contractTotalCommission }}元
+      </template>
+    </el-table-column>
+    <el-table-column
+      prop="contractServiceCharge"
+      label="向客户收取中介费"
+      width="100px"
+    >
+      <template v-slot="scope">
+        {{ scope.row.contractServiceCharge }}元
       </template>
     </el-table-column>
     <el-table-column
@@ -299,6 +310,7 @@ import {
   searchByLike,
   updateStatus,
   deleteContract,
+  getContractsBycontract,
 } from "@/api/contract/index";
 import { getRecordByService } from "@/api/check/checkFlow";
 import { CustomerSearch } from "@/api/customer/index";
@@ -392,6 +404,8 @@ function contractItemClick(row) {
   contractDrawer.value = true;
   rowInfo.value = row;
   console.log(row);
+
+  // contractData.data = rows
 }
 
 let checkUser = reactive({ data: {} });
@@ -487,14 +501,30 @@ const CopyTheNew = (row) => {
   judge.value = 2;
 };
 
+const contract = reactive({
+  empId:store.state.employee.user.user.empId,
+  contractType:null,
+  contractStatus:null
+})
+
 // 处理改变类型
 function handlerChangeType() {
   if (searchType.value == "2") {
-    getContractByEmp(
-      store.state.employee.user.user.empId,
-      page.currentPage,
-      page.size
-    ).then((res) => {
+    getContractsBycontract(contract,page.currentPage, page.size).then((res) => {
+      contractList.data = [];
+      contractList.data = res.data.records;
+      page.total = res.data.total;
+    });
+  }else if (searchType.value == "3") {
+    contract.contractType = 2
+    getContractsBycontract(contract,page.currentPage, page.size).then((res) => {
+      contractList.data = [];
+      contractList.data = res.data.records;
+      page.total = res.data.total;
+    });
+  }else if (searchType.value == "4") {
+    contract.contractType = 3
+    getContractsBycontract(contract,page.currentPage, page.size).then((res) => {
       contractList.data = [];
       contractList.data = res.data.records;
       page.total = res.data.total;

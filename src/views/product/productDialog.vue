@@ -44,9 +44,6 @@
               />
             </el-select>
           </el-form-item>
-          <el-form-item label="房屋数量" prop="productQuantity">
-            <el-input-number v-model="form.productQuantity" />
-          </el-form-item>
           <el-form-item label="单位" prop="productUnit">
             <el-select placeholder="请选择装修类型" v-model="form.productUnit">
               <el-option
@@ -206,6 +203,7 @@ let pagePlugs = reactive({
 let Customerterm = reactive({
   empId: null,
   custType: 1,
+  custShared:1
 });
 //下拉菜单的点击事件
 const getCustId = (value) => {

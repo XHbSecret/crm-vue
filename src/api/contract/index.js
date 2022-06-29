@@ -49,3 +49,9 @@ export const getContractById = (contractId)=>request({
     url: `contract/selectOne/${contractId}`,
     method: 'get',
 })
+//多条件查询
+export const getContractsBycontract = (data,page1,size)=>request({
+    url: `contract/getContractsBycontract/${page1}/${size}`,
+    method: 'post',
+    data
+})
