@@ -32,8 +32,8 @@
     element-loading-text="数据拼命加载中"
     :tree-props="{ children: 'childMenuList', hasChildren: 'hasChildren' }"
   >
-    <el-table-column prop="menuName" label="菜单名称" sortable width="120px" />
-    <el-table-column prop="menuIcon" label="图标" width="100px" />
+    <el-table-column prop="menuName" label="菜单名称" sortable width="200px" />
+    <!-- <el-table-column prop="menuIcon" label="图标" width="100px" /> -->
     <el-table-column prop="menuPerms" label="权限标识" />
     <el-table-column prop="menuComponent" label="组件路径" />
     <el-table-column prop="menuPath" label="路由地址" width="180px" />
