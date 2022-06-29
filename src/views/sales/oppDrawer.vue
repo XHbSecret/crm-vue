@@ -34,18 +34,20 @@
             <el-col :span="6"
               ><div class="t-section__ft">
                 <el-button type="success" @click="change">转移</el-button>
-                <el-button type="primary">编辑</el-button>
+                <el-button type="primary" @click="deleteOpp" >删除</el-button>
                 <el-dropdown trigger="click">
                   <el-button type="primary">...</el-button>
                   <template #dropdown>
                     <el-dropdown-menu>
-                      <el-dropdown-item @click="deleteOpp"
-                        >删除</el-dropdown-item
-                      >
-                      <el-dropdown-item divided @click="nextOpp"
+                      <el-dropdown-item
+             
+                        @click="nextOpp"
+         
                         >下一阶段</el-dropdown-item
                       >
-                      <el-dropdown-item>归档</el-dropdown-item>
+                      <el-dropdown-item @click="endSales"
+                        >归档</el-dropdown-item
+                      >
                     </el-dropdown-menu>
                   </template>
                 </el-dropdown>
@@ -69,9 +71,9 @@
             </el-col>
             <el-col :span="4"
               ><div class="vux-flexbox-item h-item">
-                <div class="h-title">商机金额</div>
+                <div class="h-title">商机金额/元</div>
                 <div class="h-value text-one-line">
-                  {{ pObj.oppMoney }}
+                  {{ pObj.product.productPrice*pObj.product.productArea }}
                 </div>
               </div>
             </el-col>
@@ -106,9 +108,9 @@
         <div class="three_drawer">
           <el-steps :active="leng" align-center finish-status="success">
             <el-step
-              v-for="(item, index) in flowList.list.flowDetails"
+              v-for="(item, index) in flowList.list"
               :key="index"
-              :title="item.flowDetailsName"
+              :title="item.flowDetails.flowDetailsName"
             />
           </el-steps>
         </div>
@@ -116,9 +118,9 @@
       <el-container>
         <el-main style="margin-top: 20px; margin-right: 20px">
           <el-tabs type="border-card">
-            <el-tab-pane label="操作记录">
+            <!-- <el-tab-pane label="操作记录">
               <oppActivity :rowInfo="data.formData"></oppActivity>
-            </el-tab-pane>
+            </el-tab-pane> -->
             <el-tab-pane label="基本信息">
               <oppEssential :rowInfo="data.formData"></oppEssential>
             </el-tab-pane>
@@ -173,12 +175,16 @@ import oppMessage from "./oppMessage.vue";
 import oppProduct from "./oppProduct.vue";
 import {
   delOppById,
-  addOpps,
+  
   getFlowRecords,
   editSalesDetailsId,
 } from "@/api/sales/index";
 import { ElMessage, ElMessageBox } from "element-plus";
-import { getFlowDetails } from "@/api/system/flow";
+import {
+  getFlowDetails,
+  getFlowRecordss,
+  editFlowRecords,
+} from "@/api/system/flow";
 import {
   ref,
   onMounted,
@@ -187,6 +193,7 @@ import {
   toRefs,
   defineEmits,
   defineProps,
+  onBeforeMount,
 } from "vue";
 import { getAllByCustId } from "@/api/customer/index";
 
@@ -256,22 +263,14 @@ function deleteOpp() {
 function getFlowRecord() {
   getFlowRecords(data.formData.oppId).then((res) => {
     flowLists.list = res.data;
-    var records = [];
-    flowLists.list.forEach((item) => {
-      records.push(item.flowRecordStatus);
-    });
-    for (let i = 0; i < records.length; i++) {
-      if (records[i] > 0) {
-        leng.value++;
-      }
-    }
+    leng.value = flowLists.list.length;
     console.log(leng.value);
   });
 }
 
 // 获取当前服务的所有阶段
 function getFlowDetailss() {
-  getFlowDetails(data.formData.flowId).then((response) => {
+  getFlowRecordss(data.formData.oppId).then((response) => {
     flowList.list = response.data;
     console.log(flowList.list);
   });
@@ -279,36 +278,31 @@ function getFlowDetailss() {
 
 // 下一阶段
 function nextOpp() {
-  let flowCustId = data.formData.custId;
-  let flowOppId = data.formData.oppId;
-  let flowEmpId = data.formData.empChrgeId;
-  let flowId = flowList.list.flowDetails[leng.value].flowId;
-  let flowDetailsId = flowList.list.flowDetails[leng.value].flowDetailsId;
-  let records = {
-    flowCustId,
-    flowOppId,
-    flowEmpId,
-    flowId,
-    flowDetailsId,
-  };
-  console.log(records);
-  // addOpps(records).then(() => {
-  //   editSalesDetailsId(flowDetailsId, data.formData).then(() => {
-  //     leng.value++;
-  //     emits("updateData");
-  //   });
-  // });
+  console.log(flowList.list[leng.value]);
+  editFlowRecords(flowList.list[leng.value]).then((res) => {
+    getFlowRecord();
+    editSalesDetailsId(
+      flowList.list[leng.value].flowDetails.flowDetailsId,
+      data.formData
+    ).then(()=>{
+      emits("updateData")
+    });
+  });
+  console.log(flowList.list[leng.value].flowDetails.flowDetailsId);
+}
+// 归档
+function endSales(){
+
 }
 
 watch(
-  () => (props.oppDetails, props.nums),
+  () => props.oppDetails,
   () => {
     console.log(props.oppDetails);
     data.formData = props.oppDetails;
-    leng.value = props.nums;
     getAllByCustIds();
-    getFlowRecord();
     getFlowDetailss();
+    getFlowRecord();
     console.log("复制父组件的对象" + data.formData);
     console.log(data.formData);
   },
@@ -316,6 +310,9 @@ watch(
     deep: true,
   }
 );
+onBeforeMount(()=>{
+  leng.value == 0;
+})
 </script>
 
 <style lang="scss" scoped>

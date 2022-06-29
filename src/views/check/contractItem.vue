@@ -11,7 +11,7 @@
           </el-col>
           <!-- 编辑按钮 -->
           <el-col :span="2">
-            <el-button type="primary">编辑</el-button>
+            <!-- <el-button type="primary">编辑</el-button> -->
           </el-col>
         </el-row>
       </el-card>
@@ -98,10 +98,10 @@
         <el-tab-pane label="详细资料" lazy>
             <contractInfo :contractId="props.contractId"/>
         </el-tab-pane>
-        <el-tab-pane label="产品" lazy>
-            <productInfo/>
-        </el-tab-pane>
-        <el-tab-pane label="回款" lazy>Role</el-tab-pane>
+        <!-- <el-tab-pane label="产品" lazy>
+            <productInfo :productId="props.productId"/>
+        </el-tab-pane> -->
+        <!-- <el-tab-pane label="回款" lazy>Role</el-tab-pane> -->
     </el-tabs>
     </div>
   </div>

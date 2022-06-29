@@ -16,7 +16,7 @@ export const addOpp = (data)=>request({
   data
 })
 
-export const addOpps=(data)=>request({
+export const addOpportunity=(data)=>request({
   url:`/opp/addOpps`,
   method:"post",
   data

@@ -51,6 +51,7 @@
             style="width: 100%"
             height="300"
             stripe
+            v-loading="loading"
           >
             <el-table-column
               prop="flowDetailsName"
@@ -99,12 +100,19 @@
       @updateData="getFlowDetails"
     >
     </insertDetails>
+
+    <choseDetails
+      v-model="visible_detailss"
+      v-if="visible_detailss"
+      :flowIds="flowIds"
+      @updateData="getFlowDetails"
+    ></choseDetails>
   </el-drawer>
 </template>
 
 <script setup>
 import insertDetails from "./insertDetails.vue";
-import { editFlowStatus } from "@/api/system/flow";
+import { editFlowStatus,aditDetailNull } from "@/api/system/flow";
 import {
   ref,
   reactive,
@@ -114,15 +122,22 @@ import {
   watch,
 } from "vue";
 import { Edit, Delete, Plus } from "@element-plus/icons-vue";
-import { ElMessage } from "element-plus";
+import { ElMessage, ElMessageBox } from "element-plus";
+import choseDetails from "./choseDetails.vue";
 const api = getCurrentInstance()?.appContext.config.globalProperties.$API;
 
 const visible_details = ref(false);
 const dialogTittles = ref("");
 const dialogEditValue = ref({});
+const flowIds = ref("");
 const formRef = ref(null);
 const edit = ref(false);
-const emits = defineEmits(["update:modelValue", "insertDetail", "updateData"]);
+const emits = defineEmits([
+  "update:modelValue",
+  "insertDetail",
+  "updateData",
+  "updateDatas",
+]);
 const props = defineProps({
   dialogTittle: {
     type: String,
@@ -140,11 +155,14 @@ const flowDetail = ref({
   flowId: 0,
   flowDetails: {},
 });
+const loading = ref(true);
 const form = ref({});
 let details = reactive({ datas: [] });
+const visible_detailss = ref(false);
 
 let getFlowDetails = () => {
   details.datas = flowDetail.value.flowDetails;
+  loading.value = false;
   console.log(details.datas);
 };
 const onclose = () => {
@@ -172,15 +190,23 @@ const confirm = () => {
 };
 
 const delFlow = (flowDetailsId) => {
-  api.flow.delDetails(flowDetailsId).then(() => {
-    ElMessage({
-      message: "删除成功！！！！",
-      type: "success",
+  ElMessageBox.confirm("你确认要删除这个步骤吗？", "提示", {
+    confirmButtonText: "确定",
+    cancelButtonText: "取消",
+    type: "warning",
+  })
+    .then(() => {
+      aditDetailNull(flowDetailsId).then(() => {
+        ElMessage.success("删除成功！！！");
+        flowDetail.value = props.dialogValue;
+      });
+    })
+    .catch(() => {
+      ElMessage.info("取消删除");
     });
-  });
 };
 const addDetail = () => {
-  emits("insertDetail", flowDetail.value.flowId);
+  visible_detailss.value = true;
 };
 const changStatus = (row) => {
   console.log(row);
@@ -200,22 +226,15 @@ watch(
     console.log(props.dialogValue);
     flowDetail.value = props.dialogValue;
     flowDetail.value.flowId = props.dialogValue.flowId;
+    flowIds.value = flowDetail.value.flowId;
     console.log(flowDetail.value.flowId);
   }
 );
-const rules = reactive({
-  flowDetailsName: [
-    { required: true, message: "详情名不能为空！！", trigger: "blur" },
-    { pattern: "[\u4e00-\u9fa5]", message: "只能输入中文", trigger: "blur" },
-  ],
-  flowIsCheck: [{ required: true, message: "请选择是否审查", trigger: "blur" }],
-  flowOrder: [{ required: true, message: "请输入顺序", trigger: "blur" }],
-});
 </script>
 
 <style scoped>
 ul {
-  width:900px;
+  width: 900px;
   margin-top: 40px;
 }
 ul li {

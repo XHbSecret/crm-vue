@@ -45,8 +45,8 @@
         </el-form-item>
       </el-form>
       <el-form :inline="true" :model="data.formData">
-        <el-form-item label="商机金额" prop="oppMoney" style="width: 300px">
-          <span v-if="formSwitch.flag">{{ data.formData.oppMoney }}</span>
+        <el-form-item label="商机金额/元" prop="oppMoney" style="width: 300px">
+          <span v-if="formSwitch.flag">{{ data.formData.product.productPrice*data.formData.product.productArea }}</span>
           <el-input v-else @change="input()" v-model="data.formData.oppMoney" />
         </el-form-item>
         <el-form-item

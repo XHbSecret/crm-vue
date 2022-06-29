@@ -19,8 +19,8 @@
           <span>{{ data.formData.flowDetails.flowDetailsName }}</span>
         </li>
         <li>
-          <p>商机金额:</p>
-          <span>{{ data.formData.oppMoney }}元</span>
+          <p>商机金额/元:</p>
+          <span>{{ data.formData.product.productPrice*data.formData.product.productArea }}</span>
         </li>
         <li>
           <p>预计成交日:</p>
