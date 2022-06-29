@@ -45,6 +45,11 @@
       <el-button type="primary" @click="exportExcel">导出选中</el-button>
     </div>
   </div>
+  <el-radio-group v-model="value1.status">
+    <el-radio :label="1" @click.prevent="showSales(1)">未成交</el-radio>
+    <el-radio :label="2" @click.prevent="showSales(2)">已成交</el-radio>
+    <el-radio :label="3" @click.prevent="showSales(3)">已归档</el-radio>
+  </el-radio-group>
   <el-table
     @selection-change="handleSelectionChange"
     :data="tableData.datas"
@@ -83,13 +88,11 @@
       width="130"
       prop="employee1.employeeDatail.empName"
     />
-
-    <el-table-column
-      label="商机金额/元"
-      prop="oppMoney"
-      width="130"
-      fixed="right"
-    ></el-table-column>
+    <el-table-column label="商机金额/元" width="130" fixed="right">
+      <template v-slot="scope">
+        {{ scope.row.product.productPrice * scope.row.product.productArea }}
+      </template>
+    </el-table-column>
     <el-table-column
       label="更新时间"
       prop="oppUpdateTime"
@@ -131,21 +134,16 @@
   <salesDialog
     v-model="dialogVisible"
     v-if="dialogVisible"
-    @updateDate="getAllOppss"
+    @updateDate="find"
   ></salesDialog>
   <!-- 变更负责人dialog框 -->
   <changeDialog
     v-model="dialog_change"
     :emplist="Opportunities.datas"
-    @updateData="getAllOppss"
+    @updateData="find"
   ></changeDialog>
   <!-- 商机详情 -->
-  <oppDrawer
-    v-model="drawer_opp"
-    :nums="nums"
-    :oppDetails="oppDetails"
-    @updateData="getAllOppss"
-  >
+  <oppDrawer v-model="drawer_opp" :oppDetails="oppDetails" @updateData="find">
   </oppDrawer>
   <!-- 客户详情 -->
   <custDrawer v-model="drawer_cust" :custDetails="custDetails"></custDrawer>
@@ -178,12 +176,12 @@
         width="130"
       >
       </el-table-column>
-      <el-table-column
+      <!-- <el-table-column
         label="创建人"
         width="130"
         prop="employee1.employeeDatail.empName"
       >
-      </el-table-column>
+      </el-table-column> -->
       <el-table-column
         label="商机金额/元"
         prop="oppMoney"
@@ -218,7 +216,7 @@
 
 <script setup>
 import { ref, onMounted, reactive } from "vue";
-import { getAllOpp, getAllOpps, delSales, findById} from "@/api/sales/index";
+import { getAllOpp, getAllOpps, delSales, findById } from "@/api/sales/index";
 import { Delete, Switch, Plus, Search } from "@element-plus/icons-vue";
 import { ElMessage, ElMessageBox } from "element-plus";
 import { CustomerSearch } from "@/api/customer/index";
@@ -227,6 +225,7 @@ import oppDrawer from "./oppDrawer.vue";
 import custDrawer from "./custDrawer.vue";
 import changeDialog from "./changeDialog.vue";
 import htmlExcel from "../../utils/hemlExcel";
+import { useStore } from "vuex";
 
 const selectOpp = ref(false);
 const dialog_change = ref(false);
@@ -236,13 +235,18 @@ const custDetails = ref({});
 const drawer_cust = ref(false);
 const drawer_opp = ref(false);
 const num = ref(0);
-const nums = ref(0);
 const dialogVisible = ref(false);
 const tableData = reactive({ datas: [] });
 const Opportunities = reactive({ datas: [] });
 const emps = reactive({ list: [] });
+const store = useStore();
+//从token 获取empid
+let empId = store.state.employee.user.user.empId;
+console.log("empId =  ", empId);
 let value1 = reactive({
   oppName: "",
+  empId: empId,
+  status: "",
 });
 // 分页
 let pagePlugs = reactive({
@@ -254,7 +258,7 @@ let pagePlugs = reactive({
 });
 
 onMounted(() => {
-  getAllOppss();
+  find();
 });
 
 function showDialog() {
@@ -272,7 +276,9 @@ function showCustDetails(val) {
   console.log(JSON.parse(JSON.stringify(val)));
   console.log(custDetails.value);
 }
+// 查询商机数据
 function find() {
+  value1.status == 1;
   getAllOpp(pagePlugs.data.currentPage, pagePlugs.data.pageSize, value1).then(
     (response) => {
       tableData.datas = response.data.records;
@@ -283,6 +289,11 @@ function find() {
     }
   );
 }
+
+const showSales = (e) => {
+  e === value1.status ? (value1.status = "") : (value1.status = e);
+  find();
+};
 
 function deleteSales() {
   ElMessageBox.confirm("你确认要删除这些内容吗？", "提示", {
@@ -296,7 +307,7 @@ function deleteSales() {
           message: "删除成功！！！！",
           type: "success",
         });
-        getAllOppss();
+        find();
       });
     })
     .catch(() => {
@@ -313,20 +324,6 @@ function handleSelectionChange(val) {
   Opportunities.datas = val;
   num.value = Opportunities.datas.length;
   console.log(Opportunities.datas);
-}
-
-// 所有数据
-async function getAllOppss() {
-  console.log("haha");
-  await getAllOpps(pagePlugs.data.currentPage, pagePlugs.data.pageSize).then(
-    (response) => {
-      tableData.datas = response.data.records;
-      pagePlugs.data.total = response.data.total;
-      loading.value = false;
-      console.log(tableData.datas);
-      console.log(response.data);
-    }
-  );
 }
 
 function getEmpById() {

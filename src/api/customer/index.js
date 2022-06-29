@@ -53,6 +53,12 @@ export const downloadexcel = (empId)=>request({
   responseType: 'blob',
 })
 
+//批量导入
+export const importexcel = ()=>request({
+  url: `customer/importexcel`,
+  method: 'post'
+})
+
 // ----------抽屉组件所用到的方法----------
 
 //根据id联系人

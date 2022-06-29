@@ -90,9 +90,6 @@
           ></el-table-column>
           <el-table-column label="操作">
             <template #default="{ row }">
-              <el-button @click.stop="addFlow(row)" type="text" :icon="Plus"
-                >添加</el-button
-              >
               <el-button @click.stop="editFlow(row)" type="text" :icon="Edit"
                 >修改</el-button
               >
@@ -190,18 +187,18 @@
               }}
             </template>
           </el-table-column>
-          <el-table-column label="是否审核" prop="flowIdCheck" width="120">
+          <!-- <el-table-column label="是否审核" prop="flowIdCheck" width="120">
             <template v-slot="scope">
               <el-tag v-if="scope.row.flowIsCheck == 1">需要</el-tag>
               <el-tag type="danger" v-else>不需要</el-tag>
             </template>
-          </el-table-column>
-          <el-table-column label="是否使用" prop="flowId" width="120">
+          </el-table-column> -->
+          <el-table-column label="所用流程" prop="flowId" width="120">
             <template v-slot="scope">
-              <el-tag type="danger" v-if="scope.row.flowId == null"
-                >未使用</el-tag
+              <p v-if="scope.row.flowId==null"
+                >无</p
               >
-              <el-tag v-else>已使用</el-tag>
+              <p v-else>{{scope.row.flow.flowName}}</p>
             </template>
           </el-table-column>
           <el-table-column label="操作">
@@ -209,12 +206,14 @@
               <el-button
                 type="text"
                 :icon="Edit"
+                :disabled="scope.row.flowId!=null"
                 @click="addFlowDetails(scope.row)"
                 >修改</el-button
               >
               <el-button
                 type="text"
                 :icon="Delete"
+                :disabled="scope.row.flowId!=null"
                 @click="delDetail(scope.row)"
                 >删除</el-button
               >
@@ -241,6 +240,7 @@
     :dialogTittle="dialogTittle"
     :dialogDetailsValue="dialogDetailsValue"
     @updateDate="getFlow"
+    @updateData="getFlowDetailss"
     v-if="visible_add"
   ></flowInsert>
 
@@ -249,6 +249,7 @@
     v-model="visible_edit"
     :dialogTittle="dialogTittle"
     @updateDate="getFlow"
+    @updateData="getFlowDetailss"
     :dialogValue="dialogValue"
     v-if="visible_edit"
   ></flowEditVue>
@@ -258,6 +259,7 @@
     v-model="drawer"
     :dialogValue="dialogValue"
     @updateData="getFlow"
+    @updateDatas="getFlow"
   ></flowDetail>
   <!-- 添加详情 -->
   <insertDetails
@@ -408,7 +410,6 @@ function getFlow() {
       datas.tableData = response.data.records;
       console.log(response.data);
       pagePlugs.data.total = response.data.total;
-
       loading.value = false;
     });
 }
@@ -491,6 +492,7 @@ function delFlow(row) {
         api.flow.delFlow(row.flowId).then(() => {
           ElMessage.success("删除成功！！！");
           getFlow();
+          getFlowDetailss();
         });
       }
     })

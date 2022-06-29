@@ -53,13 +53,13 @@
       <el-form :inline="true" :model="data.formData">
         <el-form-item label="客户类型" prop="custType">
           <span v-if="formSwitch.flag">{{
-            data.formData.custType == 1
+            data.formData.customer.custType == 1
               ? "房源"
-              : data.formData.custType == 2
+              : data.formData.customer.custType == 2
               ? "租房"
-              : data.formData.custType == 3
+              : data.formData.customer.custType == 3
               ? "买房"
-              : data.formData.custType == 4
+              : data.formData.customer.custType == 4
               ? "居家装修"
               : "无"
           }}</span>
@@ -165,23 +165,45 @@
       <span>系统信息</span>
       <el-form :inline="true" :model="data.formData">
         <el-form-item label="创建时间">
-          <span>{{ data.formData.customer.custCreateTime }}</span>
+          <span>{{
+            data.formData.customer.custCreateTime == null
+              ? "暂无"
+              : data.formData.customer.custCreateTime
+          }}</span>
         </el-form-item>
         <el-form-item label="最后跟进时间">
-          <span>{{ data.formData.customer.custLastTime }}</span>
+          <span>{{
+            data.formData.customer.custLastTime == null
+              ? "暂无"
+              : data.formData.customer.custLastTime
+          }}</span>
         </el-form-item>
       </el-form>
       <el-form :inline="true" :model="data.formData">
         <el-form-item label="负责人">
-          <span>{{}}</span>
+          <span>{{ data.formData.employee.employeeDatail.empName }}</span>
         </el-form-item>
         <el-form-item label="创建人">
-          <span>{{ data.formData.customer.empEmpId }}</span>
+          <span>{{ data.formData.employee1.employeeDatail.empName }}</span>
         </el-form-item>
       </el-form>
       <el-form :inline="true" :model="data.formData">
         <el-form-item label="客户状态">
-          <span>{{ data.formData.customer.custStatus }}</span>
+          <span>{{
+            data.formData.customer.custStatus == 0
+              ? "待开发"
+              : data.formData.customer.custStatus == 1
+              ? "初步接触"
+              : data.formData.customer.custStatus == 2
+              ? "有意向"
+              : data.formData.customer.custStatus == 3
+              ? "跟进中"
+              : data.formData.customer.custStatus == 4
+              ? "已合作"
+              : data.formData.customer.custStatus == 5
+              ? "无意向"
+              : "暂无"
+          }}</span>
         </el-form-item>
       </el-form>
     </div>
@@ -189,7 +211,7 @@
 </template>
 
 <script setup>
-import { getCurrentInstance, onMounted, reactive, ref, toRefs } from "vue";
+import { getCurrentInstance, watch, reactive, ref, toRefs } from "vue";
 import { useStore } from "vuex";
 import { ElMessage, ElMessageBox } from "element-plus";
 const api = getCurrentInstance()?.appContext.config.globalProperties.$API; // api （axios管理的后端接口）
@@ -206,6 +228,7 @@ const data = reactive({
     customerDetail: {},
     employee: {},
     employeeDatail: {},
+    employee1: {},
   },
 });
 const cancel = () => {
@@ -227,10 +250,6 @@ const submitForm = () => {
     }
   });
 };
-onMounted(() => {
-  // data.formData = Object.assign({}, props.rowInfo);
-  data.formData = JSON.parse(JSON.stringify(props.rowInfo));
-});
 const pObj = toRefs(props).rowInfo;
 const formSwitch = reactive({
   flag: true,
@@ -292,6 +311,15 @@ const Occupation = [
   },
 ];
 const emit = defineEmits(["update:chouti", "essentialGetList"]);
+watch(
+  () => props.rowInfo,
+  () => {
+    console.log(props.rowInfo);
+    data.formData = props.rowInfo;
+    console.log("复制父组件的对象" + data.formData);
+  },
+  { deep: true, immediate: true }
+);
 </script>
 <style lang="scss" scoped>
 .el-form-item {

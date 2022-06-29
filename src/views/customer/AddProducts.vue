@@ -35,6 +35,7 @@
             <p v-else-if="scope.row.productSell == 2">出租</p>
           </template>
         </el-table-column>
+        <el-table-column prop="rentalPrices" label="月租" width="180" />
         <el-table-column prop="productIntroduce" label="介绍" width="180" />
         <el-table-column prop="productAddress" label="房子地址" width="180" />
         <el-table-column

@@ -52,7 +52,7 @@ const editFlows = ref({
   flowName: "",
   flowStatus: "",
 });
-const emits = defineEmits(["update:modelValue", "updateDate"]);
+const emits = defineEmits(["update:modelValue", "updateDate","updateData"]);
 const props = defineProps({
   dialogTittle: {
     type: String,
@@ -86,6 +86,7 @@ function updateFlows() {
         });
         onclose();
         emits("updateDate");
+        emits("updateData")
       });
     } else {
       ElMessage.error("校验不通过！！！");
