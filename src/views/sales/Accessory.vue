@@ -13,7 +13,7 @@
 </template>
 
 <script setup>
-import { getCurrentInstance, onMounted, reactive, ref, toRefs } from "vue";
+import { getCurrentInstance, onMounted, reactive, ref, toRefs,defineProps, } from "vue";
 const api = getCurrentInstance()?.appContext.config.globalProperties.$API; // api （axios管理的后端接口）
 
 //挂载 点击时加载

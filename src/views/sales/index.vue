@@ -45,11 +45,16 @@
       <el-button type="primary" @click="exportExcel">导出选中</el-button>
     </div>
   </div>
-  <el-radio-group v-model="value1.status">
-    <el-radio :label="1" @click.prevent="showSales(1)">未成交</el-radio>
-    <el-radio :label="2" @click.prevent="showSales(2)">已成交</el-radio>
-    <el-radio :label="3" @click.prevent="showSales(3)">已归档</el-radio>
-  </el-radio-group>
+  <el-select
+    v-model="value1.status"
+    placeholder="场景"
+    @change="find"
+    clearable
+  >
+    <el-option label="未完成" :value="1"></el-option>
+    <el-option label="已完成" :value="2"></el-option>
+    <el-option label="已归档" :value="3"></el-option>
+  </el-select>
   <el-table
     @selection-change="handleSelectionChange"
     :data="tableData.datas"
@@ -143,10 +148,10 @@
     @updateData="find"
   ></changeDialog>
   <!-- 商机详情 -->
-  <oppDrawer v-model="drawer_opp" :oppDetails="oppDetails" @updateData="find">
+  <oppDrawer v-model="drawer_opp" :oppDetails="oppDetails" @updateData="find" >
   </oppDrawer>
   <!-- 客户详情 -->
-  <custDrawer v-model="drawer_cust" :custDetails="custDetails"></custDrawer>
+  <custDrawer v-model="drawer_cust" :custDetails="custDetails" @updateData="find"></custDrawer>
 
   <!-- 预览所要导出的数据 -->
   <el-dialog title="预览" v-model="selectOpp" :before-close="handClose">
@@ -235,8 +240,10 @@ const custDetails = ref({});
 const drawer_cust = ref(false);
 const drawer_opp = ref(false);
 const num = ref(0);
+let nums = 0;
 const dialogVisible = ref(false);
 const tableData = reactive({ datas: [] });
+const tableDatas=reactive({datas:[]})
 const Opportunities = reactive({ datas: [] });
 const emps = reactive({ list: [] });
 const store = useStore();
@@ -247,6 +254,7 @@ let value1 = reactive({
   oppName: "",
   empId: empId,
   status: "",
+  oppId: "",
 });
 // 分页
 let pagePlugs = reactive({
@@ -267,7 +275,6 @@ function showDialog() {
 function showOppDetails(val) {
   drawer_opp.value = true;
   oppDetails.value = JSON.parse(JSON.stringify(val));
-  console.log(JSON.parse(JSON.stringify(val)));
   console.log(oppDetails.value);
 }
 function showCustDetails(val) {
@@ -278,7 +285,6 @@ function showCustDetails(val) {
 }
 // 查询商机数据
 function find() {
-  value1.status == 1;
   getAllOpp(pagePlugs.data.currentPage, pagePlugs.data.pageSize, value1).then(
     (response) => {
       tableData.datas = response.data.records;
@@ -289,6 +295,7 @@ function find() {
     }
   );
 }
+
 
 const showSales = (e) => {
   e === value1.status ? (value1.status = "") : (value1.status = e);
@@ -370,5 +377,8 @@ function handClose() {
 #Operation {
   height: 60px;
   position: relative;
+}
+a {
+  text-decoration: none;
 }
 </style>

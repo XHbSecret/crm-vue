@@ -42,16 +42,15 @@
           <el-table-column prop="comProTime" label="投放日期" />
           <el-table-column prop="comProStatus" label="投放状态">
             <template v-slot="scope">
-              <el-tag type="info" v-if="scope.row.comProStatus == 0"
-                >未审核</el-tag
-              >
-              <el-tag type="success" v-else-if="scope.row.comProStatus == 1"
+              <el-tag type="success" v-if="scope.row.comProStatus == 1"
                 >开始</el-tag
               >
               <el-tag type="error" v-else-if="scope.row.comProStatus == 2"
                 >结束</el-tag
               >
-              <el-tag v-else-if="scope.row.comProStatus == 3">待审核</el-tag>
+              <el-tag type="error" v-else-if="scope.row.comProStatus == 0"
+                >未开始</el-tag
+              >
             </template>
           </el-table-column>
           <el-table-column
@@ -86,12 +85,7 @@
                 @click="changeStatus(row)"
                 >结束</el-button
               >
-              <el-button
-                type="text"
-                :disabled="row.comProStatus != 0"
-                @click="check(row)"
-                >提交审核</el-button
-              >
+              
             </template>
           </el-table-column>
         </el-table>
@@ -192,8 +186,7 @@ function delComPro() {
       for (let i = 0; i < comprolist.tableDatas.length; i++) {
         console.log(comprolist.tableDatas[i].comProStatus);
         if (
-          comprolist.tableDatas[i].comProStatus == 2 ||
-          comprolist.tableDatas[i].comProStatus == 0
+          comprolist.tableDatas[i].comProStatus ==  2 
         ) {
           console.log(comprolist.tableDatas);
           delComPros(comprolist.tableDatas).then(() => {
@@ -204,7 +197,7 @@ function delComPro() {
             getAll();
           });
         } else {
-          ElMessage.error("未结束与审核的广告不能删除！！！");
+          ElMessage.error("未结束的广告不能删除！！！");
           getAll();
         }
       }

@@ -72,8 +72,7 @@
           <el-tag type="error" v-else-if="scope.row.activityStatus == 0"
             >结束</el-tag
           >
-          <el-tag v-else-if="scope.row.activityStatus == 3">待审核</el-tag>
-          <el-tag type="info" v-else>未审核</el-tag>
+          <el-tag v-else-if="scope.row.activityStatus == 2">未开始</el-tag>
         </template>
       </el-table-column>
 

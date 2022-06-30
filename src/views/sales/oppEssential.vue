@@ -3,31 +3,19 @@
   <el-scrollbar height="400px">
     <div class="essential1">
       <span>基本信息</span>
-      <button @click="edit()">编辑</button>
       <el-form :inline="true" :model="data.formData">
         <el-form-item label="商机名">
           <span v-if="formSwitch.flag">{{ data.formData.oppName }}</span>
-          <el-input v-else @change="input()" v-model="data.formData.oppName" />
         </el-form-item>
         <el-form-item label="客户名">
           <span v-if="formSwitch.flag">{{
             data.formData.customerDetail.custDetailName
           }}</span>
-          <el-input
-            v-else
-            @change="input()"
-            v-model="data.formData.customerDetail.custDetailName"
-          />
         </el-form-item>
       </el-form>
       <el-form :inline="true" :model="data.formData">
         <el-form-item label="服务" prop="flow.flowName" style="width: 300px">
           <span v-if="formSwitch.flag">{{ data.formData.flow.flowName }}</span>
-          <el-input
-            v-else
-            @change="input()"
-            v-model="data.formData.flow.flowName"
-          />
         </el-form-item>
         <el-form-item
           label="所到阶段"
@@ -37,17 +25,14 @@
           <span v-if="formSwitch.flag">{{
             data.formData.flowDetails.flowDetailsName
           }}</span>
-          <el-input
-            v-else
-            @change="input()"
-            v-model="data.formData.flowDetails.flowDetailsName"
-          />
         </el-form-item>
       </el-form>
       <el-form :inline="true" :model="data.formData">
         <el-form-item label="商机金额/元" prop="oppMoney" style="width: 300px">
-          <span v-if="formSwitch.flag">{{ data.formData.product.productPrice*data.formData.product.productArea }}</span>
-          <el-input v-else @change="input()" v-model="data.formData.oppMoney" />
+          <span v-if="formSwitch.flag">{{
+            data.formData.product.productPrice *
+            data.formData.product.productArea
+          }}</span>
         </el-form-item>
         <el-form-item
           label="预计成交日"
@@ -55,11 +40,6 @@
           style="width: 300px"
         >
           <span v-if="formSwitch.flag">{{ data.formData.oppStopTime }}</span>
-          <el-input
-            v-else
-            @change="input()"
-            v-model="data.formData.oppStopTime"
-          />
         </el-form-item>
       </el-form>
       <el-form :inline="true" :model="data.formData">
@@ -67,12 +47,15 @@
           <span v-if="formSwitch.flag">{{
             data.formData.oppNotes == null ? "空" : data.formData.oppNotes
           }}</span>
-          <el-input
-            v-else
-            @change="input()"
-            type="textarea"
-            v-model="data.formData.oppNotes"
-          />
+        </el-form-item>
+        <el-form-item
+          label="实际成交日"
+          prop="oppRealStopTime"
+          style="width: 300px"
+        >
+          <span v-if="formSwitch.flag">{{
+            data.formData.oppRealStopTime
+          }}</span>
         </el-form-item>
       </el-form>
       <el-form>
@@ -104,7 +87,11 @@
           <span>{{ data.formData.oppStartTime }}</span>
         </el-form-item>
         <el-form-item label="最后跟进时间">
-          <span>{{ data.formData.custLastTime }}</span>
+          <span>{{
+            data.formData.custLastTime == null
+              ? "暂无"
+              : data.formData.custLastTime
+          }}</span>
         </el-form-item>
       </el-form>
 

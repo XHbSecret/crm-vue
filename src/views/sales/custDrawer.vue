@@ -5,6 +5,7 @@
     size="65%"
     :show-close="false"
     :with-header="false"
+    destroy-on-close
   >
     <el-container class="container1">
       <el-header class="ct">
@@ -32,10 +33,12 @@
               </div>
             </el-col>
             <el-col :span="8"
-              ><div class="t-section__ft">
-                <el-button type="success">编辑</el-button>
-                <el-button type="primary">更改成交状态</el-button>
-                <el-button>...</el-button>
+              ><div class="t-section__ft"  v-if="data.formData.oppStatuss!=1">
+                <el-button type="success" >编辑</el-button>
+                <el-button type="primary" @click="showStatus"  
+                  >更改成交状态</el-button
+                >
+                <el-button >...</el-button>
               </div></el-col
             >
           </el-row>
@@ -46,12 +49,17 @@
           style="align-items: stretch"
         >
           <el-row :gutter="20">
-            <el-col :span="6"
-              ><div class="vux-flexbox-item h-item">
+            <el-col :span="6" v-if="pObj.oppStatus != 3"
+              >
+              <div class="vux-flexbox-item h-item" >
                 <div class="h-title">成交状态</div>
                 <div class="h-value text-one-line">
                   {{
-                    pObj.oppStatus == 1? "未成交": pObj.oppStatus == 2? "已成交":"无"
+                    pObj.oppStatus == 1
+                      ? "未成交"
+                      : pObj.oppStatus == 2
+                      ? "已成交"
+                      : "已归档"
                   }}
                 </div>
               </div>
@@ -169,10 +177,30 @@
         </el-aside>
       </el-container>
     </el-container>
+    <el-dialog
+      title="更改成交状态"
+      v-model="showStatuss"
+      :before-close="handleClose"
+      destroy-on-close
+    >
+      <el-form ref="formRef" :model="forms">
+        <el-form-item>
+          <el-radio-group v-model="forms.status" prop="status">
+            <el-radio :label="1">未成交</el-radio>
+            <el-radio :label="2">已成交</el-radio>
+          </el-radio-group>
+        </el-form-item>
+        <el-form-item>
+          <el-button type="primary" @click="changeStatus">确认</el-button>
+          <el-button type="info" @click="handleClose">取消</el-button>
+        </el-form-item>
+      </el-form>
+    </el-dialog>
   </el-drawer>
 </template>
 
 <script setup>
+import { ElMessage } from "element-plus";
 import { Edit } from "@element-plus/icons-vue";
 import Contactst from "./Contactst.vue";
 import Visit from "./visit.vue";
@@ -181,12 +209,14 @@ import oppEssential1 from "./oppEssential1.vue";
 import cooperation from "./cooperation.vue";
 import contract from "./contract.vue";
 import custPayments from "./custPayments.vue";
-import synthesis from "./synthesis.vue";
+import synthesis from "./synthesiss.vue";
 import CustomerDialog from "../customer/customerDialog.vue";
-import { onMounted, reactive, watch, toRefs } from "vue";
+import { onMounted, reactive, watch, toRefs, ref } from "vue";
 import { getAllByCustId } from "@/api/customer/index";
+import { updateSales } from "@/api/sales/index";
 
-const emits = defineEmits(["update:modelValue"]);
+const emits = defineEmits(["update:modelValue","updateData"]);
+const formRef = ref(null);
 const data = reactive({
   formData: {},
 });
@@ -200,6 +230,32 @@ const props = defineProps({
     default: () => {},
   },
 });
+const showStatuss = ref(false);
+let forms = reactive({
+  status: 0,
+});
+function handleClose() {
+  formRef.value.resetFields();
+  showStatuss.value = false;
+}
+
+function showStatus() {
+  showStatuss.value = true;
+}
+
+function changeStatus() {
+  console.log(forms.status);
+  updateSales(data.formData, forms.status)
+    .then(() => {
+      ElMessage.success("修改成功！！！");
+      handleClose();
+      emits("updateData")
+    })
+    .catch(() => {
+      ElMessage.error("请求失败！！");
+    });
+}
+
 function handClose() {
   emits("update:modelValue", false);
 }
@@ -224,6 +280,8 @@ watch(
     getAllByCustIds();
     console.log("复制父组件的对象" + data.formData);
     console.log(pObj);
+  },{
+    deep:true
   }
 );
 </script>

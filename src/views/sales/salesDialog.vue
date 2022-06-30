@@ -18,27 +18,27 @@
           <el-input placeholder="请输入商机名" v-model="addForm.oppName" />
         </el-form-item>
 
-        <el-form-item label="负责人" prop="empChrgeId">
+        <el-form-item label="负责人" prop="empName">
           <el-input
             placeholder="选择员工"
             @click="showEmpDialog"
-            v-model="addForm.empChrgeId"
+            v-model="addForm.empName"
             readonly="true"
           >
           </el-input>
         </el-form-item>
 
-        <el-form-item label="客户" prop="custId">
+        <el-form-item label="客户" prop="custName">
           <el-input
             placeholder="选择客户"
             @click="showCustDialog"
-            v-model="addForm.custId"
+            v-model="addForm.custName"
             readonly="true"
           >
           </el-input>
         </el-form-item>
 
-        <el-form-item label="所选服务" prop="flowId">
+        <el-form-item label="所选服务" prop="flowName">
           <el-select
             placeholder="请选择"
             v-model="addForm.flowId"
@@ -68,11 +68,11 @@
           <el-input type="textarea" v-model="addForm.oppNotes"></el-input>
         </el-form-item>
 
-        <el-form-item label="产品" prop="productId">
+        <el-form-item label="产品" prop="productName">
           <el-input
             placeholder="选择产品"
             @click="showProductDialog"
-            v-model="addForm.productId"
+            v-model="addForm.productName"
             readonly="true"
           ></el-input>
         </el-form-item>
@@ -138,10 +138,13 @@ let addForm = reactive({
   empCreateId: empId,
   empChrgeId: "",
   oppName: "",
+  empName:"",
   flowId: "",
+  custName:"",
   oppStopTime: "",
   productId: "",
   oppNotes: "",
+  productName:"",
 });
 
 // 挂载数据
@@ -169,6 +172,7 @@ function getEmps(val) {
   emplist.value = val;
   console.log(emplist.value);
   addForm.empChrgeId = emplist.value.empId;
+  addForm.empName=emplist.value.employeeDatail.empName;
   console.log(emplist.value.empId);
 }
 
@@ -177,6 +181,7 @@ function getCusts(val) {
   custlist.value = val;
   console.log(custlist.value);
   addForm.custId = custlist.value.custId;
+  addForm.custName=custlist.value.customerDetail.custDetailName
   console.log(addForm.custId);
 }
 
@@ -185,6 +190,7 @@ function getProducts(val) {
   console.log(val);
   productList.value = val;
   addForm.productId = productList.value.productNo;
+  addForm.productName=productList.value.productName;
   console.log(addForm.productId);
 }
 
@@ -203,6 +209,7 @@ function selectDetails(val) {
 function handleClose() {
   formRef.value.resetFields();
   emits("update:modelValue", false);
+  emits("updateDate");
 }
 
 // 获取所有流程
@@ -219,21 +226,20 @@ function getAllFlow() {
 // 添加商机
 function addOpps() {
   const ids = reactive([]);
+  const strings=reactive([]);
   for (let i = 0; i < options.details.length; i++) {
     ids.push(options.details[i].flowDetailsId);
   }
   addForm["flowDetailsIds"] = ids;
-  console.log(addForm)
-  formRef.value.validate(async (valid) => {
+  for(let j=0;j<options.details.length;j++){
+    strings.push(options.details[j].flowDetailsName)
+  }
+  addForm["flowDetailsNames"]=strings;
+  formRef.value.validate((valid) => {
     if (valid) {
-      await addOpp(addForm).then(() => {
-        ElMessage({
-          message: "添加成功！！！！",
-          type: "success",
-        });
-
+      addOpp(addForm).then(() => {
+        ElMessage.success("添加成功！！！")
         handleClose();
-        emits("updateDate");
       });
       console.log(addForm);
     } else {
@@ -250,12 +256,12 @@ const rules = reactive({
     { required: true, message: "商机名为空", trigger: "blur" },
     { pattern: "[\u4e00-\u9fa5]", message: "只能输入中文", trigger: "blur" },
   ],
-  empChrgeId: [{ required: true, message: "负责人为空", trigger: "blur" }],
-  custId: [{ required: true, message: "客户为空", trigger: "blur" }],
-  flowId: [{ required: true, message: "请选择需求", trigger: "blur" }],
+  empName: [{ required: true, message: "负责人为空", trigger: "blur" }],
+  custName: [{ required: true, message: "客户为空", trigger: "blur" }],
+  flowName: [{ required: true, message: "请选择需求", trigger: "blur" }],
   oppStopTime: [{ required: true, message: "日期不能为空", trigger: "blur" }],
   oppNotes: [{ required: true, message: "备注不能为空", trigger: "blur" }],
-  // productId: [{ required: true, message: "产品为空", trigger: "blur" }],
+  productName: [{ required: true, message: "产品为空", trigger: "blur" }],
 });
 </script>
 

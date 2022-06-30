@@ -371,7 +371,7 @@ let Customerterm = reactive({
   custDetailName: "",
   custType: "",
   custStatus: null,
-  custShared: 1,
+  custShared: null,
 });
 //测试查询
 const GetList = () => {
@@ -384,6 +384,7 @@ const GetList = () => {
         if (response.code == 200) {
           custList.d = response.data.records;
           pagePlugs.data.total = response.data.total;
+          console.log(custList.d)
         }
       });
   } else {

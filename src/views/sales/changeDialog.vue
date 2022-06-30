@@ -69,7 +69,7 @@
 </template>
 
 <script setup>
-import { reactive, onMounted, ref, watch } from "vue";
+import { reactive, onMounted, ref, watch,defineProps,defineEmits } from "vue";
 import { Search } from "@element-plus/icons-vue";
 import { getAllEmp, search } from "@/api/employee/login";
 import { editSales } from "@/api/sales/index";

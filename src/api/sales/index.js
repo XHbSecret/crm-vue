@@ -81,3 +81,20 @@ export const editSalesDetailsId= (detailsId,opportunity)=>request({
   data:opportunity
 })
 
+// 更改成交状态与归档（1为未完成，2为已完成，3为归档）
+export const updateSales=(data,status)=>request({
+  url:`/opp/updateOppStatus/${status}`,
+  method:"post",
+  data
+})
+
+export const getOppVisits=(oppId)=>request({
+  url:`/opp/getOppVisitAllById/${oppId}`,
+  method:"get"
+})
+
+export const addOppVisit=(data)=>request({
+  url:`/opp/addOppVisit`,
+  method:"post",
+  data
+})
