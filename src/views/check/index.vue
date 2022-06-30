@@ -28,8 +28,10 @@
       <el-table-column prop="checkCreateTime" label="创建时间" />
        <el-table-column prop="checkCreateTime" label="操作" >
          <template v-slot="scope">
-          <el-button type="text" @click="update(scope.row)">编辑</el-button>
-          <el-button type="text" @click="del(scope.row)">删除</el-button>
+          <!-- <el-button type="text" @click="update(scope.row)">编辑</el-button> -->
+          
+          <el-button v-if="(scope.row.id == 1)||(scope.row.id == 2)||(scope.row.id == 3)" disabled  type="text">删除</el-button>
+          <el-button v-else type="text" @click="del(scope.row)">删除</el-button>
          </template>
        </el-table-column>
     </el-table>

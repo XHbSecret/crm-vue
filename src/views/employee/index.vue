@@ -48,7 +48,7 @@
     <el-col :span="12">
       <div style="float: right; margin-right: 40px">
         <!-- <el-button type="warning" plain :icon="Upload">导入</el-button> -->
-        <el-button
+        <!-- <el-button
           v-show="selectEmp.data.length > 0"
           type="primary"
           plain
@@ -60,7 +60,7 @@
           plain
           :icon="Download"
           >全部导出</el-button
-        >
+        > -->
       </div>
     </el-col>
   </el-row>
@@ -73,6 +73,7 @@
         :page-size="5"
         style="width: 100%"
         @selection-change="handleSelectionChange"
+        height="400px"
       >
         <el-table-column type="selection" />
         <el-table-column
@@ -117,6 +118,13 @@
               type="text"
               @click="editRole(scope.row)"
               >分配角色</el-button
+            >
+            <el-button
+              :icon="Delete"
+              size="small"
+              type="text"
+              @click="transfer(scope.row)"
+              >转移部门</el-button
             >
           </template>
         </el-table-column>
@@ -185,6 +193,31 @@
           <el-radio label="0">禁用</el-radio>
         </el-radio-group>
       </el-form-item>
+      <el-form-item label="部门">
+         <el-select v-model="addEmpForm.deptId" class="m-2" placeholder="请选择部门">
+            <el-option
+              v-for="item in deptList.data"
+              :key="item.value"
+              :label="item.deptName"
+              :value="item.deptId"
+            />
+          </el-select>
+      </el-form-item>
+      <el-form-item label="角色">
+        <el-select
+          v-model="addEmpForm.roles"
+          multiple
+          placeholder="请选择角色"
+          style="width: 240px"
+        >
+          <el-option
+            v-for="item in roleList.data"
+            :key="item.roleId"
+            :label="item.roleName"
+            :value="item.roleId"
+          />
+        </el-select>
+      </el-form-item>
 
       <el-row>
         <el-col :span="24">
@@ -240,6 +273,31 @@
       </span>
     </template>
   </el-dialog>
+
+    <!-- 部门转移 -->
+  <el-dialog
+    v-model="deptTransferDialog"
+    title="重置部门"
+    width="40%"
+    draggable
+  >
+    部门：
+    <el-select v-model="transferDeptId" class="m-2" placeholder="选择部门">
+      <el-option
+        v-for="item in deptList.data"
+        :key="item.deptId"
+        :label="item.deptName"
+        :value="item.deptId"
+      />
+    </el-select>
+    <!-- 取消 确定 按钮 -->
+    <template #footer>
+      <span class="dialog-footer">
+        <el-button @click="deptTransferDialog = false">取消</el-button>
+        <el-button type="primary" @click="transferSubmit()">确定</el-button>
+      </span>
+    </template>
+  </el-dialog>
 </template>
 
 <script setup>
@@ -260,7 +318,9 @@ import { onMounted } from "@vue/runtime-core";
 import { getAllEmp, addEmp, resetPwd, delEmps,forbiddenEmps,activeEmps,search } from "@/api/employee/login";
 import { getAllRole, updateEmpRole, hasRole } from "@/api/system/role";
 import { ElMessage } from "element-plus";
+import {getAllDeptPage,transferDept} from "@/api/system/dept";
 
+let deptTransferDialog = ref(false);
 let searchContent = reactive({ empName: "" }); // 搜索内容
 let empList = reactive({ data: [] }); // 员工列表
 let roleList = reactive({ data: [] }); // 角色列表
@@ -282,12 +342,55 @@ let addEmpForm = reactive({
   empWechat: "",
   empDescribe: "",
   empStatus: 0,
+  deptId:null,
+  roles:[]
 }); // 添加用户表单对象
+let transferDeptId = ref(0);
+let transferEmpId = ref(0)
+
+//部门转移提交按钮
+function transferSubmit() {
+    deptTransferDialog.value = false;
+    console.log("idididid",transferDeptId.value,transferEmpId.value)
+    transferDept(transferDeptId.value,transferEmpId.value).then((res) => {
+      if (res.data) {
+        ElMessage.success("转移成功");
+        getEmpData(page.value, size.value);
+      } else {
+        ElMessage.warning("转移失败");
+      }
+    });
+
+}
+
+// 单个部门转移按钮
+function transfer(row){
+  deptTransferDialog.value = true;
+  transferEmpId.value = row.empId
+  transferDeptId.value = row.dept.deptId
+  
+}
+
 
 // 已挂载 获取员工信息
 onMounted(() => {
   getEmpData(page.value, size.value);
+  getAllDept()
+    getAllRole().then((res) => {
+    // 获取所有角色
+    roleList.data = res.data;
+  });
 });
+
+let deptList = reactive({data:[]})
+// 查询所有部门
+function getAllDept(){
+  getAllDeptPage(1,100).then(res=>{
+    if(res.data!=null && res.data.records.length>0){
+      deptList.data = res.data.records
+    }
+  })
+}
 
 // 多条件查询
 function searchLike(){
@@ -415,6 +518,7 @@ function addEmpBtn() {
 // 添加用户表单提交
 function submitAddEmp() {
   addEmpDialogVisible.value = false;
+  console.log(addEmpForm)
   addEmp(addEmpForm).then((res) => {
     empList.data.unshift(res.data);
   });

@@ -39,9 +39,27 @@
                   disabled
                 />
               </el-form-item>
+              <el-form-item label="合同类型">
+                <el-select
+                  v-model="contract.contractType"
+                  class="m-2"
+                  placeholder="Select"
+                  size="large"
+                  @change="haha"
+                >
+                  <el-option
+                    v-for="item in options"
+                    :key="item.value"
+                    :label="item.label"
+                    :value="item.value"
+                  />
+                </el-select>
+              </el-form-item>
+
               <el-form-item label="合同名称">
                 <el-input
                   placeholder="Approved by"
+                  disabled
                   v-model="contract.contractName"
                 />
               </el-form-item>
@@ -81,6 +99,31 @@
                   />
                 </span>
               </el-form-item>
+              <el-form-item label="联系人">
+                <el-select
+                  ref="count"
+                  v-model="contract.contactId"
+                  placeholder="请选中"
+                  @change="getcontactId"
+                  style="width: 200px"
+                >
+                  <el-option
+                    v-for="item in data.ContactsList"
+                    :key="item.contactId"
+                    :label="item.contactName"
+                    :value="item.contactId"
+                  >
+                    <span>{{ item.contactName }}</span>
+                    <el-tag
+                      class="mx-1"
+                      type="danger"
+                      style="float: right; margin-top: 5px"
+                      v-if="item.contactIsPolicy == 0"
+                      >主要联系人</el-tag
+                    >
+                  </el-option>
+                </el-select>
+              </el-form-item>
               <el-form-item label="公司签约人">
                 <el-select
                   ref="count"
@@ -118,9 +161,11 @@
                   v-model="contract.contractDescribe"
                 />
               </el-form-item>
+              <!-- {{data.CustIdlist}} -->
             </el-form>
           </div>
           <div style="margin-top: 20px; margin-left: 20px">
+          {{data.rowInfo.custType }}
             <p style="font-weight: bold">产品</p>
             <el-button @click="AddProducts">添加产品</el-button>
             <el-table
@@ -173,25 +218,237 @@
                 width="180"
               />
             </el-table>
-            <span style="font-size: smaller"
-              >已选中{{ product.data.length }}件商品,</span
+            <div
+              style="margin-top: 20px; margin-left: 20px"
+              v-if="contract.contractType == 3"
             >
-            <span style="font-size: smaller"
-              >总金额：{{ contract.contractMoney }}元,</span
+              <p style="font-weight: bold">卖房收费模式</p>
+              <p style="font-size: 5px">
+                最高租买房中介费总额不可超过成交额的3%
+              </p>
+              <el-radio-group v-model="radio1" class="ml-4">
+                <el-radio :label="1" size="large" @click="chargeReset"
+                  >客户单项收费</el-radio
+                >
+                <el-radio :label="2" size="large" @click="chargeReset"
+                  >房源单项收费</el-radio
+                >
+                <el-radio :label="3" size="large" @click="chargeReset"
+                  >双项收费</el-radio
+                >
+              </el-radio-group>
+              <div v-if="radio1 == 1">
+                <span style="font-size: smaller"
+                  >已选中{{ product.data.length }}件商品,</span
+                >
+                <span style="font-size: smaller"
+                  >总金额：{{ contract.contractMoney }}元,</span
+                >
+                <div></div>
+                <span style="font-size: smaller"
+                  >收取中介费：<el-input-number
+                    class="mx-4"
+                    :min="0"
+                    :max="3"
+                    v-model="ratio2"
+                    controls-position="right"
+                    @change="contServiceCharge"
+                  />%</span
+                >
+                <span style="font-size: smaller"
+                  >向客户收取中介费：{{
+                    contract.contractServiceCharge
+                  }}元,</span
+                >
+              </div>
+              <div v-if="radio1 == 2">
+                <span style="font-size: smaller"
+                  >已选中{{ product.data.length }}件商品,</span
+                >
+                <span style="font-size: smaller"
+                  >总金额：{{ contract.contractMoney }}元,</span
+                >
+                <div></div>
+                <span style="font-size: smaller"
+                  >收取佣金：<el-input-number
+                    class="mx-4"
+                    :min="0"
+                    :max="3"
+                    v-model="ratio"
+                    controls-position="right"
+                    @change="handleChange"
+                  />%</span
+                >
+                <span style="font-size: smaller"
+                  >向房源收取佣金：{{
+                    contract.contractTotalCommission
+                  }}元,</span
+                >
+              </div>
+              <div v-if="radio1 == 3">
+                <span style="font-size: smaller"
+                  >已选中{{ product.data.length }}件商品,</span
+                >
+                <span style="font-size: smaller"
+                  >总金额：{{ contract.contractMoney }}元,</span
+                >
+                <div>
+                  <span style="font-size: smaller"
+                    >共收金额：<el-input-number
+                      class="mx-4"
+                      :min="0"
+                      :max="3"
+                      v-model="ratio3"
+                      controls-position="right"
+                      @change="commonServiceCharge1"
+                    />%</span
+                  >
+                  <span style="font-size: smaller">共收金额：{{ zsk }}元,</span>
+                  <div></div>
+                  <span style="font-size: smaller"
+                    >收取中介费：<el-input-number
+                      class="mx-4"
+                      :min="0"
+                      :max="100"
+                      v-model="ratio5"
+                      controls-position="right"
+                      @change="commonServiceCharge3"
+                    />%</span
+                  >
+                  <span style="font-size: smaller"
+                    >向客户收取中介费：{{
+                      contract.contractServiceCharge
+                    }}元,</span
+                  >
+                  <div></div>
+                  <span style="font-size: smaller"
+                    >收取佣金：<el-input-number
+                      class="mx-4"
+                      :min="0"
+                      :max="100"
+                      v-model="ratio4"
+                      controls-position="right"
+                      @change="commonServiceCharge2"
+                    />%</span
+                  >
+                  <span style="font-size: smaller"
+                    >向房源收取佣金：{{
+                      contract.contractTotalCommission
+                    }}元,</span
+                  >
+                </div>
+              </div>
+            </div>
+            <div
+              style="margin-top: 20px; margin-left: 20px"
+              v-if="contract.contractType == 2"
             >
-            <span style="font-size: smaller"
-              >收取佣金：<el-input-number
-                class="mx-4"
-                :min="0"
-                :max="100"
-                v-model="ratio"
-                controls-position="right"
-                @change="handleChange"
-              />%</span
-            >
-            <span style="font-size: smaller"
-              >佣金：{{ contract.contractTotalCommission }}元,</span
-            >
+              <p style="font-weight: bold">租房收费模式</p>
+              <p style="font-size: 5px">最高租房中介费总额不可超过一万</p>
+              <el-radio-group v-model="radio1" class="ml-4">
+                <el-radio :label="1" size="large" @click="chargeReset"
+                  >客户单项收费</el-radio
+                >
+                <el-radio :label="2" size="large" @click="chargeReset"
+                  >房源单项收费</el-radio
+                >
+                <el-radio :label="3" size="large" @click="chargeReset"
+                  >双项收费</el-radio
+                >
+              </el-radio-group>
+              <div v-if="radio1 == 1">
+                <span style="font-size: smaller"
+                  >已选中{{ product.data.length }}件商品,</span
+                >
+                <div></div>
+                <span style="font-size: smaller"
+                  >收取中介费：<el-input-number
+                    class="mx-4"
+                    :min="0"
+                    :max="10000"
+                    v-model="ratio2"
+                    controls-position="right"
+                    @change="contServiceCharge"
+                  />%</span
+                >
+                <span style="font-size: smaller"
+                  >向客户收取中介费：{{
+                    contract.contractServiceCharge
+                  }}元,</span
+                >
+              </div>
+              <div v-if="radio1 == 2">
+                <span style="font-size: smaller"
+                  >已选中{{ product.data.length }}件商品,</span
+                >
+                <div></div>
+                <span style="font-size: smaller"
+                  >收取佣金：<el-input-number
+                    class="mx-4"
+                    :min="0"
+                    :max="10000"
+                    v-model="ratio"
+                    controls-position="right"
+                    @change="handleChange"
+                  />%</span
+                >
+                <span style="font-size: smaller"
+                  >向房源收取佣金：{{
+                    contract.contractTotalCommission
+                  }}元,</span
+                >
+              </div>
+              <div v-if="radio1 == 3">
+                <span style="font-size: smaller"
+                  >已选中{{ product.data.length }}件商品,</span
+                >
+                <div>
+                  <span style="font-size: smaller"
+                    >共收金额：<el-input-number
+                      class="mx-4"
+                      :min="0"
+                      :max="10000"
+                      v-model="ratio3"
+                      controls-position="right"
+                      @change="commonServiceCharge1"
+                    />%</span
+                  >
+                  <span style="font-size: smaller">共收金额：{{ zsk }}元,</span>
+                  <div></div>
+                  <span style="font-size: smaller"
+                    >收取中介费：<el-input-number
+                      class="mx-4"
+                      :min="0"
+                      :max="10000"
+                      v-model="ratio5"
+                      controls-position="right"
+                      @change="commonServiceCharge3"
+                    />%</span
+                  >
+                  <span style="font-size: smaller"
+                    >向客户收取中介费：{{
+                      contract.contractServiceCharge
+                    }}元,</span
+                  >
+                  <div></div>
+                  <span style="font-size: smaller"
+                    >收取佣金：<el-input-number
+                      class="mx-4"
+                      :min="0"
+                      :max="10000"
+                      v-model="ratio4"
+                      controls-position="right"
+                      @change="commonServiceCharge2"
+                    />%</span
+                  >
+                  <span style="font-size: smaller"
+                    >向房源收取佣金：{{
+                      contract.contractTotalCommission
+                    }}元,</span
+                  >
+                </div>
+              </div>
+            </div>
           </div>
         </el-scrollbar>
         <div style="float: right">
@@ -205,6 +462,7 @@
       v-model:dialogShow="dialogShow"
       @addproducts="add"
       :custId="contract.companyId"
+      :rowInfo="data.rowInfo"
     ></AddProductsfrom>
   </div>
   <!-- 选择客户的dialog框 -->
@@ -288,7 +546,10 @@ const product = reactive({ data: [] });
 const contract = reactive({
   custId: null,
   empName: null,
+  contractName: null,
   contractMoney: 0,
+  contractNoPay: 0,
+  contractServiceCharge: 0,
   contractTotalCommission: 0,
   contractStatus: 0,
   companyId: null,
@@ -298,7 +559,11 @@ const contract = reactive({
 const data = reactive({
   formData: {},
   emplist: [],
+  ContactsList: [],
   CustIdlist: [],
+  rowInfo: {
+    custType: null,
+  },
 });
 const emits = defineEmits(["update:dialogShow", "GetContract"]);
 const onClose = () => {
@@ -310,7 +575,9 @@ const onClose = () => {
 const store = useStore();
 let Customerterm = reactive({
   empId: null,
-  custType: null,
+  custType: 1,
+  custStatus: 4,
+  custShared: 1,
 });
 let pagePlugs = reactive({
   data: {
@@ -322,11 +589,12 @@ let pagePlugs = reactive({
 //从token 获取empid 查询房源信息
 const getCustIdBycustType = () => {
   Customerterm.empId = store.state.employee.user.user.empId;
-  Customerterm.custType = 1;
   CustomerSearch(pagePlugs.data.page, pagePlugs.data.size, Customerterm).then(
     (response) => {
       if (response.code == 200) {
         data.CustIdlist = response.data.records;
+        console.log("haha");
+        console.log(response.data.records);
       }
     }
   );
@@ -337,13 +605,68 @@ let custPage = reactive({
   total: 0,
 });
 const dialogShow = ref(false);
+
+const radio1 = ref(1);
 //收取佣金的百分比
 let ratio = ref(0);
+let ratio2 = ref(0);
+let ratio3 = ref(0);
+let ratio4 = ref(0);
+let ratio5 = ref(0);
+const chargeReset = () => {
+  (ratio.value = 0),
+    (ratio2.value = 0),
+    (ratio3.value = 0),
+    (ratio4.value = 0),
+    (ratio5.value = 0),
+    (contract.contractTotalCommission = null),
+    (contract.contractServiceCharge = null),
+    (zsk.value = 0);
+};
+
+//房源单项收费
 const handleChange = (value) => {
-  contract.contractTotalCommission =
-    contract.contractMoney * (ratio.value / 100);
+  if (contract.contractType == 3) {
+    contract.contractTotalCommission =
+      contract.contractMoney * (ratio.value / 100);
+  } else {
+    contract.contractTotalCommission = value;
+  }
+
   console.log(value);
 };
+//客户单项收费
+const contServiceCharge = (value) => {
+  if (contract.contractType == 3) {
+    contract.contractServiceCharge =
+      contract.contractMoney * (ratio2.value / 100);
+  } else {
+    contract.contractServiceCharge = value;
+  }
+
+  console.log(value);
+};
+
+let zsk = ref();
+//总收款
+const commonServiceCharge1 = (value) => {
+  if (contract.contractType == 3) {
+    zsk.value = contract.contractMoney * (ratio3.value / 100);
+  } else {
+    zsk.value = value;
+  }
+};
+//房源双向收费
+const commonServiceCharge2 = (value) => {
+  contract.contractTotalCommission = zsk.value * (ratio4.value / 100);
+  console.log(value);
+};
+//客户双向收费
+const commonServiceCharge3 = (value) => {
+  contract.contractServiceCharge = zsk.value * (ratio5.value / 100);
+  console.log(value);
+};
+
 //添加合同页面打开添加商品组件
 const AddProducts = () => {
   if (contract.companyId != null) {
@@ -352,6 +675,7 @@ const AddProducts = () => {
     ElMessage.error("请选择房源，在进行添加商品操作");
   }
 };
+
 //房源的下拉框
 const getCustId = (value) => {
   data.CustIdlist.forEach((item) => {
@@ -412,27 +736,33 @@ const add = (val, val2) => {
 let dialogVisible_SelectCustomer = ref(false);
 let Customer = reactive({
   empId: null,
+  custType: 3,
+  custStatus: 3,
+  custShared: 1,
 });
 // 选择客户input 点击 查询客户信息
 function openSelectCustomer() {
   dialogVisible_SelectCustomer.value = true;
   Customer.empId = store.state.employee.user.user.empId;
-  CustomerSearch(custPage.currentPage, custPage.size, Customer).then((res) => {
-    customerList.data = res.data.records;
-    custPage.total = res.data.total;
-  });
+  CustomerSearch(pagePlugs.data.page, pagePlugs.data.size, Customer).then(
+    (response) => {
+      if (response.code == 200) {
+        customerList.data = response.data.records;
+        console.log("haha");
+        console.log(customerList.data);
+      }
+    }
+  );
 }
-let customerList = reactive({ data: [] });
+const customerList = reactive({ data: [] });
 let selectCustomer = { name: "", id: 0 };
 //客户分页
 function handleCustPage() {
   customerList.data = [];
-  CustomerSearch(custPage.currentPage, custPage.size, Customer).then(
-    (res) => {
-      customerList.data = res.data.records;
-      custPage.total = res.data.total;
-    }
-  );
+  CustomerSearch(custPage.currentPage, custPage.size, Customer).then((res) => {
+    customerList.data = res.data.records;
+    custPage.total = res.data.total;
+  });
 }
 function handleCurrentChange(row) {
   console.log("row");
@@ -447,8 +777,36 @@ function customerConfirm() {
   if (selectCustomer != 0) {
     contract.custId = selectCustomer.id;
     contract.custName = selectCustomer.name;
+    api.customer.selectCustomerContacts(contract.custId).then((response) => {
+      if (response.code == 200) {
+        console.log("加载成功");
+        data.ContactsList = response.data;
+      }
+    });
   }
 }
+
+const value = ref();
+
+const haha = () => {
+  if (contract.contractType == 2) {
+    contract.contractName = "租房合同";
+  } else if (contract.contractType == 3) {
+    contract.contractName = "售房合同";
+  }
+};
+//合同类型
+const options = [
+  {
+    value: 2,
+    label: "租房合同",
+  },
+  {
+    value: 3,
+    label: "售房合同",
+  },
+];
+
 onMounted(() => {
   //   data.formData = JSON.parse(JSON.stringify(props.rowInfo));
   //   allEmp();

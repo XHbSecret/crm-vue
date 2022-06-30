@@ -141,6 +141,8 @@
               <el-row class="info-row">
                 <el-col :span="3">收款时间</el-col>
                 <el-col :span="8"> {{props.backData.object.backTime}} </el-col>
+                <el-col :span="3">回款方式</el-col>
+                <el-col :span="3"> {{props.backData.object.backMethod}} </el-col>
               </el-row>
               <el-row class="info-row">
                 <el-col :span="3">备注</el-col>

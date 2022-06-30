@@ -43,7 +43,14 @@
         label="电话"
         width="120"
       />
-      <el-table-column prop="dept.deptName" label="部门" width="180" />
+      <el-table-column prop="dept.deptName" label="部门" width="180">
+        <template v-slot="scope">
+          <span v-if="scope.row!=null && scope.row.dept!=null">
+            <span >{{scope.row.dept.deptName}}</span>
+            <el-tag v-if="scope.row.dept.dpetEmpId == scope.row.empId">负责人</el-tag>
+          </span>
+      </template>
+      </el-table-column>
       <el-table-column prop="empCreateTime" label="入职时间" width="180" />
 
       <el-table-column label="状态" width="120">
